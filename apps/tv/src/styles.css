@@ -1,0 +1,286 @@
+:root {
+  --ink: #23272e;
+  --paper: rgba(255, 255, 255, 0.86);
+  --shadow: 0 10px 40px rgba(20, 24, 31, 0.18);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.tv-root {
+  position: fixed;
+  inset: 0;
+  font-family:
+    'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+  color: var(--ink);
+  user-select: none;
+}
+
+.tv-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  z-index: 10;
+}
+
+.overlay.center {
+  background: color-mix(in srgb, var(--paper) 60%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+.title {
+  font-size: clamp(42px, 7vw, 96px);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  background: var(--paper);
+  border-radius: 22px;
+  box-shadow: var(--shadow);
+  padding: 26px 44px;
+}
+
+/* --- QR 연결 카드 (TV 홈) --- */
+.qr-card {
+  flex-direction: row;
+  align-items: center;
+  gap: 34px;
+  padding: 30px 46px;
+}
+
+.qr-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.qr-img {
+  width: min(24vh, 240px);
+  height: auto;
+  border-radius: 14px;
+  background: #fff;
+  padding: 10px;
+}
+
+.qr-fallback {
+  width: 200px;
+  height: 200px;
+  border-radius: 14px;
+  background:
+    repeating-conic-gradient(#23272e 0% 25%, #fff 0% 50%) 50% / 28px 28px;
+}
+
+.qr-hint {
+  text-align: center;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  opacity: 0.7;
+}
+
+.qr-divider {
+  width: 2px;
+  align-self: stretch;
+  background: rgba(35, 39, 46, 0.12);
+  border-radius: 2px;
+}
+
+.qr-side {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.room-code.small {
+  font-size: clamp(30px, 4vw, 52px);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.label {
+  font-size: 20px;
+  opacity: 0.75;
+}
+
+.room-code {
+  font-size: clamp(36px, 5vw, 64px);
+  font-weight: 900;
+  letter-spacing: 0.35em;
+  text-indent: 0.35em;
+  font-variant-numeric: tabular-nums;
+}
+
+.badge {
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: #eceff3;
+  font-weight: 700;
+}
+
+.badge.ok {
+  background: #d9f3e5;
+  color: #1b7a4b;
+}
+
+.badge.warn {
+  background: #fdeccc;
+  color: #a05e03;
+}
+
+.theme-row {
+  display: flex;
+  gap: 28px;
+}
+
+.theme-btn {
+  min-width: 220px;
+  min-height: 130px;
+  font-size: 34px;
+  border-width: 4px;
+  border-style: solid;
+  border-radius: 26px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: transform 0.15s ease;
+}
+
+.theme-btn:hover,
+.theme-btn:focus-visible {
+  transform: translateY(-6px) scale(1.04);
+}
+
+.hud {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  z-index: 10;
+}
+
+.hud.top {
+  top: 26px;
+}
+
+.hud.bottom {
+  bottom: 26px;
+}
+
+.art-name {
+  font-size: 30px;
+  font-weight: 800;
+  background: var(--paper);
+  padding: 10px 22px;
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+}
+
+.progress-wrap {
+  width: min(38vw, 520px);
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.65);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.progress-bar {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.progress-label {
+  font-weight: 800;
+  font-size: 22px;
+}
+
+.btn {
+  border: none;
+  border-radius: 999px;
+  padding: 14px 30px;
+  font-size: 21px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: transform 0.12s ease;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.btn.primary {
+  background: #457b9d;
+  color: white;
+}
+
+.btn.ghost {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.muted {
+  opacity: 0.66;
+  font-size: 18px;
+}
+
+.reveal h1 {
+  font-size: clamp(64px, 12vw, 160px);
+  margin: 0;
+  animation: pop 0.6s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+
+.reveal p {
+  font-size: clamp(24px, 3vw, 44px);
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

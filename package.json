@@ -1,0 +1,26 @@
+{
+  "name": "aircanvas-kids",
+  "private": true,
+  "version": "0.1.0",
+  "description": "AirCanvas Kids - 스마트폰 카메라 손 추적 공중 그림/색칠 게임 (TV 렌더링)",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "ws": "^8.18.0"
+  },
+  "scripts": {
+    "setup": "npm install && npm run build:protocol && npm run build:art",
+    "build": "npm run build -workspaces --if-present",
+    "dev:tv": "npm run dev -w apps/tv",
+    "dev:phone": "npm run dev -w apps/phone",
+    "build:tv": "npm run build -w apps/tv",
+    "build:phone": "npm run build -w apps/phone",
+    "build:protocol": "npm run build -w packages/protocol",
+    "build:art": "npm run build -w packages/tv-art",
+    "server:run": "cargo +stable-x86_64-pc-windows-gnu run --manifest-path server/Cargo.toml",
+    "server:check": "cargo +stable-x86_64-pc-windows-gnu check --manifest-path server/Cargo.toml",
+    "sim": "node tools/fake-phone-sim.mjs"
+  }
+}
