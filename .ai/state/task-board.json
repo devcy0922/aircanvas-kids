@@ -1,0 +1,83 @@
+{
+  "project": "aircanvas-kids",
+  "codeName": "hand-tracking",
+  "updatedAt": "2026-08-24",
+  "tasks": [
+    {
+      "id": "TASK-001",
+      "name": "프로젝트 로컬 규칙 수립",
+      "status": "done",
+      "outputs": ["agents/rules.md"]
+    },
+    {
+      "id": "TASK-002",
+      "name": "아키텍처/프로토콜/캘리브레이션/콘텐츠/로드맵 문서 작성",
+      "status": "done",
+      "outputs": ["README.md", "docs/architecture.md", "docs/protocol.md", "docs/calibration.md", "docs/content-pipeline.md", "docs/roadmap.md"]
+    },
+    {
+      "id": "TASK-003",
+      "name": "Rust(Axum) 릴레이 서버 구현",
+      "status": "done",
+      "outputs": ["server/src/main.rs", "server/Cargo.toml"],
+      "verification": "cargo check/build 통과, /health 200, 스모크 테스트 통과"
+    },
+    {
+      "id": "TASK-004",
+      "name": "공유 패키지(@ht/protocol, @ht/tv-art) 작성",
+      "status": "done",
+      "outputs": ["packages/protocol", "packages/tv-art"],
+      "verification": "tsc 타입검사 통과"
+    },
+    {
+      "id": "TASK-005",
+      "name": "TV 클라이언트 구현 (React+PixiJS, 30종 컨텐츠)",
+      "status": "done",
+      "outputs": ["apps/tv"],
+      "verification": "vite build 통과"
+    },
+    {
+      "id": "TASK-006",
+      "name": "폰 클라이언트 구현 (MediaPipe 손추적 + 호모그래피 캘리브레이션)",
+      "status": "done",
+      "outputs": ["apps/phone"],
+      "verification": "vite build 통과"
+    },
+    {
+      "id": "TASK-007",
+      "name": "도구(가짜 폰 시뮬레이터, 릴레이 스모크) 작성",
+      "status": "done",
+      "outputs": ["tools/fake-phone-sim.mjs", "tools/smoke-relay.mjs"]
+    },
+    {
+      "id": "TASK-008",
+      "name": "실기기 E2E 플레이 테스트 및 추적 안정성 튜닝",
+      "status": "pending",
+      "note": "M2 첫 항목. 조명/거리별 캘리브레이션 재투영 오차 <1.5% 목표"
+    },
+    {
+      "id": "TASK-009",
+      "name": "폰 카메라 HTTPS 접근 구성(basic-ssl 또는 Caddy)",
+      "status": "pending"
+    },
+    {
+      "id": "TASK-010",
+      "name": "pinch 제스처 → TV 브러시 on/off 연결",
+      "status": "pending"
+    },
+    {
+      "id": "TASK-011",
+      "name": "QR 스캔 폰 연결(TV→폰 서버주소·방코드 자동 전달)",
+      "status": "done",
+      "outputs": ["apps/tv/src/scenes/HomeScene.tsx", "packages/protocol/src/index.ts", "apps/phone/src/App.tsx"],
+      "verification": "tv/phone vite build 통과"
+    },
+    {
+      "id": "TASK-012",
+      "name": "테마/작품 선택을 폰에서 수행 (select-theme / select-artwork)",
+      "status": "done",
+      "outputs": ["packages/protocol/src/index.ts", "apps/tv/src/App.tsx", "apps/tv/src/scenes/HomeScene.tsx", "apps/phone/src/components/PhoneControls.tsx"],
+      "verification": "전체 빌드 통과"
+    }
+  ]
+}
