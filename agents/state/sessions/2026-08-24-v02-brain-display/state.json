@@ -1,0 +1,35 @@
+{
+  "session": "2026-08-24-v02-brain-display",
+  "updatedAt": "2026-08-24T07:30:00+09:00",
+  "phase": "v0.2-architecture-refactor-done",
+  "completed": [
+    "프로토콜 v0.2: TVCommand/LoadScenePayload/ArtworkRuntime/GamePackageManifest/TVAnnouncement/GamePhase 타입 추가",
+    "TV 앱 Thin Display 전환: TVCommandHandler 신설, 씬 3종(HomeScene/DrawScene/GalleryScene) 제거, GameEngine 재사용",
+    "폰 앱 Brain 전환: PackageManager(매니페스트 다운로드/localStorage 캐시), TVDiscovery(WebRTC IP 서브넷 스캔), GameStateMachine(로비/캘리브레이션/플레이/갤러리), TVCommandSender(재접속 백오프+전송 큐)",
+    "PhoneControls 리팩터링: 게임 페이즈 기반 UI(테마선택/작품선택/색칠/갤러리), 디스커버 화면 수동 입장 폼 통합",
+    "콘텐츠 서버: content-server/(manifest.json 샘플 7종, nginx.conf, SVG 썸네일) 저장소 내부로 이동",
+    "문서 6종 갱신: architecture(v0.2 다이어그램/시퀀스), protocol(TVCommand 명세), calibration(load-scene 흐름), content-pipeline(패키지 규격), roadmap(M2 완료→M3~M5 재편), README",
+    "agents/rules.md v0.2 갱신(역할 분리 원칙/콘텐츠 확장 규칙/cy-server 빌드 환경)",
+    ".ai/state/task-board.json 갱신(TASK-013~016 추가)",
+    "검증: npm run build(4 워크스페이스) + cargo check(linux-gnu) 통과"
+  ],
+  "environment": {
+    "host": "cy-server (Ubuntu 24.04)",
+    "node": "v20.20.2 via nvm (~/.nvm)",
+    "rust": "stable-x86_64-unknown-linux-gnu",
+    "portConflict": "호스트 8080/8081이 타 서비스(GoVail/FLEVO) 점유 중 → 로컬 실행 시 HT_BIND 및 Vite 포트 조정 필요"
+  },
+  "next": [
+    "TASK-016: 릴레이 서버에 GET /announce 구현 → TV 자동 탐색 실동작",
+    "TASK-015: fill-at 커맨드(좌표 기반 region 판정) 프로토콜 추가 — 현재 fill-region은 regionId 필수라 폰 좌표 fill 미연결",
+    "TASK-010: pinch → stroke 시작/종료 연결(gameStateMachine.onTrackedPoint)",
+    "실기기 E2E: TV 브라우저 + 실폰으로 load-scene → calib → play → gallery 전체 플로우 검증",
+    "TV 진행도 이벤트 역방향 릴레이(TV→폰) 수신 경로 구현 — onProgressUpdate가 외부 입력 대기 중"
+  ],
+  "risks": [
+    "브라우저 서브넷 스캔은 CORS로 /announce 응답 파싱이 실패할 수 있음 → 서버 측 Access-Control-Allow-Origin * 필수 또는 릴레이 경유 디스커버리로 전환",
+    "TV App.tsx가 ?room= 없으면 DEMO01 방으로 접속 → QR/디스커버리 roomCode 전달 경로 정리 필요",
+    "PackageManager가 localStorage만 사용(JSON 크기 한계) → 매니페스트 커질 시 IndexedDB 전환 필요",
+    "8080 포트 충돌 환경에서는 모든 클라이언트의 SERVER_BASE/CONTENT_SERVER_BASE를 쿼리 파라미터로 명시해야 함"
+  ]
+}
