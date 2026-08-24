@@ -1,8 +1,10 @@
 /**
- * AirCanvas Kids 통신 프로토콜 — 단일 진실원
+ * AirCanvas Kids 통신 프로토콜 v0.2 — 단일 진실원
  *
- * 폰 → 서버 → TV 로 흐르는 모든 메시지의 타입 정의.
- * 좌표는 항상 0..1 정규화 값(TV 좌표계 기준)을 사용한다.
+ * 아키텍처: Phone = Brain (게임 상태/로직), TV = Thin Display (렌더만)
+ * - 폰이 콘텐츠 서버에서 패키지 다운로드 → 게임 상태 머신 운영
+ * - TV는 렌더 커맨드만 수신 실행 (상태 없음)
+ * - 로컬 WS로 초저지연 커맨드 전송
  */
 
 export type Role = 'tv' | 'phone';
@@ -15,16 +17,12 @@ export interface WelcomeMessage {
   peers: string[];
 }
 
-/** 폰 → 서버 → TV: 추적 좌표 스트림 (약 30Hz) */
+/** 폰 → 서버 → TV: 추적 좌표 스트림 (약 30Hz) — 레거시 호환용 */
 export interface PointMessage {
   type: 'point';
-  /** TV 좌표계 x (0..1) */
   x: number;
-  /** TV 좌표계 y (0..1) */
   y: number;
-  /** 엄지-검지 핀치 여부 (v0.1 참고용) */
   pinch?: boolean;
-  /** 폰 기준 타임스탬프(ms) */
   t?: number;
 }
 
@@ -37,7 +35,6 @@ export interface StrokeEndMessage {
   type: 'stroke-end';
 }
 
-/** 색칠 모드: 영역 채우기 요청 */
 export interface FillMessage {
   type: 'fill';
   x: number;
@@ -66,24 +63,25 @@ export interface ErrorMessage {
   message?: string;
 }
 
-/** 지원 테마 식별자 (tv-art 의 Theme 과 구조적으로 동일) */
 export type ThemeId = 'dino' | 'jungle' | 'ocean';
 
-/** 폰 → TV: 테마 선택 (게임 시작 트리거) */
+/** 게임 페이즈 */
+export type GamePhase = 'lobby' | 'connecting' | 'calibrating' | 'playing' | 'gallery' | 'error';
+
+/** 폰 → TV: 테마 선택 (게임 시작 트리거) — 레거시 호환 */
 export interface SelectThemeMessage {
   type: 'select-theme';
   theme: ThemeId;
 }
 
-/** 폰 → TV: 테마 내 작품 선택 */
+/** 폰 → TV: 테마 내 작품 선택 — 레거시 호환 */
 export interface SelectArtworkMessage {
   type: 'select-artwork';
   theme: ThemeId;
-  /** 해당 테마 아트워크 목록의 0-based 인덱스 */
   index: number;
 }
 
-/** 폰이 보낼 수 있는 모든 메시지 */
+/** 폰이 보낼 수 있는 모든 메시지 (레거시 포함) */
 export type PhoneMessage =
   | PointMessage
   | StrokeStartMessage
@@ -93,13 +91,68 @@ export type PhoneMessage =
   | SelectThemeMessage
   | SelectArtworkMessage;
 
-/** 클라이언트가 받을 수 있는 모든 메시지 */
+/** 클라이언트가 받을 수 있는 모든 메시지 (레거시 포함) */
 export type ClientEvent =
   | WelcomeMessage
   | PeerJoinedMessage
   | PeerLeftMessage
   | ErrorMessage
   | PhoneMessage;
+
+// ============================================================================
+// v0.2: Phone=Brain / TV=Thin Display 프로토콜
+// ============================================================================
+
+/** TV가 실행하는 렌더 커맨드 (폰 → TV 단방향) */
+export type TVCommand =
+  /** 씬 로드: 홈/캘리브/플레이/갤러리 */
+  | { type: 'load-scene'; scene: 'home' | 'calib' | 'play' | 'gallery'; payload: LoadScenePayload }
+  /** 커서 위치/가시성 업데이트 (매 프레임) */
+  | { type: 'set-cursor'; x: number; y: number; visible: boolean; color?: string }
+  /** 자유선 그리기: 점 배열로 경로 전송 */
+  | { type: 'draw-stroke'; points: { x: number; y: number }[]; color: string }
+  /** 영역 채우기: regionId로 식별 */
+  | { type: 'fill-region'; regionId: string; color: string }
+  /** 이펙트 재생 */
+  | { type: 'play-effect'; effect: 'burst' | 'confetti' | 'pulse'; params: Record<string, any> }
+  /** 진행도 HUD 업데이트 */
+  | { type: 'set-progress'; percent: number; artworkName?: string }
+  /** 언도/리셋 */
+  | { type: 'undo' }
+  | { type: 'reset-canvas' }
+  /** 디버그/개발용 */
+  | { type: 'debug'; action: 'ping' | 'stats'; data?: any };
+
+/** 씬별 페이로드 타입 */
+export type LoadScenePayload =
+  | { scene: 'home'; roomCode: string; tvName?: string }
+  | { scene: 'calib'; theme: ThemeId; artworkName: string; corners: { x: number; y: number }[] }
+  | { scene: 'play'; artwork: ArtworkRuntime; theme: ThemeId }
+  | { scene: 'gallery'; theme: ThemeId; completed: CompletedArtwork[] };
+
+/** 런타임용 아트워크 데이터 (TV로 전송되는 최소 세트) */
+export interface ArtworkRuntime {
+  id: string;
+  name: string;
+  viewBox: string;
+  regions: RegionRuntime[];
+}
+
+/** 런타임용 리전 (히트테스트/클립용 path만) */
+export interface RegionRuntime {
+  id: string;
+  label: string;
+  path: string; // SVG path 데이터
+}
+
+/** 완성된 작품 갤러리 항목 */
+export interface CompletedArtwork {
+  id: string;
+  name: string;
+  thumbnailDataUrl: string; // base64 PNG
+  completedAt: number;
+  progress: number;
+}
 
 export const PALETTE = [
   '#e63946', // 빨강
@@ -128,12 +181,134 @@ export function wsUrl(serverBase: string, role: Role, room: string): string {
   return `${serverBase.replace(/\/$/, '')}/ws?role=${role}&room=${encodeURIComponent(room)}`;
 }
 
-/**
- * TV가 표시할 QR 코드에 담길 폰 연결 URL.
- * 폰 앱은 ?server / ?room 파라미터를 읽어 서버와 방을 자동 결정한다.
- */
+/** TV가 표시할 QR 코드에 담길 폰 연결 URL */
 export function phoneJoinUrl(phoneAppBase: string, serverBase: string, room: string): string {
   const base = phoneAppBase.replace(/\/$/, '');
   return `${base}/?server=${encodeURIComponent(serverBase)}&room=${encodeURIComponent(room)}`;
 }
 
+// ============================================================================
+// 콘텐츠 패키지 스펙 (폰 ↔ 콘텐츠 서버)
+// ============================================================================
+
+/** 게임 패키지 매니페스트 */
+export interface GamePackageManifest {
+  id: string; // 'aircanvas-kids'
+  version: string; // semver
+  title: string;
+  description: string;
+  entryScene: 'home';
+  themes: ThemePack[];
+  minProtocolVersion: string; // '0.2.0'
+  assetsBaseUrl: string; // CDN 베이스 URL
+}
+
+/** 테마 팩 */
+export interface ThemePack {
+  id: ThemeId;
+  label: string;
+  bgColor: string;
+  accentColor: string;
+  artworks: ArtworkPack[];
+}
+
+/** 아트워크 패키지 (폰이 다운로드하여 캐시) */
+export interface ArtworkPack {
+  id: string;
+  name: string;
+  viewBox: string;
+  regions: RegionPack[];
+  thumbnailUrl: string; // 썸네일 이미지 URL
+}
+
+/** 패키지용 리전 (메타데이터 포함) */
+export interface RegionPack {
+  id: string;
+  label: string;
+  path: string; // SVG path
+  zIndex: number; // 렌더링 순서
+}
+
+/** 폰이 캐시하는 전체 패키지 (런타임) */
+export interface CachedGamePackage extends GamePackageManifest {
+  downloadedAt: number;
+  artworksCache: Map<string, ArtworkPack>; // id -> artwork
+}
+
+// ============================================================================
+// TV 디스커버리 (폰 ↔ TV 로컬 네트워크)
+// ============================================================================
+
+/** TV가 브로드캐스트/응답으로 알리는 정보 */
+export interface TVAnnouncement {
+  type: 'tv-announce';
+  roomCode: string;
+  tvName: string;
+  tvId: string; // 고유 식별자 (MAC 기반 해시 등)
+  wsUrl: string; // ws://ip:port/ws?role=tv&room=XXX
+  httpUrl: string; // http://ip:port (디스커버리용)
+  capabilities: TVCapabilities;
+  timestamp: number;
+}
+
+export interface TVCapabilities {
+  maxResolution: { width: number; height: number };
+  supportsWebGL2: boolean;
+  supportsWASMSIMD: boolean;
+  pixiVersion: string;
+}
+
+/** 폰이 TV에 디스커버리 요청 보낼 때 */
+export interface TVDiscoveryRequest {
+  type: 'tv-discover';
+  phoneId: string;
+  phoneName: string;
+  supportedProtocols: string[]; // ['0.2.0']
+}
+
+/** 콘텐츠 서버 API 응답 */
+export interface ContentServerResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: { code: string; message: string };
+  cacheControl?: string;
+}
+
+export interface PackageListResponse {
+  packages: GamePackageManifest[];
+  latestVersion: string;
+}
+
+// ============================================================================
+// 유틸리티
+// ============================================================================
+
+/** ArtworkPack → ArtworkRuntime 변환 (TV 전송용 경량화) */
+export function toArtworkRuntime(art: ArtworkPack): ArtworkRuntime {
+  return {
+    id: art.id,
+    name: art.name,
+    viewBox: art.viewBox,
+    regions: art.regions.map((r) => ({
+      id: r.id,
+      label: r.label,
+      path: r.path,
+    })),
+  };
+}
+
+/** TVCommand 직렬화 헬퍼 */
+export function stringifyTVCommand(cmd: TVCommand): string {
+  return JSON.stringify(cmd);
+}
+
+/** TVCommand 파싱 (안전) */
+export function parseTVCommand(text: string): TVCommand | null {
+  try {
+    const parsed = JSON.parse(text);
+    if (parsed && typeof parsed.type === 'string') return parsed as TVCommand;
+    return null;
+  } catch {
+    return null;
+  }
+}

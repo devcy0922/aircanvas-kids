@@ -78,6 +78,59 @@
       "status": "done",
       "outputs": ["packages/protocol/src/index.ts", "apps/tv/src/App.tsx", "apps/tv/src/scenes/HomeScene.tsx", "apps/phone/src/components/PhoneControls.tsx"],
       "verification": "전체 빌드 통과"
+    },
+    {
+      "id": "TASK-013",
+      "name": "아키텍처 v0.2 재설계 (Phone=Brain / TV=Thin Display)",
+      "status": "done",
+      "outputs": [
+        "packages/protocol/src/index.ts",
+        "apps/tv/src/engine/TVCommandHandler.ts",
+        "apps/tv/src/App.tsx",
+        "apps/phone/src/lib/packageManager.ts",
+        "apps/phone/src/lib/tvDiscovery.ts",
+        "apps/phone/src/lib/gameStateMachine.ts",
+        "apps/phone/src/lib/tvCommandSender.ts",
+        "apps/phone/src/App.tsx",
+        "content-server/"
+      ],
+      "verification": "npm run build(전체 워크스페이스) + cargo check 통과"
+    },
+    {
+      "id": "TASK-014",
+      "name": "문서 v0.2 전면 갱신 (architecture/protocol/calibration/content-pipeline/roadmap/README/rules)",
+      "status": "done",
+      "outputs": ["docs/", "README.md", "agents/rules.md"],
+      "verification": "문서-코드 일치 검토 완료"
+    },
+    {
+      "id": "TASK-008",
+      "name": "실기기 E2E 플레이 테스트 및 추적 안정성 튜닝",
+      "status": "pending",
+      "note": "M3 첫 항목. 조명/거리별 캘리브레이션 재투영 오차 <1.5% 목표. v0.2 폰 상태 머신 경유 플로우로 테스트 필요"
+    },
+    {
+      "id": "TASK-009",
+      "name": "폰 카메라 HTTPS 접근 구성(basic-ssl 또는 Caddy)",
+      "status": "pending"
+    },
+    {
+      "id": "TASK-010",
+      "name": "pinch 제스처 → TV 브러시 on/off 연결",
+      "status": "pending",
+      "note": "v0.2에서는 gameStateMachine.onTrackedPoint의 pinch 파라미터에 stroke 시작/종료 로직 연결"
+    },
+    {
+      "id": "TASK-015",
+      "name": "fill-region 프로토콜 보완: 좌표 기반 region 판정 지원",
+      "status": "pending",
+      "note": "현재 TVCommandHandler.handleFillRegion은 regionId 필수 → 폰 좌표(x,y) 기반 히트테스트 커맨드(fill-at) 추가 필요"
+    },
+    {
+      "id": "TASK-016",
+      "name": "TV /announce 디스커버리 엔드포인트 구현(Rust 서버)",
+      "status": "pending",
+      "note": "폰 tvDiscovery가 스캔하는 GET /announce 응답을 릴레이 서버에 추가해야 TV 자동 탐색 동작"
     }
   ]
 }

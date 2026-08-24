@@ -1,0 +1,132 @@
+{
+  "id": "aircanvas-kids",
+  "version": "0.2.0",
+  "title": "AirCanvas Kids",
+  "description": "스마트폰 카메라로 손 추적하여 TV 화면에 그림 그리기/색칠 게임",
+  "entryScene": "home",
+  "minProtocolVersion": "0.2.0",
+  "assetsBaseUrl": "/",
+  "themes": [
+    {
+      "id": "dino",
+      "label": "공룡",
+      "bgColor": "#f6efe3",
+      "accentColor": "#c1663d",
+      "artworks": [
+        {
+          "id": "dino-trex",
+          "name": "티라노사우루스",
+          "viewBox": "0 0 100 100",
+          "regions": [
+            { "id": "body", "label": "몸통", "path": "M20 78 Q14 62 24 50 Q30 42 42 40 L58 38 Q72 36 78 46 Q84 56 76 66 L70 78 Z", "zIndex": 1 },
+            { "id": "head", "label": "머리", "path": "M58 38 Q60 22 70 18 Q80 16 82 26 Q83 34 74 38 L58 44 Z", "zIndex": 2 },
+            { "id": "front-leg", "label": "앞다리", "path": "M40 52 Q48 50 50 58 Q48 64 42 62 Z", "zIndex": 3 },
+            { "id": "left-leg", "label": "왼쪽 다리", "path": "M32 78 L30 92 L38 92 L40 78 Z", "zIndex": 4 },
+            { "id": "right-leg", "label": "오른쪽 다리", "path": "M60 78 L60 92 L68 92 L68 78 Z", "zIndex": 5 },
+            { "id": "tail", "label": "꼬리", "path": "M74 46 Q86 44 88 52 Q80 54 74 52 Z", "zIndex": 6 }
+          ],
+          "thumbnailUrl": "/artworks/thumbnails/dino-trex.svg"
+        },
+        {
+          "id": "dino-brachio",
+          "name": "브라키오사우루스",
+          "viewBox": "0 0 100 100",
+          "regions": [
+            { "id": "body", "label": "몸통", "path": "M28 76 Q20 60 30 48 Q40 38 56 40 Q70 42 74 54 Q77 66 68 76 Z", "zIndex": 1 },
+            { "id": "neck-head", "label": "긴 목과 머리", "path": "M46 40 Q46 22 58 18 Q68 15 71 24 Q73 33 63 37 L54 44 Z", "zIndex": 2 },
+            { "id": "front-leg", "label": "앞다리", "path": "M34 76 L32 90 L40 90 L41 76 Z", "zIndex": 3 },
+            { "id": "back-leg", "label": "뒷다리", "path": "M60 76 L61 90 L69 90 L67 76 Z", "zIndex": 4 },
+            { "id": "tail", "label": "꼬리", "path": "M70 50 Q88 48 92 58 Q82 62 72 58 Z", "zIndex": 5 }
+          ],
+          "thumbnailUrl": "/artworks/thumbnails/dino-brachio.svg"
+        },
+        {
+          "id": "dino-stego",
+          "name": "스테고사우루스",
+          "viewBox": "0 0 100 100",
+          "regions": [
+            { "id": "body", "label": "몸통", "path": "M24 76 Q18 62 28 52 Q38 44 54 44 Q68 44 73 55 Q77 66 68 76 Z", "zIndex": 1 },
+            { "id": "head", "label": "머리", "path": "M20 52 Q12 46 16 38 Q24 38 27 45 Z", "zIndex": 2 },
+            { "id": "spike1", "label": "등 지느러미 1", "path": "M38 44 L43 30 L49 44 Z", "zIndex": 3 },
+            { "id": "spike2", "label": "등 지느러미 2", "path": "M50 44 L56 28 L62 44 Z", "zIndex": 4 },
+            { "id": "spike3", "label": "등 지느러미 3", "path": "M62 46 L69 31 L75 49 Z", "zIndex": 5 },
+            { "id": "front-leg", "label": "앞다리", "path": "M36 76 L34 90 L42 90 L43 76 Z", "zIndex": 6 },
+            { "id": "back-leg", "label": "뒷다리", "path": "M58 76 L59 90 L67 90 L65 76 Z", "zIndex": 7 },
+            { "id": "tail", "label": "꼬리", "path": "M70 56 Q86 56 90 66 Q79 68 70 64 Z", "zIndex": 8 }
+          ],
+          "thumbnailUrl": "/artworks/thumbnails/dino-stego.svg"
+        }
+      ]
+    },
+    {
+      "id": "jungle",
+      "label": "정글",
+      "bgColor": "#eef7e9",
+      "accentColor": "#3a5a40",
+      "artworks": [
+        {
+          "id": "jungle-lion",
+          "name": "사자",
+          "viewBox": "0 0 100 100",
+          "regions": [
+            { "id": "body", "label": "몸통", "path": "M30 65 Q25 55 35 48 Q45 42 55 45 Q65 48 60 55 Z", "zIndex": 1 },
+            { "id": "head", "label": "머리", "path": "M55 45 Q55 35 65 32 Q72 30 75 38 Q72 45 62 45 Z", "zIndex": 2 },
+            { "id": "mane", "label": "갈기", "path": "M55 45 Q48 38 52 32 Q60 30 65 35 Q62 42 55 45 Z", "zIndex": 3 },
+            { "id": "front-leg", "label": "앞다리", "path": "M38 65 L36 80 L42 80 L43 65 Z", "zIndex": 4 },
+            { "id": "back-leg", "label": "뒷다리", "path": "M52 65 L53 80 L59 80 L57 65 Z", "zIndex": 5 },
+            { "id": "tail", "label": "꼬리", "path": "M60 55 Q70 52 72 58 Q65 60 58 55 Z", "zIndex": 6 }
+          ],
+          "thumbnailUrl": "/artworks/thumbnails/jungle-lion.svg"
+        },
+        {
+          "id": "jungle-elephant",
+          "name": "코끼리",
+          "viewBox": "0 0 100 100",
+          "regions": [
+            { "id": "body", "label": "몸통", "path": "M25 65 Q20 55 30 48 Q45 42 60 45 Q75 48 70 58 Z", "zIndex": 1 },
+            { "id": "head-trunk", "label": "머리와 코", "path": "M30 48 Q25 40 28 32 Q35 30 40 35 Q45 40 40 48 Z", "zIndex": 2 },
+            { "id": "front-leg", "label": "앞다리", "path": "M35 65 L33 80 L40 80 L41 65 Z", "zIndex": 3 },
+            { "id": "back-leg", "label": "뒷다리", "path": "M55 65 L56 80 L63 80 L61 65 Z", "zIndex": 4 },
+            { "id": "tail", "label": "꼬리", "path": "M70 58 Q78 55 80 60 Q72 62 68 58 Z", "zIndex": 5 },
+            { "id": "ear", "label": "귀", "path": "M35 48 Q30 40 38 35 Q42 42 38 48 Z", "zIndex": 6 }
+          ],
+          "thumbnailUrl": "/artworks/thumbnails/jungle-elephant.svg"
+        }
+      ]
+    },
+    {
+      "id": "ocean",
+      "label": "바다",
+      "bgColor": "#e8f4fb",
+      "accentColor": "#457b9d",
+      "artworks": [
+        {
+          "id": "ocean-fish",
+          "name": "열대어",
+          "viewBox": "0 0 100 100",
+          "regions": [
+            { "id": "body", "label": "몸통", "path": "M35 50 Q30 42 40 38 Q55 35 65 42 Q60 50 55 55 Q45 58 35 55 Z", "zIndex": 1 },
+            { "id": "tail-fin", "label": "꼬리지느러미", "path": "M65 42 Q75 35 80 45 Q72 50 65 48 Z", "zIndex": 2 },
+            { "id": "top-fin", "label": "등지느러미", "path": "M42 38 Q45 30 52 32 Q55 38 48 38 Z", "zIndex": 3 },
+            { "id": "bottom-fin", "label": "배지느러미", "path": "M45 55 Q48 62 55 58 Q52 52 45 55 Z", "zIndex": 4 },
+            { "id": "eye", "label": "눈", "path": "M42 44 Q40 42 43 42 Q45 44 43 44 Z", "zIndex": 5 }
+          ],
+          "thumbnailUrl": "/artworks/thumbnails/ocean-fish.svg"
+        },
+        {
+          "id": "ocean-whale",
+          "name": "고래",
+          "viewBox": "0 0 100 100",
+          "regions": [
+            { "id": "body", "label": "몸통", "path": "M20 55 Q15 45 25 38 Q40 32 60 35 Q80 38 75 50 Q70 60 55 62 Q35 65 20 60 Z", "zIndex": 1 },
+            { "id": "tail-fin", "label": "꼬리지느러미", "path": "M75 50 Q85 42 90 50 Q82 58 75 55 Z", "zIndex": 2 },
+            { "id": "fin", "label": "지느러미", "path": "M35 55 Q30 62 40 58 Q42 52 35 55 Z", "zIndex": 3 },
+            { "id": "eye", "label": "눈", "path": "M30 42 Q28 40 31 40 Q33 42 31 42 Z", "zIndex": 4 },
+            { "id": "spout", "label": "분수구멍", "path": "M40 35 Q38 30 42 28 Q45 32 42 35 Z", "zIndex": 5 }
+          ],
+          "thumbnailUrl": "/artworks/thumbnails/ocean-whale.svg"
+        }
+      ]
+    }
+  ]
+}
