@@ -6,10 +6,18 @@ import { useWsChannel } from './hooks/useWsChannel';
 
 type Phase = 'connecting' | 'ready';
 
-const SERVER_BASE = (() => {
+function getDefaultServerBase(): string {
   const q = new URLSearchParams(location.search);
-  return q.get('server') ?? `${location.protocol}//${location.hostname}:8080`;
-})();
+  const explicit = q.get('server');
+  if (explicit) return explicit;
+  const isHttps = location.protocol === 'https:';
+  if (isHttps || (location.port !== '5173' && location.port !== '5174' && location.port !== '3000')) {
+    return `${location.protocol}//${location.host}`;
+  }
+  return `http://${location.hostname}:8080`;
+}
+
+const SERVER_BASE = getDefaultServerBase();
 
 export function App() {
   const [phase, setPhase] = useState<Phase>('connecting');

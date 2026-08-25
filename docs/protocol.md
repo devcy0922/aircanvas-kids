@@ -74,8 +74,13 @@ interface BaseMessage { type: string }
 type TVCommand =
   | { type: 'load-scene'; scene: 'home' | 'calib' | 'play' | 'gallery'; payload: LoadScenePayload }
   | { type: 'set-cursor'; x: number; y: number; visible: boolean; color?: string }
+  /** 자유선 그리기: 점 배열로 경로 전송 */
   | { type: 'draw-stroke'; points: { x: number; y: number }[]; color: string }
+  /** 영역 채우기: regionId로 식별 */
   | { type: 'fill-region'; regionId: string; color: string }
+  /** 좌표 기반 영역 채우기: TV 화면 정규화 좌표(0..1) 히트테스트 */
+  | { type: 'fill-at'; x: number; y: number; color: string }
+  /** 이펙트 재생 */
   | { type: 'play-effect'; effect: 'burst' | 'confetti' | 'pulse'; params: Record<string, any> }
   | { type: 'set-progress'; percent: number; artworkName?: string }
   | { type: 'undo' }

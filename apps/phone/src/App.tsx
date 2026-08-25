@@ -13,15 +13,32 @@ import { TVCommandSender } from './lib/tvCommandSender';
 import { PhoneControls } from './components/PhoneControls';
 import { CalibViewfinder, CALIB_TARGETS } from './components/CalibViewfinder';
 
-const SERVER_BASE = (() => {
+function getDefaultServerBase(): string {
   const q = new URLSearchParams(location.search);
-  return q.get('server') ?? `${location.protocol}//${location.hostname}:8080`;
-})();
+  const explicit = q.get('server');
+  if (explicit) return explicit;
+  const isHttps = location.protocol === 'https:';
+  // HTTPS 프로덕션 도메인(예: play.aircanvas.kr)인 경우 동일 호스트/포트 기본 사용
+  if (isHttps || (location.port !== '5173' && location.port !== '5174' && location.port !== '3000')) {
+    return `${location.protocol}//${location.host}`;
+  }
+  // 로컬 개발 환경 기본값
+  return `http://${location.hostname}:8080`;
+}
 
-const CONTENT_SERVER_BASE = (() => {
+function getDefaultContentBase(): string {
   const q = new URLSearchParams(location.search);
-  return q.get('content') ?? `${location.protocol}//${location.hostname}:8081`;
-})();
+  const explicit = q.get('content');
+  if (explicit) return explicit;
+  const isHttps = location.protocol === 'https:';
+  if (isHttps || (location.port !== '5173' && location.port !== '5174' && location.port !== '3000')) {
+    return `${location.protocol}//${location.host}`;
+  }
+  return `http://${location.hostname}:8081`;
+}
+
+const SERVER_BASE = getDefaultServerBase();
+const CONTENT_SERVER_BASE = getDefaultContentBase();
 
 type Screen = 'loading' | 'discover' | 'lobby' | 'calib' | 'play' | 'gallery' | 'error';
 
@@ -44,6 +61,7 @@ export default function App() {
   const homographyRef = useRef<number[] | null>(null);
   const filterRef = useRef(new OneEuroPair());
   const lastPointRef = useRef<{ x: number; y: number; pinch: boolean } | null>(null);
+  const lastPinchRef = useRef(false);
   const strokeOpenRef = useRef(false);
   const strokePointsRef = useRef<{ x: number; y: number }[]>([]);
   const rafRef = useRef(0);
@@ -56,6 +74,16 @@ export default function App() {
   const [calibError, setCalibError] = useState<number | null>(null);
   const [mode, setMode] = useState<'fill' | 'free'>('fill');
   const [color, setColor] = useState<string>(PALETTE[0]);
+  const modeRef = useRef<'fill' | 'free'>('fill');
+  const colorRef = useRef<string>(PALETTE[0]);
+
+  // ref 동기화
+  useEffect(() => {
+    modeRef.current = mode;
+  }, [mode]);
+  useEffect(() => {
+    colorRef.current = color;
+  }, [color]);
 
   // 초기화
   useEffect(() => {
@@ -211,8 +239,42 @@ export default function App() {
       lastPointRef.current = { ...clamped, pinch: hand.pinch };
       setLivePoint({ x: clamped.x, y: clamped.y });
 
-      // 게임 상태 머신에 포인트 전달
-      gameStateRef.current?.onTrackedPoint(clamped.x, clamped.y, hand.pinch, color);
+      const currentColor = colorRef.current;
+      const currentMode = modeRef.current;
+      const wasPinching = lastPinchRef.current;
+      const isPinching = hand.pinch;
+      lastPinchRef.current = isPinching;
+
+      // 1. TV에 실시간 커서 위치 전송 (30Hz)
+      gameStateRef.current?.onTrackedPoint(clamped.x, clamped.y, isPinching, currentColor);
+
+      // 2. Pinch 제스처 연동
+      if (currentMode === 'fill') {
+        // 핀치를 시작하는 순간 (Trigger) 영역 채색
+        if (isPinching && !wasPinching) {
+          gameStateRef.current?.onFillAt(clamped.x, clamped.y, currentColor);
+          if (typeof navigator !== 'undefined' && navigator.vibrate) {
+            navigator.vibrate(40);
+          }
+        }
+      } else if (currentMode === 'free') {
+        // 핀치 중일 때 점 수집
+        if (isPinching) {
+          if (!wasPinching) {
+            strokePointsRef.current = [];
+            if (typeof navigator !== 'undefined' && navigator.vibrate) {
+              navigator.vibrate(20);
+            }
+          }
+          strokePointsRef.current.push({ x: clamped.x, y: clamped.y });
+        } else if (wasPinching) {
+          // 핀치 해제 시 TV로 스트로크 전송
+          if (strokePointsRef.current.length >= 2) {
+            gameStateRef.current?.onStrokePoints(strokePointsRef.current, currentColor);
+          }
+          strokePointsRef.current = [];
+        }
+      }
 
       frames++;
       if (now - fpsTimer > 1000) {
@@ -406,7 +468,7 @@ export default function App() {
             strokePointsRef.current = [];
           }
         }}
-        sendFill={(x, y, c) => gameStateRef.current?.onFillRegion(x, y, c)}
+        sendFill={(x, y, c) => gameStateRef.current?.onFillAt(x, y, c)}
         artworks={artworks}
         onSelectTheme={onSelectTheme}
         onSelectArtwork={(artworkId) => onSelectArtwork(artworkId)}

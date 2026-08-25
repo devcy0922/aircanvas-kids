@@ -246,16 +246,25 @@ export class GameStateMachine {
     });
   }
 
-  /** 영역 채우기 요청 */
-  onFillRegion(_x: number, _y: number, color: string) {
+  /** 화면 정규화 좌표(x, y) 기반 영역 채우기 요청 */
+  onFillAt(x: number, y: number, color: string) {
     if (this.state.phase !== 'playing' || !this.state.selectedArtwork) return;
-    // 히트테스트는 TV에서 수행하므로 regionId를 알 수 없음
-    // 폰에서는 좌표만 보내고 TV가 처리하도록 fill-region 대신 레거시 fill 사용
+    this.sendTVCommand({
+      type: 'fill-at',
+      x,
+      y,
+      color,
+    });
+  }
+
+  /** 영역 ID 기반 채우기 요청 (레거시/직접 지정용) */
+  onFillRegion(regionId: string, color: string) {
+    if (this.state.phase !== 'playing' || !this.state.selectedArtwork) return;
     this.sendTVCommand({
       type: 'fill-region',
-      regionId: 'auto', // TV에서 좌표 기반으로 region 판정
+      regionId,
       color,
-    } as any); // 타입 우회 - 프로토콜 확장 필요
+    });
   }
 
   /** 자유선 그리기 점들 전송 */

@@ -61,6 +61,9 @@ export class TVCommandHandler {
         case 'fill-region':
           this.handleFillRegion(cmd);
           break;
+        case 'fill-at':
+          this.handleFillAt(cmd);
+          break;
         case 'play-effect':
           this.handlePlayEffect(cmd);
           break;
@@ -151,6 +154,11 @@ export class TVCommandHandler {
       this.engine.onFill(center.x, center.y, cmd.color);
     }
   }
+
+  private handleFillAt(cmd: Extract<TVCommand, { type: 'fill-at' }>) {
+    this.engine.onFill(cmd.x, cmd.y, cmd.color);
+  }
+
 
   private handlePlayEffect(cmd: Extract<TVCommand, { type: 'play-effect' }>) {
     if (cmd.effect === 'burst') {

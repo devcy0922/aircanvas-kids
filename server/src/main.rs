@@ -9,12 +9,13 @@ use std::sync::Arc;
 use axum::extract::ws::{Message, WebSocket, WebSocketUpgrade};
 use axum::extract::{Query, State};
 use axum::http::StatusCode;
-use axum::response::IntoResponse;
+use axum::response::{IntoResponse, Json};
 use axum::routing::get;
 use axum::Router;
 use futures_util::{SinkExt, StreamExt};
 use serde::Deserialize;
 use tokio::sync::{mpsc, Mutex};
+use tower_http::cors::CorsLayer;
 
 /// 방 코드 → 방 상태. 서버는 이것 외에 어떤 상태도 갖지 않는다.
 type Rooms = Arc<Mutex<HashMap<String, RoomState>>>;
@@ -68,6 +69,8 @@ async fn main() {
     let app = Router::new()
         .route("/ws", get(ws_handler))
         .route("/health", get(health_handler))
+        .route("/announce", get(announce_handler))
+        .layer(CorsLayer::permissive())
         .with_state(rooms);
 
     let addr = std::env::var("HT_BIND").unwrap_or_else(|_| "0.0.0.0:8080".into());
@@ -79,6 +82,45 @@ async fn main() {
 async fn health_handler(State(rooms): State<Rooms>) -> impl IntoResponse {
     let count = rooms.lock().await.len();
     (StatusCode::OK, format!("ok, rooms={count}"))
+}
+
+async fn announce_handler(State(rooms): State<Rooms>) -> impl IntoResponse {
+    let map = rooms.lock().await;
+    // TV가 등록된 첫 번째 방 찾기 (없으면 DEMO01 fallback)
+    let tv_room = map.iter().find(|(_, state)| state.tv.is_some());
+
+    let (room_code, tv_name) = match tv_room {
+        Some((code, state)) => (
+            code.clone(),
+            state
+                .tv
+                .as_ref()
+                .map(|p| p.display_name.clone())
+                .unwrap_or_else(|| "AirCanvas TV".into()),
+        ),
+        None => ("DEMO01".to_string(), "AirCanvas TV".to_string()),
+    };
+
+    let announcement = serde_json::json!({
+        "type": "tv-announce",
+        "roomCode": room_code,
+        "tvName": tv_name,
+        "tvId": format!("tv-{}", room_code.to_lowercase()),
+        "wsUrl": format!("ws://127.0.0.1:8080/ws?role=tv&room={room_code}"),
+        "httpUrl": "http://127.0.0.1:8080",
+        "capabilities": {
+            "maxResolution": { "width": 1920, "height": 1080 },
+            "supportsWebGL2": true,
+            "supportsWASMSIMD": true,
+            "pixiVersion": "8.0"
+        },
+        "timestamp": std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_millis()
+    });
+
+    (StatusCode::OK, Json(announcement))
 }
 
 async fn ws_handler(
