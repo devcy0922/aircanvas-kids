@@ -35,7 +35,8 @@ export function App() {
     }
   }, []);
 
-  const { status } = useWsChannel(wsUrl(SERVER_BASE, 'tv', new URLSearchParams(location.search).get('room') ?? 'DEMO01'), onEvent);
+  const roomCode = new URLSearchParams(location.search).get('room') ?? 'DEMO01';
+  const { status } = useWsChannel(wsUrl(SERVER_BASE, 'tv', roomCode), onEvent);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -86,13 +87,39 @@ export function App() {
   }, []);
 
   return (
-    <div className="tv-root" style={{ width: '100vw', height: '100vh', background: '#111' }}>
+    <div className="tv-root" style={{ width: '100vw', height: '100vh', background: '#181a20', position: 'relative', overflow: 'hidden' }}>
       <canvas ref={canvasRef} className="tv-canvas" style={{ width: '100%', height: '100%', display: 'block' }} />
       {phase === 'connecting' && (
-        <div className="overlay center" style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff', zIndex: 10 }}>
-          <div className="spinner" style={{ width: 48, height: 48, border: '4px solid #333', borderTopColor: '#e63946', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-          <p style={{ marginTop: 16 }}>TV 대기 중... (서버: {SERVER_BASE})</p>
-          <p style={{ fontSize: 12, opacity: 0.7 }}>WS 상태: {status}</p>
+        <div className="overlay center" style={{
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#fff',
+          background: 'rgba(24, 26, 32, 0.95)',
+          zIndex: 10,
+          fontFamily: 'system-ui, -apple-system, sans-serif'
+        }}>
+          <h1 style={{ fontSize: '3rem', margin: '0 0 12px 0', color: '#f4a261', letterSpacing: '-1px' }}>🎨 AirCanvas Kids</h1>
+          <p style={{ fontSize: '1.25rem', margin: '0 0 24px 0', opacity: 0.9 }}>
+            스마트폰에서 <strong style={{ color: '#e76f51' }}>play.aircanvas.kr</strong> 로 접속해 주세요!
+          </p>
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.08)',
+            padding: '16px 36px',
+            borderRadius: '16px',
+            border: '2px dashed #e76f51',
+            textAlign: 'center'
+          }}>
+            <span style={{ fontSize: '0.9rem', opacity: 0.7, display: 'block', marginBottom: '4px' }}>TV 방 코드</span>
+            <span style={{ fontSize: '2.5rem', fontWeight: 'bold', letterSpacing: '4px', color: '#2a9d8f' }}>{roomCode}</span>
+          </div>
+          <div style={{ marginTop: '28px', display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.7, fontSize: '0.9rem' }}>
+            <div className="spinner" style={{ width: 16, height: 16, border: '2px solid #555', borderTopColor: '#2a9d8f', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+            <span>스마트폰 연결 대기 중... ({status === 'open' ? '서버 연결됨' : '서버 접속 중'})</span>
+          </div>
           <style>{`
             @keyframes spin { to { transform: rotate(360deg); } }
           `}</style>
