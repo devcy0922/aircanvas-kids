@@ -1,8 +1,8 @@
 {
-  "sessionId": "2026-08-25-v02-completion",
-  "updatedAt": "2026-08-25T15:05:00Z",
-  "summary": "TASK-015(fill-at), TASK-016(/announce & CORS), TASK-010(Pinch 연동), TASK-009(HTTPS/도메인 독립성) 완료",
+  "sessionId": "2026-08-25-tooling-and-skills-sync",
+  "updatedAt": "2026-08-25T15:12:00Z",
+  "summary": "AI 코딩툴(Cursor, Claude, Antigravity, Gemini, Codex) 배포 체계, Makefile, link-tooling.sh 및 최신 스킬 가이드 동기화 완료",
   "activeTask": null,
-  "completedTasks": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005", "TASK-006", "TASK-007", "TASK-011", "TASK-012", "TASK-013", "TASK-014", "TASK-017", "TASK-015", "TASK-016", "TASK-010", "TASK-009"],
+  "completedTasks": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005", "TASK-006", "TASK-007", "TASK-011", "TASK-012", "TASK-013", "TASK-014", "TASK-017", "TASK-015", "TASK-016", "TASK-010", "TASK-009", "TASK-018"],
   "pendingTasks": ["TASK-008"]
 }
