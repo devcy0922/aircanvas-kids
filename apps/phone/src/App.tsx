@@ -46,6 +46,7 @@ type Screen = 'loading' | 'discover' | 'lobby' | 'calib' | 'play' | 'gallery' | 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('loading');
   const [discoveredTVs, setDiscoveredTVs] = useState<DiscoveredTV[]>([]);
+  const [scanStatus, setScanStatus] = useState<'searching' | 'found' | 'none'>('searching');
   const [wsStatus, setWsStatus] = useState<'idle' | 'connecting' | 'open' | 'closed' | 'error'>('idle');
   const [packageLoadProgress, setPackageLoadProgress] = useState(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -108,12 +109,9 @@ export default function App() {
           if (exists) return prev.map((t) => t.announcement.tvId === tv.announcement.tvId ? tv : t);
           return [...prev, tv];
         });
-        // 🚀 자동 연결: 첫 TV 발견 시 즉시 페어링
-        if (!tvCommandSenderRef.current) {
-          onTVSelect(tv);
-        }
       },
       onTVLost: (id) => setDiscoveredTVs((prev) => prev.filter((t) => t.announcement.tvId !== id)),
+      onScanStatus: (status) => setScanStatus(status),
       onError: (err) => console.warn('[TVDiscovery]', err),
     });
 
@@ -423,33 +421,96 @@ export default function App() {
 
   if (screen === 'discover') {
     return (
-      <div className="phone-root">
-        <header>
-          <h1>AirCanvas</h1>
-          <span className="badge">TV 찾기</span>
+      <div className="phone-root" style={{ padding: '20px', maxWidth: '480px', margin: '0 auto' }}>
+        <header style={{ textAlign: 'center', marginBottom: '24px' }}>
+          <h1 style={{ fontSize: '2rem', color: '#e76f51', margin: '0 0 4px 0' }}>🎨 AirCanvas Kids</h1>
+          <span style={{ fontSize: '0.9rem', color: '#666' }}>스마트 TV 연결 가이드</span>
         </header>
-        <section>
-          <h2>사용 가능한 TV</h2>
-          {discoveredTVs.length === 0 ? (
-            <div>
-              <p className="muted">TV를 검색 중입니다... (TV가 켜져 있고 같은 Wi-Fi에 연결되어 있는지 확인하세요)</p>
-              <button className="big-btn" style={{ marginTop: '12px', background: '#2a9d8f' }} onClick={onCastTV}>
-                📺 스마트 TV로 화면 띄우기 (Cast)
-              </button>
-            </div>
-          ) : (
-            <ul className="tv-list">
+
+        {/* 1. 실시간 TV 발견 카드 */}
+        {discoveredTVs.length > 0 ? (
+          <section style={{
+            background: '#e8f5e9',
+            border: '2px solid #4caf50',
+            borderRadius: '16px',
+            padding: '16px',
+            marginBottom: '20px',
+            boxShadow: '0 4px 12px rgba(76, 175, 80, 0.15)'
+          }}>
+            <h2 style={{ fontSize: '1.1rem', color: '#2e7d32', margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ display: 'inline-block', width: 10, height: 10, borderRadius: '50%', background: '#4caf50', animation: 'pulse 1.5s infinite' }} />
+              온라인 스마트 TV 발견됨!
+            </h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {discoveredTVs.map((tv) => (
-                <li key={tv.announcement.tvId} onClick={() => onTVSelect(tv)}>
-                  <span className="tv-name">{tv.announcement.tvName}</span>
-                  <span className="tv-room">방: {tv.announcement.roomCode}</span>
-                </li>
+                <button
+                  key={tv.announcement.tvId}
+                  onClick={() => onTVSelect(tv)}
+                  style={{
+                    background: '#ffffff',
+                    border: '1.5px solid #81c784',
+                    borderRadius: '12px',
+                    padding: '14px',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}
+                >
+                  <div>
+                    <strong style={{ fontSize: '1.05rem', color: '#1b5e20', display: 'block' }}>{tv.announcement.tvName}</strong>
+                    <span style={{ fontSize: '0.85rem', color: '#666' }}>방 코드: <strong style={{ color: '#e76f51' }}>{tv.announcement.roomCode}</strong></span>
+                  </div>
+                  <span style={{ background: '#4caf50', color: '#fff', padding: '6px 12px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 'bold' }}>
+                    바로 연결 👉
+                  </span>
+                </button>
               ))}
-            </ul>
-          )}
-        </section>
-        <section>
-          <h2>또는 수동 입력</h2>
+            </div>
+          </section>
+        ) : (
+          <section style={{
+            background: '#fff8e1',
+            border: '1.5px solid #ffe082',
+            borderRadius: '16px',
+            padding: '16px',
+            marginBottom: '20px'
+          }}>
+            <h2 style={{ fontSize: '1rem', color: '#f57f17', margin: '0 0 8px 0' }}>
+              {scanStatus === 'searching' ? '📡 TV 상태 확인 중...' : '📺 켜져 있는 TV가 없습니다'}
+            </h2>
+            <p style={{ fontSize: '0.85rem', color: '#666', margin: '0 0 12px 0', lineHeight: 1.4 }}>
+              스마트 TV 브라우저에서 <strong style={{ color: '#e76f51' }}>play.aircanvas.kr</strong> 을 열어두시면 이 화면에 즉시 나타납니다.
+            </p>
+            <button
+              onClick={onCastTV}
+              style={{
+                width: '100%',
+                background: '#2a9d8f',
+                color: '#fff',
+                border: 'none',
+                padding: '12px',
+                borderRadius: '10px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                fontSize: '0.9rem'
+              }}
+            >
+              📺 스마트 TV로 화면 띄우기 (Cast)
+            </button>
+          </section>
+        )}
+
+        {/* 2. 수동 방 코드 입력 */}
+        <section style={{
+          background: '#ffffff',
+          border: '1px solid #e0e0e0',
+          borderRadius: '16px',
+          padding: '16px',
+          marginBottom: '20px'
+        }}>
+          <h3 style={{ fontSize: '0.95rem', color: '#333', margin: '0 0 8px 0' }}>TV 화면에 보이는 방 코드 직접 입력</h3>
           <ManualJoinForm onJoin={(roomCode) => {
             const tvWsUrl = wsUrl(SERVER_BASE, 'phone', roomCode);
             tvCommandSenderRef.current = new TVCommandSender(tvWsUrl, {
@@ -479,6 +540,35 @@ export default function App() {
             tvDiscoveryRef.current?.stop();
           }} />
         </section>
+
+        {/* 3. 스마트폰 단독 테스트 모드 (Solo Mode) */}
+        <section style={{ textAlign: 'center', marginTop: '16px' }}>
+          <button
+            onClick={() => {
+              gameStateRef.current?.onTVConnected('SOLO01');
+              setScreen('lobby');
+            }}
+            style={{
+              background: 'transparent',
+              border: '1px dashed #999',
+              color: '#666',
+              padding: '10px 16px',
+              borderRadius: '8px',
+              fontSize: '0.85rem',
+              cursor: 'pointer'
+            }}
+          >
+            💡 TV 없이 스마트폰 단독 테스트 모드
+          </button>
+        </section>
+
+        <style>{`
+          @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+          }
+        `}</style>
       </div>
     );
   }

@@ -129,16 +129,6 @@ async fn announce_handler(
     State(rooms): State<Rooms>,
 ) -> impl IntoResponse {
     let map = rooms.lock().await;
-    // 실제로 TV가 등록된 방 찾기
-    let tv_room = map.iter().find(|(_, state)| state.tv.is_some());
-
-    match tv_room {
-        Some((room_code, state)) => {
-            let tv_name = state
-                .tv
-                .as_ref()
-                .map(|p| p.display_name.clone())
-                .unwrap_or_else(|| "AirCanvas TV".into());
 
     let scheme = headers
         .get("x-forwarded-proto")
@@ -148,37 +138,51 @@ async fn announce_handler(
         .get("x-forwarded-host")
         .or_else(|| headers.get("host"))
         .and_then(|v| v.to_str().ok())
-        .unwrap_or("127.0.0.1:8180");
+        .unwrap_or("127.0.0.1:8080");
     let ws_scheme = if scheme == "https" { "wss" } else { "ws" };
 
-    let announcement = serde_json::json!({
-                "type": "tv-announce",
-                "roomCode": room_code,
-                "tvName": tv_name,
-                "tvId": format!("tv-{}", room_code.to_lowercase()),
-        "wsUrl": format!("{ws_scheme}://{host}/ws?role=tv&room={room_code}"),
-        "httpUrl": format!("{scheme}://{host}"),
-                "capabilities": {
-                    "maxResolution": { "width": 1920, "height": 1080 },
-                    "supportsWebGL2": true,
-                    "supportsWASMSIMD": true,
-                    "pixiVersion": "8.0"
-                },
-                "timestamp": std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
-                    .unwrap_or_default()
-                    .as_millis()
-            });
-            (StatusCode::OK, Json(announcement)).into_response()
-        }
-        None => {
-            // 실제 TV가 켜져 있지 않으면 404 Not Found 반환
-            let empty = serde_json::json!({
-                "type": "tv-announce-none",
-                "message": "현재 활성화된 TV가 없습니다."
-            });
-            (StatusCode::NOT_FOUND, Json(empty)).into_response()
-        }
+    // TV가 등록된 모든 활성 룸 리스트
+    let active_tvs: Vec<serde_json::Value> = map
+        .iter()
+        .filter_map(|(room_code, state)| {
+            state.tv.as_ref().map(|p| {
+                serde_json::json!({
+                    "type": "tv-announce",
+                    "roomCode": room_code,
+                    "tvName": p.display_name,
+                    "tvId": format!("tv-{}", room_code.to_lowercase()),
+                    "wsUrl": format!("{ws_scheme}://{host}/ws?role=phone&room={room_code}"),
+                    "httpUrl": format!("{scheme}://{host}"),
+                    "online": true,
+                    "capabilities": {
+                        "maxResolution": { "width": 1920, "height": 1080 },
+                        "supportsWebGL2": true,
+                        "supportsWASMSIMD": true,
+                        "pixiVersion": "8.0"
+                    },
+                    "timestamp": std::time::SystemTime::now()
+                        .duration_since(std::time::UNIX_EPOCH)
+                        .unwrap_or_default()
+                        .as_millis()
+                })
+            })
+        })
+        .collect();
+
+    if let Some(first) = active_tvs.first() {
+        // 단일 TV 및 전체 목록 동시 지원
+        let mut resp = first.clone();
+        resp["tvs"] = serde_json::json!(active_tvs);
+        resp["count"] = serde_json::json!(active_tvs.len());
+        (StatusCode::OK, Json(resp)).into_response()
+    } else {
+        let empty = serde_json::json!({
+            "type": "tv-announce-none",
+            "count": 0,
+            "tvs": [],
+            "message": "현재 켜져 있는 TV가 없습니다."
+        });
+        (StatusCode::OK, Json(empty)).into_response()
     }
 }
 
