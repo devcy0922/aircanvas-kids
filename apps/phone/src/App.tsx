@@ -12,6 +12,7 @@ import { GameStateMachine } from './lib/gameStateMachine';
 import { TVCommandSender } from './lib/tvCommandSender';
 import { PhoneControls } from './components/PhoneControls';
 import { CalibViewfinder, CALIB_TARGETS } from './components/CalibViewfinder';
+import { CastHelper } from './lib/castHelper';
 
 function getDefaultServerBase(): string {
   const q = new URLSearchParams(location.search);
@@ -54,6 +55,7 @@ export default function App() {
   const tvDiscoveryRef = useRef<TVDiscovery | null>(null);
   const gameStateRef = useRef<GameStateMachine | null>(null);
   const tvCommandSenderRef = useRef<TVCommandSender | null>(null);
+  const castHelperRef = useRef<CastHelper | null>(null);
 
   // 추적 파이프라인 ref들
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -128,6 +130,16 @@ export default function App() {
       onError: (err) => setErrorMessage(err),
     });
 
+    // Cast 헬퍼 초기화 (TV 앱 URL 계산)
+    const tvAppUrl = (() => {
+      const isHttps = location.protocol === 'https:';
+      if (isHttps || (location.port !== '5173' && location.port !== '5174' && location.port !== '3000')) {
+        return `${location.protocol}//${location.host}/?mode=tv`;
+      }
+      return `http://${location.hostname}:5173`;
+    })();
+    castHelperRef.current = new CastHelper(tvAppUrl);
+
     // 패키지 로드 시작
     packageManagerRef.current.loadOrDownload(CONTENT_SERVER_BASE);
 
@@ -143,6 +155,14 @@ export default function App() {
       tvCommandSenderRef.current?.disconnect();
       cancelAnimationFrame(rafRef.current);
     };
+  }, []);
+
+  const onCastTV = useCallback(async () => {
+    if (!castHelperRef.current) return;
+    const res = await castHelperRef.current.launchTV();
+    if (!res.success && res.message) {
+      alert(res.message);
+    }
   }, []);
 
   // TV 선택 핸들러
@@ -386,7 +406,12 @@ export default function App() {
         <section>
           <h2>사용 가능한 TV</h2>
           {discoveredTVs.length === 0 ? (
-            <p className="muted">TV를 검색 중입니다... (TV가 켜져 있고 같은 Wi-Fi에 연결되어 있는지 확인하세요)</p>
+            <div>
+              <p className="muted">TV를 검색 중입니다... (TV가 켜져 있고 같은 Wi-Fi에 연결되어 있는지 확인하세요)</p>
+              <button className="big-btn" style={{ marginTop: '12px', background: '#2a9d8f' }} onClick={onCastTV}>
+                📺 스마트 TV로 화면 띄우기 (Cast)
+              </button>
+            </div>
           ) : (
             <ul className="tv-list">
               {discoveredTVs.map((tv) => (
@@ -487,6 +512,7 @@ export default function App() {
         progress={gameState?.progress ?? 0}
         tvConnected={wsStatus === 'open'}
         onDisconnect={onTVDisconnect}
+        onCastTV={onCastTV}
       />
       {screen === 'play' && (
         <button className="link-btn" onClick={redoCalib}>
