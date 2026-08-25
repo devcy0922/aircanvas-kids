@@ -157,8 +157,24 @@
         "agents/rules.md"
       ],
       "verification": "npm run build, cargo check 완료"
+    },
+    {
+      "id": "TASK-018",
+      "name": "AI 코딩툴(Cursor, Claude, Antigravity, Gemini, Codex) 배포 세팅 및 Makefile 구축",
+      "status": "done",
+      "outputs": [
+        "Makefile",
+        "AGENTS.md",
+        "CLAUDE.md",
+        "ANTIGRAVITY.md",
+        "GEMINI.md",
+        "CODEX.md",
+        "agents/scripts/link-tooling.sh"
+      ],
+      "verification": "make agents-link, make check 성공"
     }
   ]
 }
+
 
 

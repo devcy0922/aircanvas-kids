@@ -1,7 +1,7 @@
 ---
 name: aircanvas-calibration-tracking
 description: >-
-  AirCanvas Kids의 MediaPipe Hand Tracking, 4-Corner Homography 투영 변환, 1-Euro Filter 지터 완화, Pinch 제스처 감지 가이드.
+  AirCanvas Kids의 MediaPipe Hand Tracking, 4-Corner Homography 투영 변환, 1-Euro Filter 지터 완화, Pinch 제스처 실연동 및 햅틱 피드백 가이드.
 ---
 
 # AirCanvas Kids 캘리브레이션 & 핸드 트래킹 가이드
@@ -25,18 +25,9 @@ description: >-
 2. 사용자가 스마트폰 카메라 뷰파인더(`CalibViewfinder.tsx`)에서 TV 모서리 4점을 터치하거나 손끝으로 지정.
 3. 카메라 좌표 $(u_i, v_i)$와 정규화된 TV 목표 좌표 $(x_i, y_i) \in \{(0,0), (1,0), (1,1), (0,1)\}$ 간의 $3 \times 3$ 호모그래피 행렬 $H$ 계산.
 
-### 투영 변환 수식
-$$
-\begin{bmatrix} x' \\ y' \\ w' \end{bmatrix} = H \begin{bmatrix} u \\ v \\ 1 \end{bmatrix}, \quad x_{tv} = \frac{x'}{w'}, \quad y_{tv} = \frac{y'}{w'}
-$$
-
-- `apps/phone/src/lib/homography.ts`: Direct Linear Transformation (DLT) 기반 $H$ 행렬 역산 및 적용.
-
 ---
 
 ## 3. 손 떨림 및 지터 보정: 1-Euro Filter
-
-어린이의 미세한 손떨림 및 카메라 노이즈로 인한 커서 떨림(Jitter)을 방지하고 빠른 움직임 시의 지연(Lag)을 최소화하기 위해 **1-Euro Filter**를 적용합니다.
 
 - `apps/phone/src/lib/oneEuro.ts`
 - **핵심 파라미터:**
@@ -46,14 +37,20 @@ $$
 
 ---
 
-## 4. 손 랜드마크 및 Pinch 제스처 감지
+## 4. 손 랜드마크 및 Pinch 제스처 실연동
 
 ### 랜드마크 인덱스 (MediaPipe Hand Landmarker)
 - 검지 끝 (Index Finger Tip): `Landmark #8` (기본 포인터 위치)
 - 엄지 끝 (Thumb Tip): `Landmark #4`
 - 손목 (Wrist): `Landmark #0`
 
-### 핀치(Pinch) 판정 기준
-- 엄지 끝(#4)과 검지 끝(#8) 간의 유클리드 거리가 특정 임계값(손 전체 크기 대비 정규화 거리 < 0.08) 이하일 때 `pinch = true`로 판정.
-- `pinch = true`: 브러시 스트로크 시작 (`draw-stroke`) 또는 영역 채색 트리거.
-- `pinch = false`: 커서 호버 모드 (`set-cursor`).
+### 핀치(Pinch) 제스처 인터랙션 모델
+- 엄지 끝(#4)과 검지 끝(#8) 간의 거리가 임계값 이하일 때 `hand.pinch = true` 판정.
+- **모드별 동작:**
+  1. **색칠 모드 (`mode: fill`):**
+     - 핀치 시작 순간(`isPinching && !wasPinching`)에 `fill-at` 커맨드 발행.
+     - `navigator.vibrate(40)` 햅틱 피드백으로 손끝에 붓이 닿는 느낌 전달.
+  2. **그리기 모드 (`mode: free`):**
+     - 핀치 유지 중 실시간 좌표 수집, 핀치 해제 시 `draw-stroke` 일괄 전송.
+  3. **커서 호버:**
+     - 핀치 여부와 무관하게 30Hz로 TV 화면에 매끄러운 원형 포인터(`set-cursor`) 투영.
