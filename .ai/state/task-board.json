@@ -131,6 +131,22 @@
       "name": "TV /announce 디스커버리 엔드포인트 구현(Rust 서버)",
       "status": "pending",
       "note": "폰 tvDiscovery가 스캔하는 GET /announce 응답을 릴레이 서버에 추가해야 TV 자동 탐색 동작"
+    },
+    {
+      "id": "TASK-017",
+      "name": "agents/skills 가이드 체계 및 frontend-design 스킬 세팅",
+      "status": "done",
+      "outputs": [
+        "agents/skills/frontend-design/SKILL.md",
+        "agents/skills/aircanvas-architecture/SKILL.md",
+        "agents/skills/aircanvas-protocol/SKILL.md",
+        "agents/skills/aircanvas-calibration-tracking/SKILL.md",
+        "agents/skills/aircanvas-tv-engine/SKILL.md",
+        "agents/skills/aircanvas-relay-server/SKILL.md",
+        "agents/rules.md"
+      ],
+      "verification": "npm run build, cargo check 완료"
     }
   ]
 }
+

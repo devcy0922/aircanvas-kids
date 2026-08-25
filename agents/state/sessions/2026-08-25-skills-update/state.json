@@ -1,0 +1,8 @@
+{
+  "sessionId": "2026-08-25-skills-update",
+  "updatedAt": "2026-08-25T15:00:00Z",
+  "summary": "agents/skills 가이드 세팅(frontend-design, aircanvas 전용 5종 스킬) 및 rules.md 연동 완료",
+  "activeTask": "TASK-017",
+  "completedTasks": ["TASK-017"],
+  "pendingTasks": ["TASK-008", "TASK-009", "TASK-010", "TASK-015", "TASK-016"]
+}

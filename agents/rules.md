@@ -39,6 +39,7 @@
 
 ## 5. 작업 워크플로우
 - 글로벌 백로그: `.ai/state/task-board.json` 에 작업 단위(TASK-xxx)로 기록·갱신.
+- 프로젝트 스킬 참조: `agents/skills/` 하위의 스킬 가이드(아키텍처, 프로토콜, 캘리브레이션/트래킹, TV엔진, 릴레이서버, 프론트엔드 디자인)를 우선 참조하여 일관된 설계를 유지한다.
 - 세션 종료 시 `agents/state/sessions/{세션명}/state.json` + `handoff-{date}.md` 작성.
 - 커밋 메시지는 한국어 요약 + Conventional Prefix(`feat:`, `fix:`, `docs:` …) 권장.
 - 검증 게이트: 어떤 기능 추가 후에도 `npm run build`(전체 워크스페이스) + `cargo check`(server) 통과를 원칙으로 한다.
@@ -48,3 +49,4 @@
 - 카메라 영상/프레임의 서버·TV 전송 (프라이버시 및 트래픽 원칙).
 - 검증 없는 대규모 리팩터링.
 - `.env`, 인증서 등 시크릿의 커밋.
+
