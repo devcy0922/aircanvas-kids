@@ -33,6 +33,7 @@ interface Props {
   progress: number;
   tvConnected: boolean;
   onDisconnect: () => void;
+  onCastTV?: () => void;
 }
 
 export function PhoneControls({
@@ -62,6 +63,7 @@ export function PhoneControls({
   roomInput,
   setRoomInput,
   onJoin,
+  onCastTV,
 }: Props) {
   const [paintOn, setPaintOn] = useState(false);
 
@@ -76,9 +78,16 @@ export function PhoneControls({
     <div className="phone-root">
       <header>
         <h1>AirCanvas</h1>
-        <span className={`badge ${tvConnected ? 'ok' : ''}`}>
-          {tvConnected ? 'TV 연결됨' : status}
-        </span>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          {onCastTV && !tvConnected && (
+            <button className="btn-ghost small" onClick={onCastTV} title="스마트 TV로 화면 띄우기">
+              📺 TV로 띄우기
+            </button>
+          )}
+          <span className={`badge ${tvConnected ? 'ok' : ''}`}>
+            {tvConnected ? 'TV 연결됨' : status}
+          </span>
+        </div>
       </header>
 
       {isDiscover && (
