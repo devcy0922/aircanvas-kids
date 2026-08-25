@@ -113,6 +113,8 @@ export type TVCommand =
   | { type: 'draw-stroke'; points: { x: number; y: number }[]; color: string }
   /** 영역 채우기: regionId로 식별 */
   | { type: 'fill-region'; regionId: string; color: string }
+  /** 좌표 기반 영역 채우기: TV 화면 정규화 좌표(0..1) 히트테스트 */
+  | { type: 'fill-at'; x: number; y: number; color: string }
   /** 이펙트 재생 */
   | { type: 'play-effect'; effect: 'burst' | 'confetti' | 'pulse'; params: Record<string, any> }
   /** 진행도 HUD 업데이트 */
@@ -178,7 +180,15 @@ export function makeRoomCode(): string {
 }
 
 export function wsUrl(serverBase: string, role: Role, room: string): string {
-  return `${serverBase.replace(/\/$/, '')}/ws?role=${role}&room=${encodeURIComponent(room)}`;
+  let base = serverBase.trim().replace(/\/$/, '');
+  if (base.startsWith('https://')) {
+    base = 'wss://' + base.slice(8);
+  } else if (base.startsWith('http://')) {
+    base = 'ws://' + base.slice(7);
+  } else if (!base.startsWith('ws://') && !base.startsWith('wss://')) {
+    base = 'ws://' + base;
+  }
+  return `${base}/ws?role=${role}&room=${encodeURIComponent(room)}`;
 }
 
 /** TV가 표시할 QR 코드에 담길 폰 연결 URL */
