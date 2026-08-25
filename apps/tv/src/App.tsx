@@ -11,10 +11,13 @@ function getDefaultServerBase(): string {
   const explicit = q.get('server');
   if (explicit) return explicit;
   const isHttps = location.protocol === 'https:';
+  const hasKidsSubpath = location.pathname.startsWith('/kids');
+  const subpathPrefix = hasKidsSubpath ? '/kids' : '';
+
   if (isHttps || (location.port !== '5173' && location.port !== '5174' && location.port !== '3000')) {
-    return `${location.protocol}//${location.host}`;
+    return `${location.protocol}//${location.host}${subpathPrefix}`;
   }
-  return `http://${location.hostname}:8080`;
+  return `http://${location.hostname}:8180${subpathPrefix}`;
 }
 
 const SERVER_BASE = getDefaultServerBase();
@@ -104,7 +107,7 @@ export function App() {
         }}>
           <h1 style={{ fontSize: '3rem', margin: '0 0 12px 0', color: '#f4a261', letterSpacing: '-1px' }}>🎨 AirCanvas Kids</h1>
           <p style={{ fontSize: '1.25rem', margin: '0 0 24px 0', opacity: 0.9 }}>
-            스마트폰에서 <strong style={{ color: '#e76f51' }}>play.aircanvas.kr</strong> 로 접속해 주세요!
+            스마트폰에서 <strong style={{ color: '#e76f51' }}>play.aircanvas.kr/kids/phone/</strong> 로 접속해 주세요!
           </p>
           <div style={{
             background: 'rgba(255, 255, 255, 0.08)',

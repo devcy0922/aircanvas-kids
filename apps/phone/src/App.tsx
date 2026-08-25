@@ -19,12 +19,14 @@ function getDefaultServerBase(): string {
   const explicit = q.get('server');
   if (explicit) return explicit;
   const isHttps = location.protocol === 'https:';
-  // HTTPS 프로덕션 도메인(예: play.aircanvas.kr)인 경우 동일 호스트/포트 기본 사용
+  const hasKidsSubpath = location.pathname.startsWith('/kids');
+  const subpathPrefix = hasKidsSubpath ? '/kids' : '';
+
   if (isHttps || (location.port !== '5173' && location.port !== '5174' && location.port !== '3000')) {
-    return `${location.protocol}//${location.host}`;
+    return `${location.protocol}//${location.host}${subpathPrefix}`;
   }
-  // 로컬 개발 환경 기본값
-  return `http://${location.hostname}:8080`;
+  // 로컬 개발 환경 기본값 (릴레이 서버 포트 8180)
+  return `http://${location.hostname}:8180${subpathPrefix}`;
 }
 
 function getDefaultContentBase(): string {
@@ -32,10 +34,13 @@ function getDefaultContentBase(): string {
   const explicit = q.get('content');
   if (explicit) return explicit;
   const isHttps = location.protocol === 'https:';
+  const hasKidsSubpath = location.pathname.startsWith('/kids');
+  const subpathPrefix = hasKidsSubpath ? '/kids' : '';
+
   if (isHttps || (location.port !== '5173' && location.port !== '5174' && location.port !== '3000')) {
-    return `${location.protocol}//${location.host}`;
+    return `${location.protocol}//${location.host}${subpathPrefix}/content`;
   }
-  return `http://${location.hostname}:8081`;
+  return `http://${location.hostname}:8180${subpathPrefix}/content`;
 }
 
 const SERVER_BASE = getDefaultServerBase();
