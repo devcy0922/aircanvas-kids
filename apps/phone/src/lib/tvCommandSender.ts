@@ -2,6 +2,7 @@ import type { TVCommand } from '@ht/protocol';
 
 export interface TVCommandSenderCallbacks {
   onStatusChange?: (status: 'idle' | 'connecting' | 'open' | 'closed' | 'error') => void;
+  onMessage?: (message: any) => void;
   onError?: (error: string) => void;
 }
 
@@ -61,6 +62,15 @@ export class TVCommandSender {
       while (this.sendQueue.length > 0) {
         const cmd = this.sendQueue.shift()!;
         this.ws?.send(JSON.stringify(cmd));
+      }
+    };
+
+    this.ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        this.callbacks.onMessage?.(data);
+      } catch {
+        // 텍스트 메시지 무시
       }
     };
 

@@ -173,8 +173,20 @@ export default function App() {
     tvCommandSenderRef.current = new TVCommandSender(tvWsUrl, {
       onStatusChange: (status) => {
         setWsStatus(status);
-        if (status === 'open') {
+      },
+      onMessage: (msg) => {
+        if (msg.type === 'welcome') {
+          // peers 에 tv가 실제로 있는 경우에만 TV 연결됨으로 처리
+          const peers = Array.isArray(msg.peers) ? msg.peers : [];
+          if (peers.includes('tv') || peers.includes('TV')) {
+            gameStateRef.current?.onTVConnected(roomCode);
+          } else {
+            gameStateRef.current?.onTVDisconnected();
+          }
+        } else if (msg.type === 'peer-joined' && (msg.role === 'tv' || msg.role === 'TV')) {
           gameStateRef.current?.onTVConnected(roomCode);
+        } else if (msg.type === 'peer-left' && (msg.role === 'tv' || msg.role === 'TV')) {
+          gameStateRef.current?.onTVDisconnected();
         }
       },
       onError: (err) => setErrorMessage(err),
@@ -353,8 +365,21 @@ export default function App() {
         onStatusChange: (status) => {
           setWsStatus(status);
           if (status === 'open') {
-            gameStateRef.current?.onTVConnected(qrRoom);
             setScreen('lobby');
+          }
+        },
+        onMessage: (msg) => {
+          if (msg.type === 'welcome') {
+            const peers = Array.isArray(msg.peers) ? msg.peers : [];
+            if (peers.includes('tv') || peers.includes('TV')) {
+              gameStateRef.current?.onTVConnected(qrRoom);
+            } else {
+              gameStateRef.current?.onTVDisconnected();
+            }
+          } else if (msg.type === 'peer-joined' && (msg.role === 'tv' || msg.role === 'TV')) {
+            gameStateRef.current?.onTVConnected(qrRoom);
+          } else if (msg.type === 'peer-left' && (msg.role === 'tv' || msg.role === 'TV')) {
+            gameStateRef.current?.onTVDisconnected();
           }
         },
         onError: (err) => setErrorMessage(err),
@@ -431,8 +456,21 @@ export default function App() {
               onStatusChange: (status) => {
                 setWsStatus(status);
                 if (status === 'open') {
-                  gameStateRef.current?.onTVConnected(roomCode);
                   setScreen('lobby');
+                }
+              },
+              onMessage: (msg) => {
+                if (msg.type === 'welcome') {
+                  const peers = Array.isArray(msg.peers) ? msg.peers : [];
+                  if (peers.includes('tv') || peers.includes('TV')) {
+                    gameStateRef.current?.onTVConnected(roomCode);
+                  } else {
+                    gameStateRef.current?.onTVDisconnected();
+                  }
+                } else if (msg.type === 'peer-joined' && (msg.role === 'tv' || msg.role === 'TV')) {
+                  gameStateRef.current?.onTVConnected(roomCode);
+                } else if (msg.type === 'peer-left' && (msg.role === 'tv' || msg.role === 'TV')) {
+                  gameStateRef.current?.onTVDisconnected();
                 }
               },
               onError: (err) => setErrorMessage(err),

@@ -8,14 +8,16 @@ use std::sync::Arc;
 
 use axum::extract::ws::{Message, WebSocket, WebSocketUpgrade};
 use axum::extract::{Query, State};
-use axum::http::StatusCode;
+use axum::http::{HeaderMap, StatusCode};
 use axum::response::{IntoResponse, Json};
 use axum::routing::get;
 use axum::Router;
 use futures_util::{SinkExt, StreamExt};
 use serde::Deserialize;
 use tokio::sync::{mpsc, Mutex};
+use std::path::Path;
 use tower_http::cors::CorsLayer;
+use tower_http::services::ServeDir;
 
 /// 방 코드 → 방 상태. 서버는 이것 외에 어떤 상태도 갖지 않는다.
 type Rooms = Arc<Mutex<HashMap<String, RoomState>>>;
@@ -66,10 +68,48 @@ async fn main() {
 
     let rooms: Rooms = Arc::new(Mutex::new(HashMap::new()));
 
-    let app = Router::new()
+    // 정적 파일 디렉토리 탐색 (루트 기준 또는 상대 경로)
+    let tv_dist = if Path::new("apps/tv/dist").exists() {
+        "apps/tv/dist"
+    } else if Path::new("../apps/tv/dist").exists() {
+        "../apps/tv/dist"
+    } else {
+        "."
+    };
+
+    let phone_dist = if Path::new("apps/phone/dist").exists() {
+        "apps/phone/dist"
+    } else if Path::new("../apps/phone/dist").exists() {
+        "../apps/phone/dist"
+    } else {
+        "."
+    };
+
+    let content_dir = if Path::new("content-server").exists() {
+        "content-server"
+    } else if Path::new("../content-server").exists() {
+        "../content-server"
+    } else {
+        "."
+    };
+
+    let mut router = Router::new()
         .route("/ws", get(ws_handler))
         .route("/health", get(health_handler))
-        .route("/announce", get(announce_handler))
+        .route("/announce", get(announce_handler));
+
+    // 정적 서빙 마운트
+    if Path::new(phone_dist).join("index.html").exists() {
+        router = router.nest_service("/phone", ServeDir::new(phone_dist));
+    }
+    if Path::new(content_dir).join("manifest.json").exists() {
+        router = router.nest_service("/content", ServeDir::new(content_dir));
+    }
+    if Path::new(tv_dist).join("index.html").exists() {
+        router = router.fallback_service(ServeDir::new(tv_dist));
+    }
+
+    let app = router
         .layer(CorsLayer::permissive())
         .with_state(rooms);
 
@@ -84,43 +124,62 @@ async fn health_handler(State(rooms): State<Rooms>) -> impl IntoResponse {
     (StatusCode::OK, format!("ok, rooms={count}"))
 }
 
-async fn announce_handler(State(rooms): State<Rooms>) -> impl IntoResponse {
+async fn announce_handler(
+    headers: HeaderMap,
+    State(rooms): State<Rooms>,
+) -> impl IntoResponse {
     let map = rooms.lock().await;
-    // TV가 등록된 첫 번째 방 찾기 (없으면 DEMO01 fallback)
+    // 실제로 TV가 등록된 방 찾기
     let tv_room = map.iter().find(|(_, state)| state.tv.is_some());
 
-    let (room_code, tv_name) = match tv_room {
-        Some((code, state)) => (
-            code.clone(),
-            state
+    match tv_room {
+        Some((room_code, state)) => {
+            let tv_name = state
                 .tv
                 .as_ref()
                 .map(|p| p.display_name.clone())
-                .unwrap_or_else(|| "AirCanvas TV".into()),
-        ),
-        None => ("DEMO01".to_string(), "AirCanvas TV".to_string()),
-    };
+                .unwrap_or_else(|| "AirCanvas TV".into());
+
+    let scheme = headers
+        .get("x-forwarded-proto")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("http");
+    let host = headers
+        .get("x-forwarded-host")
+        .or_else(|| headers.get("host"))
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("127.0.0.1:8180");
+    let ws_scheme = if scheme == "https" { "wss" } else { "ws" };
 
     let announcement = serde_json::json!({
-        "type": "tv-announce",
-        "roomCode": room_code,
-        "tvName": tv_name,
-        "tvId": format!("tv-{}", room_code.to_lowercase()),
-        "wsUrl": format!("ws://127.0.0.1:8080/ws?role=tv&room={room_code}"),
-        "httpUrl": "http://127.0.0.1:8080",
-        "capabilities": {
-            "maxResolution": { "width": 1920, "height": 1080 },
-            "supportsWebGL2": true,
-            "supportsWASMSIMD": true,
-            "pixiVersion": "8.0"
-        },
-        "timestamp": std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap_or_default()
-            .as_millis()
-    });
-
-    (StatusCode::OK, Json(announcement))
+                "type": "tv-announce",
+                "roomCode": room_code,
+                "tvName": tv_name,
+                "tvId": format!("tv-{}", room_code.to_lowercase()),
+        "wsUrl": format!("{ws_scheme}://{host}/ws?role=tv&room={room_code}"),
+        "httpUrl": format!("{scheme}://{host}"),
+                "capabilities": {
+                    "maxResolution": { "width": 1920, "height": 1080 },
+                    "supportsWebGL2": true,
+                    "supportsWASMSIMD": true,
+                    "pixiVersion": "8.0"
+                },
+                "timestamp": std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap_or_default()
+                    .as_millis()
+            });
+            (StatusCode::OK, Json(announcement)).into_response()
+        }
+        None => {
+            // 실제 TV가 켜져 있지 않으면 404 Not Found 반환
+            let empty = serde_json::json!({
+                "type": "tv-announce-none",
+                "message": "현재 활성화된 TV가 없습니다."
+            });
+            (StatusCode::NOT_FOUND, Json(empty)).into_response()
+        }
+    }
 }
 
 async fn ws_handler(
