@@ -94,17 +94,23 @@ export default function App() {
       onReady: (pkg) => {
         gameStateRef.current?.setPackage(pkg);
         setScreen('discover');
-        tvDiscoveryRef.current?.start();
+        tvDiscoveryRef.current?.start(SERVER_BASE);
       },
     });
 
     // TV 디스커버리
     tvDiscoveryRef.current = new TVDiscovery({
-      onTVFound: (tv) => setDiscoveredTVs((prev) => {
-        const exists = prev.find((t) => t.announcement.tvId === tv.announcement.tvId);
-        if (exists) return prev.map((t) => t.announcement.tvId === tv.announcement.tvId ? tv : t);
-        return [...prev, tv];
-      }),
+      onTVFound: (tv) => {
+        setDiscoveredTVs((prev) => {
+          const exists = prev.find((t) => t.announcement.tvId === tv.announcement.tvId);
+          if (exists) return prev.map((t) => t.announcement.tvId === tv.announcement.tvId ? tv : t);
+          return [...prev, tv];
+        });
+        // 🚀 자동 연결: 첫 TV 발견 시 즉시 페어링
+        if (!tvCommandSenderRef.current) {
+          onTVSelect(tv);
+        }
+      },
       onTVLost: (id) => setDiscoveredTVs((prev) => prev.filter((t) => t.announcement.tvId !== id)),
       onError: (err) => console.warn('[TVDiscovery]', err),
     });
@@ -121,9 +127,6 @@ export default function App() {
       onTVCommand: (cmd) => tvCommandSenderRef.current?.send(cmd),
       onError: (err) => setErrorMessage(err),
     });
-
-    // TV 커맨드 송신기
-    // URL은 TV 선택 후 설정
 
     // 패키지 로드 시작
     packageManagerRef.current.loadOrDownload(CONTENT_SERVER_BASE);
@@ -144,7 +147,9 @@ export default function App() {
 
   // TV 선택 핸들러
   const onTVSelect = useCallback((tv: DiscoveredTV) => {
-    const { wsUrl: tvWsUrl, roomCode } = tvDiscoveryRef.current!.selectTV(tv.announcement.tvId)!;
+    const selected = tvDiscoveryRef.current?.selectTV(tv.announcement.tvId);
+    if (!selected) return;
+    const { wsUrl: tvWsUrl, roomCode } = selected;
     tvCommandSenderRef.current = new TVCommandSender(tvWsUrl, {
       onStatusChange: (status) => {
         setWsStatus(status);

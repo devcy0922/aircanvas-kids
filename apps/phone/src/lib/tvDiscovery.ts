@@ -22,20 +22,30 @@ export class TVDiscovery {
   private discoveredTVs = new Map<string, DiscoveredTV>();
   private scanInterval: ReturnType<typeof setInterval> | null = null;
   private broadcastSocket: WebSocket | null = null;
+  private serverBase?: string;
 
   constructor(callbacks: TVDiscoveryCallbacks = {}) {
     this.callbacks = callbacks;
   }
 
   /** 탐색 시작 */
-  start() {
+  start(serverBase?: string) {
     this.stop();
-    // 1. mDNS 시도 (브라우저에서 제한적 → 웹 소켓 브로드캐스트 폴백)
-    this.tryMDNS();
-    // 2. HTTP 브로드캐스트/폴링
+    if (serverBase) this.serverBase = serverBase;
+
+    // 1. 현재 접속한 서버의 /announce 즉시 확인 (가장 빠름: 50ms 이내)
+    if (this.serverBase) {
+      this.probeServerUrl(this.serverBase);
+    }
+
+    // 2. HTTP 서브넷 스캔
     this.startHTTPDiscovery();
-    // 3. 주기적 재스캔
-    this.scanInterval = setInterval(() => this.startHTTPDiscovery(), 10000);
+
+    // 3. 주기적 재스캔 (5초마다)
+    this.scanInterval = setInterval(() => {
+      if (this.serverBase) this.probeServerUrl(this.serverBase);
+      this.startHTTPDiscovery();
+    }, 5000);
   }
 
   /** 탐색 중지 */
@@ -65,13 +75,39 @@ export class TVDiscovery {
   selectTV(tvId: string): { wsUrl: string; roomCode: string } | null {
     const tv = this.discoveredTVs.get(tvId);
     if (!tv) return null;
-    return { wsUrl: tv.announcement.wsUrl, roomCode: tv.announcement.roomCode };
+    let url = tv.announcement.wsUrl;
+    // 만약 wsUrl이 127.0.0.1/localhost인데 serverBase가 다른 호스트인 경우 serverBase 기준 wsUrl로 치환
+    if (this.serverBase && (url.includes('127.0.0.1') || url.includes('localhost'))) {
+      const isHttps = this.serverBase.startsWith('https://');
+      const wsProtocol = isHttps ? 'wss://' : 'ws://';
+      const cleanHost = this.serverBase.replace(/^https?:\/\//, '').replace(/\/$/, '');
+      url = `${wsProtocol}${cleanHost}/ws?role=phone&room=${encodeURIComponent(tv.announcement.roomCode)}`;
+    }
+    return { wsUrl: url, roomCode: tv.announcement.roomCode };
   }
 
-  private tryMDNS() {
-    // 브라우저에서 mDNS 직접 접근 불가 → Service Worker나 별도 네이티브 브릿지 필요
-    // 일단 생략, HTTP 디스커버리만 사용
+  private async probeServerUrl(serverBase: string): Promise<void> {
+    const cleanBase = serverBase.replace(/\/$/, '');
+    const url = `${cleanBase}/announce`;
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 1200);
+      const res = await fetch(url, {
+        method: 'GET',
+        mode: 'cors',
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+      if (res.ok) {
+        const data = await res.json();
+        this.handleAnnouncement(data, url);
+      }
+    } catch {
+      // 무시
+    }
   }
+
+
 
   private startHTTPDiscovery() {
     // 방법 1: 브로드캐스트 UDP (브라우저에서 불가)
