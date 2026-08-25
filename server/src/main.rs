@@ -94,26 +94,37 @@ async fn main() {
     };
 
     let mut router = Router::new()
+        // 기본 루트 API & WebSocket
         .route("/ws", get(ws_handler))
         .route("/health", get(health_handler))
-        .route("/announce", get(announce_handler));
+        .route("/announce", get(announce_handler))
+        // /kids 서브패스 API & WebSocket
+        .route("/kids/ws", get(ws_handler))
+        .route("/kids/health", get(health_handler))
+        .route("/kids/announce", get(announce_handler));
 
-    // 정적 서빙 마운트
+    // 정적 서빙 마운트 (루트 및 /kids 하위)
     if Path::new(phone_dist).join("index.html").exists() {
-        router = router.nest_service("/phone", ServeDir::new(phone_dist));
+        router = router
+            .nest_service("/phone", ServeDir::new(phone_dist))
+            .nest_service("/kids/phone", ServeDir::new(phone_dist));
     }
     if Path::new(content_dir).join("manifest.json").exists() {
-        router = router.nest_service("/content", ServeDir::new(content_dir));
+        router = router
+            .nest_service("/content", ServeDir::new(content_dir))
+            .nest_service("/kids/content", ServeDir::new(content_dir));
     }
     if Path::new(tv_dist).join("index.html").exists() {
-        router = router.fallback_service(ServeDir::new(tv_dist));
+        router = router
+            .nest_service("/kids", ServeDir::new(tv_dist))
+            .fallback_service(ServeDir::new(tv_dist));
     }
 
     let app = router
         .layer(CorsLayer::permissive())
         .with_state(rooms);
 
-    let addr = std::env::var("HT_BIND").unwrap_or_else(|_| "0.0.0.0:8080".into());
+    let addr = std::env::var("HT_BIND").unwrap_or_else(|_| "0.0.0.0:8180".into());
     let listener = tokio::net::TcpListener::bind(&addr).await.expect("bind 실패");
     tracing::info!("AirCanvas 릴레이 서버 시작: http://{addr}");
     axum::serve(listener, app).await.expect("서버 오류");
@@ -125,6 +136,7 @@ async fn health_handler(State(rooms): State<Rooms>) -> impl IntoResponse {
 }
 
 async fn announce_handler(
+    uri: axum::http::Uri,
     headers: HeaderMap,
     State(rooms): State<Rooms>,
 ) -> impl IntoResponse {
@@ -138,8 +150,10 @@ async fn announce_handler(
         .get("x-forwarded-host")
         .or_else(|| headers.get("host"))
         .and_then(|v| v.to_str().ok())
-        .unwrap_or("127.0.0.1:8080");
+        .unwrap_or("127.0.0.1:8180");
     let ws_scheme = if scheme == "https" { "wss" } else { "ws" };
+
+    let prefix = if uri.path().starts_with("/kids") { "/kids" } else { "" };
 
     // TV가 등록된 모든 활성 룸 리스트
     let active_tvs: Vec<serde_json::Value> = map
@@ -151,8 +165,8 @@ async fn announce_handler(
                     "roomCode": room_code,
                     "tvName": p.display_name,
                     "tvId": format!("tv-{}", room_code.to_lowercase()),
-                    "wsUrl": format!("{ws_scheme}://{host}/ws?role=phone&room={room_code}"),
-                    "httpUrl": format!("{scheme}://{host}"),
+                    "wsUrl": format!("{ws_scheme}://{host}{prefix}/ws?role=phone&room={room_code}"),
+                    "httpUrl": format!("{scheme}://{host}{prefix}"),
                     "online": true,
                     "capabilities": {
                         "maxResolution": { "width": 1920, "height": 1080 },
