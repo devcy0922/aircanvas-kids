@@ -82,17 +82,17 @@ cargo run --manifest-path server/Cargo.toml
 **터미널 3: TV 앱 (Vite)**
 ```bash
 npm run dev:tv
-# http://<PC_IP>:5173 접속 → TV 브라우저에서 열기
+# http://<PC_IP>:7100 접속 → TV 브라우저에서 열기
 ```
 
 **터미널 4: 폰 앱 (Vite)**
 ```bash
 npm run dev:phone
-# http://<PC_IP>:5174 접속 → 폰 브라우저에서 열기
+# http://<PC_IP>:7101 접속 → 폰 브라우저에서 열기
 ```
 
 > **중요**: 폰 카메라 권한은 HTTPS 또는 localhost에서만 허용됨.
-> 개발 시 크롬 `chrome://flags/#unsafely-treat-insecure-origin-as-secure` 에 `http://<PC_IP>:5174` 추가 필요.
+> 개발 시 크롬 `chrome://flags/#unsafely-treat-insecure-origin-as-secure` 에 `http://<PC_IP>:7101` 추가 필요.
 
 ### 3) 플레이 흐름
 
@@ -111,13 +111,13 @@ npm run dev:phone
 
 | 앱 | 파라미터 | 설명 |
 |---|---|---|
-| TV (`:5173`) | `?server=http://IP:8080` | 릴레이 서버 주소 오버라이드 |
-| TV | `?phoneApp=http://IP:5174` | QR에 넣을 폰 앱 주소 오버라이드 |
-| 폰 (`:5174`) | `?server=http://IP:8080` | 릴레이 서버 주소 (QR로 자동 전달) |
+| TV (`:7100`) | `?server=http://IP:7180` | 릴레이 서버 주소 오버라이드 |
+| TV | `?phoneApp=http://IP:7101` | QR에 넣을 폰 앱 주소 오버라이드 |
+| 폰 (`:7101`) | `?server=http://IP:7180` | 릴레이 서버 주소 (QR로 자동 전달) |
 | 폰 | `?room=ABC123` | 방 코드 자동 입력 + 자동 입장 (QR로 자동 전달) |
-| 폰 | `?content=http://IP:8081` | 콘텐츠 서버 주소 오버라이드 |
+| 폰 | `?content=http://IP:7181` | 콘텐츠 서버 주소 오버라이드 |
 
-기본값: TV/폰 모두 같은 호스트의 `:8080` 서버, 콘텐츠 서버 `:8081` 사용 가정.
+기본값: TV/폰 모두 같은 호스트의 `:7180` 서버, 콘텐츠 서버 `:7181` 사용 가정.
 
 ### 데모(폰 없이) 검증
 

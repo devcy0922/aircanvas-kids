@@ -4,20 +4,19 @@
 //! 폰 메시지를 같은 방의 TV로 그대로 중계한다. 영상은 취급하지 않는다.
 
 use std::collections::HashMap;
+use std::net::SocketAddr;
 use std::sync::Arc;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use axum::extract::ws::{Message, WebSocket, WebSocketUpgrade};
-use axum::extract::{Query, State};
-use axum::http::{HeaderMap, StatusCode};
-use axum::response::{IntoResponse, Json};
+use axum::extract::{ConnectInfo, Query, State};
+use axum::http::{header, StatusCode};
+use axum::response::IntoResponse;
 use axum::routing::get;
 use axum::Router;
 use futures_util::{SinkExt, StreamExt};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use tokio::sync::{mpsc, Mutex};
-use std::path::Path;
-use tower_http::cors::CorsLayer;
-use tower_http::services::ServeDir;
 
 /// 방 코드 → 방 상태. 서버는 이것 외에 어떤 상태도 갖지 않는다.
 type Rooms = Arc<Mutex<HashMap<String, RoomState>>>;
@@ -26,6 +25,8 @@ type Rooms = Arc<Mutex<HashMap<String, RoomState>>>;
 struct Participant {
     display_name: String,
     tx: mpsc::UnboundedSender<Message>,
+    ip: String,
+    connected_at: u64,
 }
 
 #[derive(Clone, Default)]
@@ -57,6 +58,37 @@ struct WsQuery {
     name: Option<String>,
 }
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct TvCapabilities {
+    max_resolution: Resolution,
+    #[serde(rename = "supportsWebGL2")]
+    supports_web_gl2: bool,
+    #[serde(rename = "supportsWASMSIMD")]
+    supports_wasm_simd: bool,
+    pixi_version: String,
+}
+
+#[derive(Serialize)]
+struct Resolution {
+    width: u32,
+    height: u32,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct TvAnnouncement {
+    #[serde(rename = "type")]
+    msg_type: String,
+    room_code: String,
+    tv_name: String,
+    tv_id: String,
+    ws_url: String,
+    http_url: String,
+    capabilities: TvCapabilities,
+    timestamp: u64,
+}
+
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt()
@@ -68,140 +100,72 @@ async fn main() {
 
     let rooms: Rooms = Arc::new(Mutex::new(HashMap::new()));
 
-    // 정적 파일 디렉토리 탐색 (루트 기준 또는 상대 경로)
-    let tv_dist = if Path::new("apps/tv/dist").exists() {
-        "apps/tv/dist"
-    } else if Path::new("../apps/tv/dist").exists() {
-        "../apps/tv/dist"
-    } else {
-        "."
-    };
-
-    let phone_dist = if Path::new("apps/phone/dist").exists() {
-        "apps/phone/dist"
-    } else if Path::new("../apps/phone/dist").exists() {
-        "../apps/phone/dist"
-    } else {
-        "."
-    };
-
-    let content_dir = if Path::new("content-server").exists() {
-        "content-server"
-    } else if Path::new("../content-server").exists() {
-        "../content-server"
-    } else {
-        "."
-    };
-
-    let mut router = Router::new()
-        // 기본 루트 API & WebSocket
+    let app = Router::new()
         .route("/ws", get(ws_handler))
         .route("/health", get(health_handler))
         .route("/announce", get(announce_handler))
-        // /kids 서브패스 API & WebSocket
-        .route("/kids/ws", get(ws_handler))
-        .route("/kids/health", get(health_handler))
-        .route("/kids/announce", get(announce_handler));
-
-    // 정적 서빙 마운트 (루트 및 /kids 하위)
-    if Path::new(phone_dist).join("index.html").exists() {
-        router = router
-            .nest_service("/phone", ServeDir::new(phone_dist))
-            .nest_service("/kids/phone", ServeDir::new(phone_dist));
-    }
-    if Path::new(content_dir).join("manifest.json").exists() {
-        router = router
-            .nest_service("/content", ServeDir::new(content_dir))
-            .nest_service("/kids/content", ServeDir::new(content_dir));
-    }
-    if Path::new(tv_dist).join("index.html").exists() {
-        router = router
-            .nest_service("/kids", ServeDir::new(tv_dist))
-            .fallback_service(ServeDir::new(tv_dist));
-    }
-
-    let app = router
-        .layer(CorsLayer::permissive())
         .with_state(rooms);
 
-    let addr = std::env::var("HT_BIND").unwrap_or_else(|_| "0.0.0.0:8180".into());
+    let addr = std::env::var("HT_BIND").unwrap_or_else(|_| "0.0.0.0:7180".into());
     let listener = tokio::net::TcpListener::bind(&addr).await.expect("bind 실패");
     tracing::info!("AirCanvas 릴레이 서버 시작: http://{addr}");
-    axum::serve(listener, app).await.expect("서버 오류");
+    axum::serve(listener, app.into_make_service_with_connect_info::<SocketAddr>()).await.expect("서버 오류");
 }
 
 async fn health_handler(State(rooms): State<Rooms>) -> impl IntoResponse {
     let count = rooms.lock().await.len();
-    (StatusCode::OK, format!("ok, rooms={count}"))
+    (
+        StatusCode::OK,
+        [(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")],
+        format!("ok, rooms={count}"),
+    )
 }
 
 async fn announce_handler(
-    uri: axum::http::Uri,
-    headers: HeaderMap,
+    headers: axum::http::HeaderMap,
     State(rooms): State<Rooms>,
 ) -> impl IntoResponse {
+    let hostname = headers
+        .get(header::HOST)
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("localhost:7180");
+
     let map = rooms.lock().await;
+    let mut announcements = Vec::new();
 
-    let scheme = headers
-        .get("x-forwarded-proto")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("http");
-    let host = headers
-        .get("x-forwarded-host")
-        .or_else(|| headers.get("host"))
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("127.0.0.1:8180");
-    let ws_scheme = if scheme == "https" { "wss" } else { "ws" };
-
-    let prefix = if uri.path().starts_with("/kids") { "/kids" } else { "" };
-
-    // TV가 등록된 모든 활성 룸 리스트
-    let active_tvs: Vec<serde_json::Value> = map
-        .iter()
-        .filter_map(|(room_code, state)| {
-            state.tv.as_ref().map(|p| {
-                serde_json::json!({
-                    "type": "tv-announce",
-                    "roomCode": room_code,
-                    "tvName": p.display_name,
-                    "tvId": format!("tv-{}", room_code.to_lowercase()),
-                    "wsUrl": format!("{ws_scheme}://{host}{prefix}/ws?role=phone&room={room_code}"),
-                    "httpUrl": format!("{scheme}://{host}{prefix}"),
-                    "online": true,
-                    "capabilities": {
-                        "maxResolution": { "width": 1920, "height": 1080 },
-                        "supportsWebGL2": true,
-                        "supportsWASMSIMD": true,
-                        "pixiVersion": "8.0"
-                    },
-                    "timestamp": std::time::SystemTime::now()
-                        .duration_since(std::time::UNIX_EPOCH)
-                        .unwrap_or_default()
-                        .as_millis()
-                })
-            })
-        })
-        .collect();
-
-    if let Some(first) = active_tvs.first() {
-        // 단일 TV 및 전체 목록 동시 지원
-        let mut resp = first.clone();
-        resp["tvs"] = serde_json::json!(active_tvs);
-        resp["count"] = serde_json::json!(active_tvs.len());
-        (StatusCode::OK, Json(resp)).into_response()
-    } else {
-        let empty = serde_json::json!({
-            "type": "tv-announce-none",
-            "count": 0,
-            "tvs": [],
-            "message": "현재 켜져 있는 TV가 없습니다."
-        });
-        (StatusCode::OK, Json(empty)).into_response()
+    for (room_code, state) in map.iter() {
+        if let Some(tv) = &state.tv {
+            announcements.push(TvAnnouncement {
+                msg_type: "tv-announce".to_string(),
+                room_code: room_code.clone(),
+                tv_name: tv.display_name.clone(),
+                tv_id: format!("tv-{}", room_code),
+                ws_url: format!("ws://{}/ws?role=phone&room={}", hostname, room_code),
+                http_url: format!("http://{}", hostname),
+                capabilities: TvCapabilities {
+                    max_resolution: Resolution { width: 1920, height: 1080 },
+                    supports_web_gl2: true,
+                    supports_wasm_simd: false,
+                    pixi_version: "8.6.6".to_string(),
+                },
+                timestamp: tv.connected_at,
+            });
+        }
     }
+
+    (
+        StatusCode::OK,
+        [
+            (header::ACCESS_CONTROL_ALLOW_ORIGIN, "*"),
+            (header::CONTENT_TYPE, "application/json"),
+        ],
+        serde_json::to_string(&announcements).unwrap(),
+    )
 }
 
 async fn ws_handler(
     ws: WebSocketUpgrade,
+    ConnectInfo(addr): ConnectInfo<SocketAddr>,
     Query(q): Query<WsQuery>,
     State(rooms): State<Rooms>,
 ) -> impl IntoResponse {
@@ -216,7 +180,7 @@ async fn ws_handler(
     let room_code = q.room.to_uppercase();
 
     ws.on_upgrade(move |socket| async move {
-        handle_socket(socket, rooms, role, room_code, q.name).await;
+        handle_socket(socket, rooms, role, room_code, q.name, addr).await;
     })
     .into_response()
 }
@@ -227,6 +191,7 @@ async fn handle_socket(
     role: Role,
     room: String,
     name: Option<String>,
+    addr: SocketAddr,
 ) {
     let (mut sink, mut stream) = socket.split();
     let (tx, mut rx) = mpsc::unbounded_channel::<Message>();
@@ -235,6 +200,11 @@ async fn handle_socket(
     let peers_info = {
         let mut map = rooms.lock().await;
         let state = map.entry(room.clone()).or_default();
+
+        let connected_at = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_millis() as u64;
 
         match role {
             Role::Tv => {
@@ -247,6 +217,8 @@ async fn handle_socket(
                 state.tv = Some(Participant {
                     display_name: name.clone().unwrap_or_else(|| "TV".into()),
                     tx: tx.clone(),
+                    ip: addr.ip().to_string(),
+                    connected_at,
                 });
             }
             Role::Phone => {
@@ -263,6 +235,8 @@ async fn handle_socket(
                 state.phones.push(Participant {
                     display_name: name.unwrap_or_else(|| "Phone".into()),
                     tx: tx.clone(),
+                    ip: addr.ip().to_string(),
+                    connected_at,
                 });
             }
         }

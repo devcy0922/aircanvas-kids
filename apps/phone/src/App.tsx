@@ -12,46 +12,22 @@ import { GameStateMachine } from './lib/gameStateMachine';
 import { TVCommandSender } from './lib/tvCommandSender';
 import { PhoneControls } from './components/PhoneControls';
 import { CalibViewfinder, CALIB_TARGETS } from './components/CalibViewfinder';
-import { CastHelper } from './lib/castHelper';
 
-function getDefaultServerBase(): string {
+const SERVER_BASE = (() => {
   const q = new URLSearchParams(location.search);
-  const explicit = q.get('server');
-  if (explicit) return explicit;
-  const isHttps = location.protocol === 'https:';
-  const hasKidsSubpath = location.pathname.startsWith('/kids');
-  const subpathPrefix = hasKidsSubpath ? '/kids' : '';
+  return q.get('server') ?? `${location.protocol}//${location.hostname}:7180`;
+})();
 
-  if (isHttps || (location.port !== '5173' && location.port !== '5174' && location.port !== '3000')) {
-    return `${location.protocol}//${location.host}${subpathPrefix}`;
-  }
-  // 로컬 개발 환경 기본값 (릴레이 서버 포트 8180)
-  return `http://${location.hostname}:8180${subpathPrefix}`;
-}
-
-function getDefaultContentBase(): string {
+const CONTENT_SERVER_BASE = (() => {
   const q = new URLSearchParams(location.search);
-  const explicit = q.get('content');
-  if (explicit) return explicit;
-  const isHttps = location.protocol === 'https:';
-  const hasKidsSubpath = location.pathname.startsWith('/kids');
-  const subpathPrefix = hasKidsSubpath ? '/kids' : '';
-
-  if (isHttps || (location.port !== '5173' && location.port !== '5174' && location.port !== '3000')) {
-    return `${location.protocol}//${location.host}${subpathPrefix}/content`;
-  }
-  return `http://${location.hostname}:8180${subpathPrefix}/content`;
-}
-
-const SERVER_BASE = getDefaultServerBase();
-const CONTENT_SERVER_BASE = getDefaultContentBase();
+  return q.get('content') ?? `${location.protocol}//${location.hostname}:7181`;
+})();
 
 type Screen = 'loading' | 'discover' | 'lobby' | 'calib' | 'play' | 'gallery' | 'error';
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('loading');
   const [discoveredTVs, setDiscoveredTVs] = useState<DiscoveredTV[]>([]);
-  const [scanStatus, setScanStatus] = useState<'searching' | 'found' | 'none'>('searching');
   const [wsStatus, setWsStatus] = useState<'idle' | 'connecting' | 'open' | 'closed' | 'error'>('idle');
   const [packageLoadProgress, setPackageLoadProgress] = useState(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -61,7 +37,6 @@ export default function App() {
   const tvDiscoveryRef = useRef<TVDiscovery | null>(null);
   const gameStateRef = useRef<GameStateMachine | null>(null);
   const tvCommandSenderRef = useRef<TVCommandSender | null>(null);
-  const castHelperRef = useRef<CastHelper | null>(null);
 
   // 추적 파이프라인 ref들
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -69,7 +44,6 @@ export default function App() {
   const homographyRef = useRef<number[] | null>(null);
   const filterRef = useRef(new OneEuroPair());
   const lastPointRef = useRef<{ x: number; y: number; pinch: boolean } | null>(null);
-  const lastPinchRef = useRef(false);
   const strokeOpenRef = useRef(false);
   const strokePointsRef = useRef<{ x: number; y: number }[]>([]);
   const rafRef = useRef(0);
@@ -82,16 +56,11 @@ export default function App() {
   const [calibError, setCalibError] = useState<number | null>(null);
   const [mode, setMode] = useState<'fill' | 'free'>('fill');
   const [color, setColor] = useState<string>(PALETTE[0]);
-  const modeRef = useRef<'fill' | 'free'>('fill');
-  const colorRef = useRef<string>(PALETTE[0]);
 
-  // ref 동기화
-  useEffect(() => {
-    modeRef.current = mode;
-  }, [mode]);
-  useEffect(() => {
-    colorRef.current = color;
-  }, [color]);
+  const autoConnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const wsStatusRef = useRef(wsStatus);
+  wsStatusRef.current = wsStatus;
+  const onTVSelectRef = useRef<((tv: DiscoveredTV) => void) | null>(null);
 
   // 초기화
   useEffect(() => {
@@ -102,21 +71,32 @@ export default function App() {
       onReady: (pkg) => {
         gameStateRef.current?.setPackage(pkg);
         setScreen('discover');
-        tvDiscoveryRef.current?.start(SERVER_BASE);
+        tvDiscoveryRef.current?.start();
       },
     });
 
     // TV 디스커버리
     tvDiscoveryRef.current = new TVDiscovery({
+      serverBase: SERVER_BASE,
       onTVFound: (tv) => {
         setDiscoveredTVs((prev) => {
           const exists = prev.find((t) => t.announcement.tvId === tv.announcement.tvId);
           if (exists) return prev.map((t) => t.announcement.tvId === tv.announcement.tvId ? tv : t);
-          return [...prev, tv];
+          const newList = [...prev, tv];
+          
+          if (newList.length === 1 && wsStatusRef.current === 'idle' && !autoConnectTimerRef.current) {
+            autoConnectTimerRef.current = setTimeout(() => {
+              if (wsStatusRef.current === 'idle' && onTVSelectRef.current) {
+                onTVSelectRef.current(newList[0]);
+              }
+              autoConnectTimerRef.current = null;
+            }, 3000);
+          }
+          
+          return newList;
         });
       },
       onTVLost: (id) => setDiscoveredTVs((prev) => prev.filter((t) => t.announcement.tvId !== id)),
-      onScanStatus: (status) => setScanStatus(status),
       onError: (err) => console.warn('[TVDiscovery]', err),
     });
 
@@ -133,15 +113,8 @@ export default function App() {
       onError: (err) => setErrorMessage(err),
     });
 
-    // Cast 헬퍼 초기화 (TV 앱 URL 계산)
-    const tvAppUrl = (() => {
-      const isHttps = location.protocol === 'https:';
-      if (isHttps || (location.port !== '5173' && location.port !== '5174' && location.port !== '3000')) {
-        return `${location.protocol}//${location.host}/?mode=tv`;
-      }
-      return `http://${location.hostname}:5173`;
-    })();
-    castHelperRef.current = new CastHelper(tvAppUrl);
+    // TV 커맨드 송신기
+    // URL은 TV 선택 후 설정
 
     // 패키지 로드 시작
     packageManagerRef.current.loadOrDownload(CONTENT_SERVER_BASE);
@@ -160,36 +133,18 @@ export default function App() {
     };
   }, []);
 
-  const onCastTV = useCallback(async () => {
-    if (!castHelperRef.current) return;
-    const res = await castHelperRef.current.launchTV();
-    if (!res.success && res.message) {
-      alert(res.message);
-    }
-  }, []);
-
   // TV 선택 핸들러
   const onTVSelect = useCallback((tv: DiscoveredTV) => {
-    const selected = tvDiscoveryRef.current?.selectTV(tv.announcement.tvId);
-    if (!selected) return;
-    const { wsUrl: tvWsUrl, roomCode } = selected;
+    if (autoConnectTimerRef.current) {
+      clearTimeout(autoConnectTimerRef.current);
+      autoConnectTimerRef.current = null;
+    }
+    const { wsUrl: tvWsUrl, roomCode } = tvDiscoveryRef.current!.selectTV(tv.announcement.tvId)!;
     tvCommandSenderRef.current = new TVCommandSender(tvWsUrl, {
       onStatusChange: (status) => {
         setWsStatus(status);
-      },
-      onMessage: (msg) => {
-        if (msg.type === 'welcome') {
-          // peers 에 tv가 실제로 있는 경우에만 TV 연결됨으로 처리
-          const peers = Array.isArray(msg.peers) ? msg.peers : [];
-          if (peers.includes('tv') || peers.includes('TV')) {
-            gameStateRef.current?.onTVConnected(roomCode);
-          } else {
-            gameStateRef.current?.onTVDisconnected();
-          }
-        } else if (msg.type === 'peer-joined' && (msg.role === 'tv' || msg.role === 'TV')) {
+        if (status === 'open') {
           gameStateRef.current?.onTVConnected(roomCode);
-        } else if (msg.type === 'peer-left' && (msg.role === 'tv' || msg.role === 'TV')) {
-          gameStateRef.current?.onTVDisconnected();
         }
       },
       onError: (err) => setErrorMessage(err),
@@ -197,6 +152,11 @@ export default function App() {
     tvCommandSenderRef.current.connect();
     tvDiscoveryRef.current?.stop();
   }, []);
+
+  // autoConnect에서 사용하기 위해 최신 콜백 유지
+  useEffect(() => {
+    onTVSelectRef.current = onTVSelect;
+  }, [onTVSelect]);
 
   // TV 연결 끊기
   const onTVDisconnect = useCallback(() => {
@@ -279,42 +239,8 @@ export default function App() {
       lastPointRef.current = { ...clamped, pinch: hand.pinch };
       setLivePoint({ x: clamped.x, y: clamped.y });
 
-      const currentColor = colorRef.current;
-      const currentMode = modeRef.current;
-      const wasPinching = lastPinchRef.current;
-      const isPinching = hand.pinch;
-      lastPinchRef.current = isPinching;
-
-      // 1. TV에 실시간 커서 위치 전송 (30Hz)
-      gameStateRef.current?.onTrackedPoint(clamped.x, clamped.y, isPinching, currentColor);
-
-      // 2. Pinch 제스처 연동
-      if (currentMode === 'fill') {
-        // 핀치를 시작하는 순간 (Trigger) 영역 채색
-        if (isPinching && !wasPinching) {
-          gameStateRef.current?.onFillAt(clamped.x, clamped.y, currentColor);
-          if (typeof navigator !== 'undefined' && navigator.vibrate) {
-            navigator.vibrate(40);
-          }
-        }
-      } else if (currentMode === 'free') {
-        // 핀치 중일 때 점 수집
-        if (isPinching) {
-          if (!wasPinching) {
-            strokePointsRef.current = [];
-            if (typeof navigator !== 'undefined' && navigator.vibrate) {
-              navigator.vibrate(20);
-            }
-          }
-          strokePointsRef.current.push({ x: clamped.x, y: clamped.y });
-        } else if (wasPinching) {
-          // 핀치 해제 시 TV로 스트로크 전송
-          if (strokePointsRef.current.length >= 2) {
-            gameStateRef.current?.onStrokePoints(strokePointsRef.current, currentColor);
-          }
-          strokePointsRef.current = [];
-        }
-      }
+      // 게임 상태 머신에 포인트 전달
+      gameStateRef.current?.onTrackedPoint(clamped.x, clamped.y, hand.pinch, color);
 
       frames++;
       if (now - fpsTimer > 1000) {
@@ -368,21 +294,8 @@ export default function App() {
         onStatusChange: (status) => {
           setWsStatus(status);
           if (status === 'open') {
-            setScreen('lobby');
-          }
-        },
-        onMessage: (msg) => {
-          if (msg.type === 'welcome') {
-            const peers = Array.isArray(msg.peers) ? msg.peers : [];
-            if (peers.includes('tv') || peers.includes('TV')) {
-              gameStateRef.current?.onTVConnected(qrRoom);
-            } else {
-              gameStateRef.current?.onTVDisconnected();
-            }
-          } else if (msg.type === 'peer-joined' && (msg.role === 'tv' || msg.role === 'TV')) {
             gameStateRef.current?.onTVConnected(qrRoom);
-          } else if (msg.type === 'peer-left' && (msg.role === 'tv' || msg.role === 'TV')) {
-            gameStateRef.current?.onTVDisconnected();
+            setScreen('lobby');
           }
         },
         onError: (err) => setErrorMessage(err),
@@ -426,117 +339,41 @@ export default function App() {
 
   if (screen === 'discover') {
     return (
-      <div className="phone-root" style={{ padding: '20px', maxWidth: '480px', margin: '0 auto' }}>
-        <header style={{ textAlign: 'center', marginBottom: '24px' }}>
-          <h1 style={{ fontSize: '2rem', color: '#e76f51', margin: '0 0 4px 0' }}>🎨 AirCanvas Kids</h1>
-          <span style={{ fontSize: '0.9rem', color: '#666' }}>스마트 TV 연결 가이드</span>
+      <div className="phone-root">
+        <header>
+          <h1>AirCanvas</h1>
+          <span className="badge">TV 찾기</span>
         </header>
-
-        {/* 1. 실시간 TV 발견 카드 */}
-        {discoveredTVs.length > 0 ? (
-          <section style={{
-            background: '#e8f5e9',
-            border: '2px solid #4caf50',
-            borderRadius: '16px',
-            padding: '16px',
-            marginBottom: '20px',
-            boxShadow: '0 4px 12px rgba(76, 175, 80, 0.15)'
-          }}>
-            <h2 style={{ fontSize: '1.1rem', color: '#2e7d32', margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ display: 'inline-block', width: 10, height: 10, borderRadius: '50%', background: '#4caf50', animation: 'pulse 1.5s infinite' }} />
-              온라인 스마트 TV 발견됨!
-            </h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <section>
+          <h2>사용 가능한 TV</h2>
+          {discoveredTVs.length === 0 ? (
+            <p className="muted">TV를 검색 중입니다... (TV가 켜져 있고 같은 Wi-Fi에 연결되어 있는지 확인하세요)</p>
+          ) : (
+            <ul className="tv-list">
               {discoveredTVs.map((tv) => (
-                <button
-                  key={tv.announcement.tvId}
-                  onClick={() => onTVSelect(tv)}
-                  style={{
-                    background: '#ffffff',
-                    border: '1.5px solid #81c784',
-                    borderRadius: '12px',
-                    padding: '14px',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
-                  }}
-                >
-                  <div>
-                    <strong style={{ fontSize: '1.05rem', color: '#1b5e20', display: 'block' }}>{tv.announcement.tvName}</strong>
-                    <span style={{ fontSize: '0.85rem', color: '#666' }}>방 코드: <strong style={{ color: '#e76f51' }}>{tv.announcement.roomCode}</strong></span>
-                  </div>
-                  <span style={{ background: '#4caf50', color: '#fff', padding: '6px 12px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 'bold' }}>
-                    바로 연결 👉
-                  </span>
-                </button>
+                <li key={tv.announcement.tvId} onClick={() => onTVSelect(tv)}>
+                  <span className="tv-name">{tv.announcement.tvName}</span>
+                  <span className="tv-room">방: {tv.announcement.roomCode}</span>
+                </li>
               ))}
-            </div>
-          </section>
-        ) : (
-          <section style={{
-            background: '#fff8e1',
-            border: '1.5px solid #ffe082',
-            borderRadius: '16px',
-            padding: '16px',
-            marginBottom: '20px'
-          }}>
-            <h2 style={{ fontSize: '1rem', color: '#f57f17', margin: '0 0 8px 0' }}>
-              {scanStatus === 'searching' ? '📡 TV 상태 확인 중...' : '📺 켜져 있는 TV가 없습니다'}
-            </h2>
-            <p style={{ fontSize: '0.85rem', color: '#666', margin: '0 0 12px 0', lineHeight: 1.4 }}>
-              스마트 TV 브라우저에서 <strong style={{ color: '#e76f51' }}>play.aircanvas.kr</strong> 을 열어두시면 이 화면에 즉시 나타납니다.
+            </ul>
+          )}
+          {discoveredTVs.length === 1 && wsStatus === 'idle' && (
+            <p className="muted" style={{ marginTop: '1rem' }}>
+              TV가 1대 발견되어 곧 자동 연결됩니다...
             </p>
-            <button
-              onClick={onCastTV}
-              style={{
-                width: '100%',
-                background: '#2a9d8f',
-                color: '#fff',
-                border: 'none',
-                padding: '12px',
-                borderRadius: '10px',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                fontSize: '0.9rem'
-              }}
-            >
-              📺 스마트 TV로 화면 띄우기 (Cast)
-            </button>
-          </section>
-        )}
-
-        {/* 2. 수동 방 코드 입력 */}
-        <section style={{
-          background: '#ffffff',
-          border: '1px solid #e0e0e0',
-          borderRadius: '16px',
-          padding: '16px',
-          marginBottom: '20px'
-        }}>
-          <h3 style={{ fontSize: '0.95rem', color: '#333', margin: '0 0 8px 0' }}>TV 화면에 보이는 방 코드 직접 입력</h3>
+          )}
+        </section>
+        <section>
+          <h2>또는 수동 입력</h2>
           <ManualJoinForm onJoin={(roomCode) => {
             const tvWsUrl = wsUrl(SERVER_BASE, 'phone', roomCode);
             tvCommandSenderRef.current = new TVCommandSender(tvWsUrl, {
               onStatusChange: (status) => {
                 setWsStatus(status);
                 if (status === 'open') {
-                  setScreen('lobby');
-                }
-              },
-              onMessage: (msg) => {
-                if (msg.type === 'welcome') {
-                  const peers = Array.isArray(msg.peers) ? msg.peers : [];
-                  if (peers.includes('tv') || peers.includes('TV')) {
-                    gameStateRef.current?.onTVConnected(roomCode);
-                  } else {
-                    gameStateRef.current?.onTVDisconnected();
-                  }
-                } else if (msg.type === 'peer-joined' && (msg.role === 'tv' || msg.role === 'TV')) {
                   gameStateRef.current?.onTVConnected(roomCode);
-                } else if (msg.type === 'peer-left' && (msg.role === 'tv' || msg.role === 'TV')) {
-                  gameStateRef.current?.onTVDisconnected();
+                  setScreen('lobby');
                 }
               },
               onError: (err) => setErrorMessage(err),
@@ -545,35 +382,6 @@ export default function App() {
             tvDiscoveryRef.current?.stop();
           }} />
         </section>
-
-        {/* 3. 스마트폰 단독 테스트 모드 (Solo Mode) */}
-        <section style={{ textAlign: 'center', marginTop: '16px' }}>
-          <button
-            onClick={() => {
-              gameStateRef.current?.onTVConnected('SOLO01');
-              setScreen('lobby');
-            }}
-            style={{
-              background: 'transparent',
-              border: '1px dashed #999',
-              color: '#666',
-              padding: '10px 16px',
-              borderRadius: '8px',
-              fontSize: '0.85rem',
-              cursor: 'pointer'
-            }}
-          >
-            💡 TV 없이 스마트폰 단독 테스트 모드
-          </button>
-        </section>
-
-        <style>{`
-          @keyframes pulse {
-            0% { transform: scale(0.95); opacity: 0.8; }
-            50% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(0.95); opacity: 0.8; }
-          }
-        `}</style>
       </div>
     );
   }
@@ -631,7 +439,7 @@ export default function App() {
             strokePointsRef.current = [];
           }
         }}
-        sendFill={(x, y, c) => gameStateRef.current?.onFillAt(x, y, c)}
+        sendFill={(x, y, c) => gameStateRef.current?.onFillRegion(x, y, c)}
         artworks={artworks}
         onSelectTheme={onSelectTheme}
         onSelectArtwork={(artworkId) => onSelectArtwork(artworkId)}
@@ -645,7 +453,6 @@ export default function App() {
         progress={gameState?.progress ?? 0}
         tvConnected={wsStatus === 'open'}
         onDisconnect={onTVDisconnect}
-        onCastTV={onCastTV}
       />
       {screen === 'play' && (
         <button className="link-btn" onClick={redoCalib}>

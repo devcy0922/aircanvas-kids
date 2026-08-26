@@ -111,70 +111,27 @@
     },
     {
       "id": "TASK-009",
-      "name": "모바일 브라우저 HTTPS 환경 세팅 및 도메인 독립성 지원",
-      "status": "done",
-      "outputs": ["apps/phone/vite.config.ts", "apps/tv/vite.config.ts", "apps/phone/package.json", "apps/phone/src/App.tsx", "apps/tv/src/App.tsx"],
-      "verification": "dev:ssl 및 동적 window.location/도메인 처리 구현 완료"
+      "name": "폰 카메라 HTTPS 접근 구성(basic-ssl 또는 Caddy)",
+      "status": "pending"
     },
     {
       "id": "TASK-010",
-      "name": "Pinch 제스처 실연동 마무리",
-      "status": "done",
-      "outputs": ["apps/phone/src/App.tsx", "apps/phone/src/lib/gameStateMachine.ts"],
-      "verification": "채색 모드 pinch trigger 시 fill-at 송신 및 햅틱, 드로잉 모드 pinch 시 스트로크 수집/송신 구현 완료"
+      "name": "pinch 제스처 → TV 브러시 on/off 연결",
+      "status": "pending",
+      "note": "v0.2에서는 gameStateMachine.onTrackedPoint의 pinch 파라미터에 stroke 시작/종료 로직 연결"
     },
     {
       "id": "TASK-015",
-      "name": "fill-at 좌표 기반 채색 프로토콜 추가",
-      "status": "done",
-      "outputs": [
-        "packages/protocol/src/index.ts",
-        "apps/tv/src/engine/TVCommandHandler.ts",
-        "apps/tv/src/engine/GameEngine.ts",
-        "apps/phone/src/lib/gameStateMachine.ts",
-        "apps/phone/src/App.tsx"
-      ],
-      "verification": "npm run build 통과 및 TV 히트테스트 연동 완료"
+      "name": "fill-region 프로토콜 보완: 좌표 기반 region 판정 지원",
+      "status": "pending",
+      "note": "현재 TVCommandHandler.handleFillRegion은 regionId 필수 → 폰 좌표(x,y) 기반 히트테스트 커맨드(fill-at) 추가 필요"
     },
     {
       "id": "TASK-016",
-      "name": "TV /announce 디스커버리 엔드포인트 구현(Rust 서버)",
+      "name": "TV /announce 디스커버리 엔드포인트 구현(Rust 서버) 및 폰 자동 연결",
       "status": "done",
-      "outputs": ["server/src/main.rs", "server/Cargo.toml"],
-      "verification": "GET /announce 엔드포인트 및 CORS 허용 구현, cargo check 통과"
-    },
-    {
-      "id": "TASK-017",
-      "name": "agents/skills 가이드 체계 및 frontend-design 스킬 세팅",
-      "status": "done",
-      "outputs": [
-        "agents/skills/frontend-design/SKILL.md",
-        "agents/skills/aircanvas-architecture/SKILL.md",
-        "agents/skills/aircanvas-protocol/SKILL.md",
-        "agents/skills/aircanvas-calibration-tracking/SKILL.md",
-        "agents/skills/aircanvas-tv-engine/SKILL.md",
-        "agents/skills/aircanvas-relay-server/SKILL.md",
-        "agents/rules.md"
-      ],
-      "verification": "npm run build, cargo check 완료"
-    },
-    {
-      "id": "TASK-018",
-      "name": "AI 코딩툴(Cursor, Claude, Antigravity, Gemini, Codex) 배포 세팅 및 Makefile 구축",
-      "status": "done",
-      "outputs": [
-        "Makefile",
-        "AGENTS.md",
-        "CLAUDE.md",
-        "ANTIGRAVITY.md",
-        "GEMINI.md",
-        "CODEX.md",
-        "agents/scripts/link-tooling.sh"
-      ],
-      "verification": "make agents-link, make check 성공"
+      "outputs": ["server/src/main.rs", "apps/phone/src/lib/tvDiscovery.ts", "apps/phone/src/App.tsx", "docs/tv-kiosk-setup.md"],
+      "verification": "cargo check 및 npm run build 통과"
     }
   ]
 }
-
-
-
