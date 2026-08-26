@@ -5,8 +5,8 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-WorkingDirectory=/srv/projects/aircanvas-kids
-ExecStart=/srv/projects/aircanvas-kids/server/target/release/aircanvas-relay
+WorkingDirectory=/srv/airCanvas/aircanvas-kids
+ExecStart=/srv/airCanvas/aircanvas-kids/server/target/release/aircanvas-relay
 Environment=HT_BIND=0.0.0.0:8180
 Environment=RUST_LOG=info
 Restart=on-failure
