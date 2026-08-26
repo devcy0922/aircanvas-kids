@@ -6,8 +6,8 @@
 ## 1. 연결
 
 ```
-ws://<server>:8080/ws?role=tv&room=ABC123
-ws://<server>:8080/ws?role=phone&room=ABC123
+ws://<server>:7180/ws?role=tv&room=ABC123
+ws://<server>:7180/ws?role=phone&room=ABC123
 ```
 
 - `room`: 6자리 대문자 영숫자. TV가 생성하고 폰이 입력한다.

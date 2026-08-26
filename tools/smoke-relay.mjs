@@ -2,7 +2,7 @@
 import WebSocket from 'ws';
 
 const room = 'SMOKE1';
-const base = 'ws://localhost:8080';
+const base = 'ws://localhost:7180';
 
 const tv = new WebSocket(`${base}/ws?role=tv&room=${room}`);
 const results = { welcome: 0, joined: 0, point: false, fill: false };

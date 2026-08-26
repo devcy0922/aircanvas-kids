@@ -77,9 +77,9 @@ TV 화면에 4개 코너 마커를 순차 표시하고, 폰 카메라로 각 마
 ## 5. 네트워크 토폴로지
 
 ```
-[Phone] ──ws://server:8080/ws?role=phone&room=ABC123──┐
+[Phone] ──ws://server:7180/ws?role=phone&room=ABC123──┐
                                                        │  Rust Relay
-[TV]    ──ws://server:8080/ws?role=tv&room=ABC123─────┘
+[TV]    ──ws://server:7180/ws?role=tv&room=ABC123─────┘
 ```
 
 - 서버는 상태를 거의 갖지 않는 stateless 릴레이(방 코드 → 소켓 맵)이다.

@@ -1,18 +1,14 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import basicSsl from '@vitejs/plugin-basic-ssl';
-
-const isHttps = process.env.HTTPS === 'true' || process.env.SSL === 'true';
 
 export default defineConfig({
-  base: './',
-  plugins: [
-    react(),
-    ...(isHttps ? [basicSsl()] : []),
-  ],
+  plugins: [react()],
   server: {
     host: true,
-    port: 5174,
+    port: 7101,
+    // 스마트폰에서 https 없이 카메라를 쓰려면 LAN 내 https 프록시 또는
+    // Chrome flag(unsafely-treat-insecure-origin-as-secure) 설정이 필요하다.
+    // 개발 편의를 위해 기본 http 로 두고 README 에 안내한다.
   },
   build: {
     target: 'es2020',
