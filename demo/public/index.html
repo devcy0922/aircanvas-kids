@@ -10,13 +10,14 @@
 <style>
   :root {
     --orange: #f26a2c; --orange-deep: #d9561b; --orange-soft: #fff0e7; --orange-pale: #fff8f3;
-    --page: #f2f3f6; --white: #fff; --ink: #171717; --muted: #777d86; --line: #e5e7eb;
+    --page: #f2f3f6; --white: #fff; --ink: #171717; --muted: #777d86; --muted-strong: #515862; --line: #e5e7eb;
+    --font-number: "Pretendard", -apple-system, "Apple SD Gothic Neo", sans-serif;
     --blue-gray: #eef2f7; --good: #16845a; --good-soft: #e8f6ef; --warn: #ae6a17; --warn-soft: #fff4df;
     --radius: 16px; --ease: 160ms cubic-bezier(.2, .7, .2, 1);
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html { scroll-behavior: smooth; }
-  body { margin: 0; min-width: 320px; background: var(--page); color: var(--ink); font-family: "Pretendard", -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; }
+  body { margin: 0; min-width: 320px; background: var(--page); color: var(--ink); font-family: "Pretendard", -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; font-synthesis: none; }
   button, input { font: inherit; } button, a { -webkit-touch-callout: none; } button { color: inherit; } a { color: inherit; }
   .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
   .app { width: min(100%, 560px); min-height: 100svh; margin: 0 auto; background: var(--white); box-shadow: 0 0 36px rgba(22, 27, 34, .08); }
@@ -24,10 +25,10 @@
   .view[hidden] { display: none; }
 
   /* 미소처럼 홈에서는 큰 메시지만 먼저 보여준다. */
-  .home-hero { min-height: 565px; padding: 80px 28px 60px; background: var(--orange); color: #fff; display: flex; flex-direction: column; justify-content: center; }
+  .home-hero { min-height: 520px; padding: 72px 28px 54px; background: var(--orange); color: #fff; display: flex; flex-direction: column; justify-content: center; }
   .home-mark { display: inline-grid; place-items: center; width: 46px; height: 46px; margin-bottom: 42px; border: 1px solid rgba(255,255,255,.46); border-radius: 50%; font-size: 21px; font-weight: 900; }
   .home-kicker { margin: 0 0 18px; font-size: 13px; font-weight: 750; opacity: .82; }
-  .home-hero h1 { max-width: 390px; margin: 0; font-size: clamp(39px, 10vw, 62px); font-weight: 850; letter-spacing: -.085em; line-height: 1.08; }
+  .home-hero h1 { max-width: 390px; margin: 0; font-size: clamp(36px, 8.2vw, 48px); font-weight: 850; letter-spacing: -.075em; line-height: 1.12; }
   .home-hero h1 span { color: #fff2e9; }
   .home-lead { max-width: 350px; margin: 22px 0 0; color: rgba(255,255,255,.84); font-size: 14px; line-height: 1.7; }
   .hero-actions { display: flex; flex-direction: column; align-items: flex-start; gap: 15px; margin-top: 34px; }
@@ -58,24 +59,49 @@
   .screen-title { overflow: hidden; font-size: 19px; font-weight: 850; letter-spacing: -.06em; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
   .screen-content { padding: 27px 24px 35px; } .screen-content.gray { background: var(--page); min-height: calc(100svh - 64px); }
   .screen-eyebrow { margin: 0 0 11px; color: var(--orange-deep); font-size: 12px; font-weight: 850; }
-  .screen-content h1 { margin: 0; font-size: 33px; font-weight: 850; letter-spacing: -.08em; line-height: 1.12; } .screen-lead { margin: 12px 0 0; color: var(--muted); font-size: 14px; line-height: 1.65; }
+  .screen-content h1 { margin: 0; font-size: 30px; font-weight: 850; letter-spacing: -.075em; line-height: 1.15; } .screen-lead { margin: 12px 0 0; color: var(--muted); font-size: 14px; line-height: 1.65; }
 
   /* 미소의 예약하기처럼 질문과 선택을 순서대로 쌓는다. */
   .finder-progress { display: flex; align-items: center; justify-content: space-between; margin-bottom: 17px; color: var(--muted); font-size: 11px; font-weight: 750; }
   .finder-progress-bar { width: 125px; height: 5px; overflow: hidden; border-radius: 999px; background: #e3e6ea; } .finder-progress-bar span { display: block; height: 100%; border-radius: inherit; background: var(--orange); transition: width var(--ease); }
   .finder-thread { margin: 0 -24px; padding: 20px 16px 35px; background: var(--page); }
-  .thread-step { display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px; } .thread-question { max-width: 92%; padding: 20px 18px; border: 1px solid #e7e8eb; border-radius: var(--radius); background: var(--white); font-size: 22px; font-weight: 760; letter-spacing: -.06em; line-height: 1.3; } .thread-answer { align-self: flex-end; max-width: 86%; padding: 15px 19px; border-radius: 16px; background: var(--orange); color: #fff; font-size: 17px; font-weight: 800; line-height: 1.35; }
+  .thread-step { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; } .thread-question { max-width: 92%; padding: 18px 16px; border: 1px solid #e7e8eb; border-radius: var(--radius); background: var(--white); font-size: 20px; font-weight: 760; letter-spacing: -.06em; line-height: 1.3; } .thread-answer { align-self: flex-end; max-width: 86%; padding: 13px 17px; border-radius: 16px; background: var(--orange); color: #fff; font-size: 16px; font-weight: 800; line-height: 1.35; }
   .choice-area { margin: 0 -16px; padding: 25px 16px calc(25px + env(safe-area-inset-bottom)); background: var(--white); } .choice-area h2 { margin: 0 0 15px; font-size: 18px; font-weight: 850; letter-spacing: -.045em; }
-  .choice-list { display: grid; gap: 9px; } .choice-button { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 58px; border: 0; border-radius: 12px; padding: 0 17px; background: #f0f4fb; color: var(--orange-deep); font-size: 16px; font-weight: 800; text-align: left; cursor: pointer; transition: background var(--ease), transform var(--ease); } .choice-button::after { content: "›"; color: var(--muted); font-size: 26px; font-weight: 300; } .choice-button:hover { background: var(--orange-soft); transform: translateX(2px); }
+  .choice-list { display: grid; gap: 9px; } .choice-button { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 56px; border: 0; border-radius: 12px; padding: 0 17px; background: #f0f4fb; color: var(--orange-deep); font-size: 15px; font-weight: 800; text-align: left; cursor: pointer; transition: background var(--ease), transform var(--ease); } .choice-button::after { content: "›"; color: var(--muted); font-size: 26px; font-weight: 300; } .choice-button:hover { background: var(--orange-soft); transform: translateX(2px); }
   .date-picker { display: grid; gap: 9px; } .date-picker label { color: var(--muted); font-size: 12px; font-weight: 700; } .date-picker input { width: 100%; min-height: 50px; border: 1px solid var(--line); border-radius: 12px; padding: 0 14px; background: var(--white); color: var(--ink); font-size: 16px; }
   .inline-note { margin: 12px 0 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
 
-  /* 결과는 카드 그리드가 아니라 예약내역과 같은 콘텐츠 행이다. */
-  .result-intro { padding: 4px 0 24px; } .result-intro h1 { font-size: 30px; } .result-condition { margin: 11px 0 0; color: var(--muted); font-size: 12px; }
-  .result-list { border-top: 1px solid var(--line); } .result-row { padding: 19px 0 17px; border-bottom: 1px solid var(--line); } .result-row-main { display: grid; grid-template-columns: 48px minmax(0, 1fr) 22px; align-items: center; gap: 12px; } .result-mark { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: var(--orange-soft); color: var(--orange-deep); font-size: 18px; font-weight: 850; } .result-row h2 { margin: 0; font-size: 16px; font-weight: 850; letter-spacing: -.045em; } .result-row .result-meta { margin: 4px 0 0; color: var(--muted); font-size: 11px; line-height: 1.4; } .result-arrow { color: var(--ink); font-size: 29px; font-weight: 300; }
-  .result-status { display: inline-flex; margin: 13px 0 0 60px; border-radius: 999px; padding: 5px 8px; background: var(--good-soft); color: var(--good); font-size: 10px; font-weight: 800; } .result-status.warn { background: var(--warn-soft); color: var(--warn); }
-  .result-actions { display: flex; align-items: center; gap: 10px; margin: 12px 0 0 60px; } .small-action { min-height: 34px; border: 0; border-radius: 999px; padding: 0 12px; background: var(--orange-soft); color: var(--orange-deep); font-size: 11px; font-weight: 850; cursor: pointer; } .small-action.saved { background: var(--orange); color: #fff; } .official-action { color: var(--muted-strong); font-size: 11px; font-weight: 750; text-decoration: underline; text-underline-offset: 3px; }
-  .result-footnote { margin: 23px 0 0; color: var(--muted); font-size: 11px; line-height: 1.65; }
+  /* 결과는 시설명보다 회차·잔여·상태가 먼저 읽히는 3줄 압축 카드다. */
+  .result-intro { padding: 4px 0 18px; } .result-intro h1 { font-size: 28px; } .result-condition { margin: 8px 0 0; color: var(--muted); font-size: 12px; }
+  .result-list { display: grid; gap: 8px; }
+  .facility-card { overflow: hidden; border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px 10px; background: var(--white); transition: border-color var(--ease), background var(--ease); }
+  .facility-card:focus-within, .facility-card:hover { border-color: #f4b08e; background: #fffdfb; }
+  .facility-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; min-width: 0; }
+  .facility-card-title { min-width: 0; }
+  .facility-card h2 { overflow: hidden; margin: 0; font-size: 15px; font-weight: 850; letter-spacing: -.045em; text-overflow: ellipsis; white-space: nowrap; }
+  .facility-meta { overflow: hidden; margin: 3px 0 0; color: var(--muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+  .facility-age { flex: 0 0 auto; border-radius: 999px; padding: 4px 7px; background: var(--blue-gray); color: var(--muted-strong); font-size: 10px; font-weight: 800; }
+  .session-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 10px; }
+  .session-item { min-width: 0; border-radius: 9px; padding: 7px 6px 6px; background: #f7f8fa; text-align: center; }
+  .session-item.available { background: var(--good-soft); color: var(--good); } .session-item.warn { background: var(--warn-soft); color: var(--warn); }
+  .session-time, .session-number { display: block; font-family: var(--font-number); font-variant-numeric: tabular-nums; }
+  .session-time { font-size: 12px; font-weight: 850; letter-spacing: -.03em; } .session-number { overflow: hidden; margin-top: 2px; font-size: 11px; font-weight: 750; text-overflow: ellipsis; white-space: nowrap; }
+  .facility-card-foot { display: flex; align-items: center; gap: 9px; min-height: 28px; margin-top: 6px; }
+  .facility-check { overflow: hidden; margin-right: auto; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+  .small-action { min-height: 28px; border: 0; border-radius: 999px; padding: 0 9px; background: var(--orange-soft); color: var(--orange-deep); font-size: 10px; font-weight: 850; cursor: pointer; } .small-action.saved { background: var(--orange); color: #fff; }
+  .official-action { flex: 0 0 auto; color: var(--muted-strong); font-size: 10px; font-weight: 750; text-decoration: underline; text-underline-offset: 3px; }
+  .refresh-button { flex: 0 0 auto; min-height: 28px; border: 0; padding: 0; background: transparent; color: var(--muted); font-size: 10px; font-weight: 750; cursor: pointer; }
+  .facility-more { margin-top: 5px; border-top: 1px solid #f0f1f3; color: var(--muted); font-size: 11px; line-height: 1.55; }
+  .facility-more summary { padding-top: 7px; cursor: pointer; font-weight: 750; } .facility-more p { margin: 6px 0 2px; }
+  .result-footnote { margin: 18px 0 0; color: var(--muted); font-size: 11px; line-height: 1.65; }
+  .district-tools { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+  .district-tools p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.4; }
+  .region-all-button { min-height: 32px; border: 1px solid #f4b08e; border-radius: 999px; padding: 0 10px; background: var(--orange-pale); color: var(--orange-deep); font-size: 11px; font-weight: 850; cursor: pointer; }
+  .district-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; max-height: 300px; overflow-y: auto; padding: 2px; }
+  .district-option { display: flex; align-items: center; justify-content: space-between; min-height: 46px; border: 1px solid var(--line); border-radius: 10px; padding: 0 11px; background: var(--white); color: var(--ink); font-size: 13px; font-weight: 750; text-align: left; cursor: pointer; transition: border-color var(--ease), background var(--ease), color var(--ease); }
+  .district-option::after { content: ""; width: 7px; height: 7px; border: 1px solid #c4c9d0; border-radius: 50%; }
+  .district-option.selected { border-color: var(--orange); background: var(--orange-soft); color: var(--orange-deep); } .district-option.selected::after { border-color: var(--orange); background: var(--orange); }
+  .region-submit { margin-top: 12px; }
   .loading-line { padding: 50px 0; color: var(--muted); font-size: 14px; text-align: center; } .error-line { padding: 32px 0; color: var(--muted); font-size: 13px; line-height: 1.65; text-align: center; } .error-line button { display: block; margin: 14px auto 0; border: 0; background: transparent; color: var(--orange-deep); font-weight: 850; cursor: pointer; }
 
   /* 내역 / 공유 / 정보 */
@@ -104,7 +130,7 @@
     <section class="view" id="homeView" aria-label="홈">
       <div class="home-hero">
         <span class="home-mark" aria-hidden="true">S</span>
-        <p class="home-kicker">S-Kids · 서울형 키즈카페</p>
+        <p class="home-kicker">S-Kids</p>
         <h1>아이와 보낼<br />다음 하루를<br /><span>찾아보세요.</span></h1>
         <p class="home-lead">예약은 시작이에요.<br />갈 곳을 고르고, 함께할 하루를 준비해요.</p>
         <div class="hero-actions"><button class="hero-cta" id="homeFind" type="button"><span class="plus" aria-hidden="true">＋</span> 키즈카페 찾기</button><button class="hero-detail" type="button" data-view="profile">서비스 자세히 보기</button></div>
@@ -148,12 +174,13 @@ const DOW = ['일', '월', '화', '수', '목', '금', '토'];
 const STORAGE_KEY = 's-kids-saved-places';
 const STATUS_TEXT = { AVAILABLE: '가능', FULL: '마감', NOT_OPEN: '예약 전', CLOSED: '휴관', UNKNOWN: '확인 필요' };
 const STATUS_CLASS = { AVAILABLE: 'good', FULL: 'warn', NOT_OPEN: 'warn', CLOSED: 'warn', UNKNOWN: 'warn' };
+const SESSION_TIMES = { '1회': '10:00', '2회': '13:00', '3회': '15:30' };
 let districts = [];
 let savedPlaces = readSavedPlaces();
 let currentView = 'home';
 let finder = freshFinder();
 
-function freshFinder() { return { step: 0, date: '', dateLabel: '', ageMonths: null, ageLabel: '', district: '', districtLabel: '', lat: null, lng: null, radius: '', results: [], error: '' }; }
+function freshFinder() { return { step: 0, date: '', dateLabel: '', ageMonths: null, ageLabel: '', districts: [], districtLabel: '', lat: null, lng: null, radius: '', results: [], error: '' }; }
 function kstDate(date) { return new Date(date.getTime() + KST_MIN * 60000).toISOString().slice(0, 10); }
 function parseYmd(value) { return new Date(value + 'T12:00:00'); }
 function formatDate(value) { const date = parseYmd(value); return `${date.getMonth() + 1}월 ${date.getDate()}일 ${DOW[date.getDay()]}요일`; }
@@ -200,27 +227,34 @@ function renderFinder() {
 function choiceArea() {
   if (finder.step === 0) return `<div class="choice-area"><h2>날짜를 선택해주세요</h2><div class="choice-list"><button class="choice-button" data-date-choice="${addDays(0)}" data-date-label="오늘" type="button">오늘</button><button class="choice-button" data-date-choice="${addDays(1)}" data-date-label="내일" type="button">내일</button><button class="choice-button" data-date-choice="${nextSaturday()}" data-date-label="이번 주 토요일" type="button">이번 주말</button></div><div class="date-picker"><label for="customDate">다른 날짜를 고를게요</label><input id="customDate" type="date" min="${addDays(0)}" value="${finder.date || addDays(0)}" /><button class="choice-button" data-custom-date="true" type="button">선택한 날짜로 찾기</button></div></div>`;
   if (finder.step === 1) return `<div class="choice-area"><h2>아이 나이를 선택해주세요</h2><div class="choice-list"><button class="choice-button" data-age-months="24" data-age-label="0~2세" type="button">0~2세</button><button class="choice-button" data-age-months="60" data-age-label="3~5세" type="button">3~5세</button><button class="choice-button" data-age-months="120" data-age-label="6세 이상" type="button">6세 이상</button><button class="choice-button" data-age-months="" data-age-label="나이 미지정" type="button">나이는 나중에 고를게요</button></div><p class="inline-note">연령 정보가 확인되지 않은 시설은 결과에 따로 표시합니다.</p></div>`;
-  const districtChoices = ['서울 전체', ...(districts.length ? districts.slice(0, 6) : ['서초구', '마포구', '송파구', '강남구', '관악구', '노원구'])];
-  return `<div class="choice-area"><h2>어디에서 찾을까요?</h2><div class="choice-list"><button class="choice-button" data-nearby="true" type="button">내 위치 주변 5km</button>${districtChoices.map((district) => `<button class="choice-button" data-district="${escapeHtml(district === '서울 전체' ? '' : district)}" data-district-label="${escapeHtml(district)}" type="button">${escapeHtml(district)}</button>`).join('')}</div><p class="inline-note">위치를 허용하지 않아도 서울 전체 또는 자치구로 찾아볼 수 있어요.</p></div>`;
+  const districtChoices = districts.length ? districts : ['강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구', '노원구', '도봉구', '동대문구', '동작구', '마포구', '서대문구', '서초구', '성동구', '성북구', '송파구', '양천구', '영등포구', '용산구', '은평구', '종로구', '중구', '중랑구'];
+  const allSelected = finder.districts.length === 0;
+  const selectedCount = finder.districts.length;
+  return `<div class="choice-area"><h2>어디에서 찾을까요?</h2><div class="district-tools"><p>${allSelected ? '서울 전체에서 찾습니다' : `${selectedCount}개 지역을 골랐어요`}</p><button class="region-all-button" data-region-all="true" type="button">${allSelected ? '전체 선택됨' : '서울 전체'}</button></div><div class="district-grid" aria-label="자치구 선택">${districtChoices.map((district) => `<button class="district-option ${finder.districts.includes(district) ? 'selected' : ''}" data-district="${escapeHtml(district)}" type="button" aria-pressed="${finder.districts.includes(district)}">${escapeHtml(district)}</button>`).join('')}</div><button class="wide-orange-button region-submit" data-find-regions="true" type="button">${allSelected ? '서울 전체에서 찾기' : `${selectedCount}개 지역에서 찾기`}</button><button class="choice-button" data-nearby="true" type="button">내 위치 주변 5km</button><p class="inline-note">지역은 여러 곳을 고를 수 있어요. 기본값은 서울 전체입니다.</p></div>`;
 }
 function bindFinderChoices() {
   document.querySelectorAll('[data-date-choice]').forEach((button) => button.addEventListener('click', () => { finder.date = button.dataset.dateChoice; finder.dateLabel = button.dataset.dateLabel; finder.step = 1; renderFinder(); }));
   document.querySelector('[data-custom-date]')?.addEventListener('click', () => { const value = $('customDate').value; if (!value) { $('customDate').focus(); return; } finder.date = value; finder.dateLabel = formatDate(value); finder.step = 1; renderFinder(); });
   document.querySelectorAll('[data-age-months]').forEach((button) => button.addEventListener('click', () => { finder.ageMonths = button.dataset.ageMonths ? Number(button.dataset.ageMonths) : null; finder.ageLabel = button.dataset.ageLabel; finder.step = 2; renderFinder(); }));
-  document.querySelectorAll('[data-district]').forEach((button) => button.addEventListener('click', () => { finder.district = button.dataset.district; finder.districtLabel = button.dataset.districtLabel; finder.lat = null; finder.lng = null; finder.radius = ''; finder.step = 3; loadFinderResults(); }));
-  document.querySelector('[data-nearby]')?.addEventListener('click', () => { if (!navigator.geolocation) { finder.error = '이 브라우저에서는 위치를 사용할 수 없어요. 자치구를 골라주세요.'; renderFinder(); return; } navigator.geolocation.getCurrentPosition((position) => { finder.lat = position.coords.latitude; finder.lng = position.coords.longitude; finder.radius = '5'; finder.district = ''; finder.districtLabel = '내 위치 주변 5km'; finder.step = 3; loadFinderResults(); }, () => { finder.error = '위치를 확인하지 못했어요. 자치구를 골라주세요.'; renderFinder(); }); });
+  document.querySelectorAll('[data-district]').forEach((button) => button.addEventListener('click', () => { const district = button.dataset.district; finder.districts = finder.districts.includes(district) ? finder.districts.filter((item) => item !== district) : [...finder.districts, district]; renderFinder(); }));
+  document.querySelector('[data-region-all]')?.addEventListener('click', () => { finder.districts = []; renderFinder(); });
+  document.querySelector('[data-find-regions]')?.addEventListener('click', () => { finder.lat = null; finder.lng = null; finder.radius = ''; finder.districtLabel = finder.districts.length ? `${finder.districts.length}개 지역` : '서울 전체'; finder.step = 3; loadFinderResults(); });
+  document.querySelector('[data-nearby]')?.addEventListener('click', () => { if (!navigator.geolocation) { finder.error = '이 브라우저에서는 위치를 사용할 수 없어요. 지역 목록에서 골라주세요.'; renderFinder(); return; } navigator.geolocation.getCurrentPosition((position) => { finder.lat = position.coords.latitude; finder.lng = position.coords.longitude; finder.radius = '5'; finder.districts = []; finder.districtLabel = '내 위치 주변 5km'; finder.step = 3; loadFinderResults(); }, () => { finder.error = '위치를 확인하지 못했어요. 지역 목록에서 골라주세요.'; renderFinder(); }); });
 }
 async function loadFinderResults() {
   const target = $('finderContent'); target.innerHTML = `<div class="finder-progress"><span>3 / 3</span><span class="finder-progress-bar"><span style="width:100%"></span></span><span>맞는 곳 찾기</span></div><div class="loading-line">우리 가족에게 맞는 곳을 찾아보고 있어요…</div>`;
-  const params = new URLSearchParams({ date: finder.date }); if (finder.ageMonths != null) params.set('age_months', finder.ageMonths); if (finder.district) params.set('districts', finder.district); if (finder.lat != null && finder.lng != null) { params.set('lat', finder.lat); params.set('lng', finder.lng); params.set('radius_km', finder.radius || '5'); }
+  const params = new URLSearchParams({ date: finder.date }); if (finder.ageMonths != null) params.set('age_months', finder.ageMonths); if (finder.districts.length) params.set('districts', finder.districts.join(',')); if (finder.lat != null && finder.lng != null) { params.set('lat', finder.lat); params.set('lng', finder.lng); params.set('radius_km', finder.radius || '5'); }
   try { const response = await fetch('/api/facilities?' + params); if (!response.ok) throw new Error('search failed'); const data = await response.json(); finder.results = data.results; finder.error = ''; renderFinderResults(); } catch { finder.error = '시설을 불러오지 못했어요.'; renderFinderResults(); }
 }
-function resultStatus(facility) { const available = facility.availability.sessions.filter((session) => session.status === 'AVAILABLE').length; if (available) return { label: `${available}개 회차 가능 · 표시 수치 단위 미검증`, tone: 'good' }; const first = facility.availability.sessions[0]; return { label: `${STATUS_TEXT[first?.status] || '현황 확인 필요'} · 마지막 ${new Date(facility.availability.checked_at).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })} 확인`, tone: 'warn' }; }
+function sessionTone(session) { return session.status === 'AVAILABLE' ? 'available' : 'warn'; }
+function sessionLabel(session) { if (session.status === 'AVAILABLE' && session.displayed_number != null) return `표시 ${session.displayed_number}`; return STATUS_TEXT[session.status] || '확인 필요'; }
+function sessionTime(session) { return SESSION_TIMES[session.session_label] || session.session_label || '시간 확인'; }
+function checkedTime(value) { return value ? new Date(value).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '시간 미확인'; }
 function renderFinderResults() {
   const target = $('finderContent'); if (finder.error) { target.innerHTML = `<div class="error-line">${escapeHtml(finder.error)}<button type="button" id="retryFinder">다시 찾아볼게요</button></div>`; $('retryFinder').addEventListener('click', () => { finder.step = 2; finder.error = ''; renderFinder(); }); return; }
   const condition = [finder.dateLabel, finder.ageLabel, finder.districtLabel].filter(Boolean).join(' · ');
-  const rows = finder.results.map((facility, index) => { const status = resultStatus(facility); const saved = isSaved(facility.facility_id); const distance = facility.distance_km == null ? '거리 미제공' : `${facility.distance_km}km`; const url = facility.reservation_url_verified ? facility.reservation_url : 'https://umppa.seoul.go.kr'; return `<article class="result-row"><div class="result-row-main"><span class="result-mark" aria-hidden="true">${['○', '△', '□', '✦'][index % 4]}</span><div><h2>${escapeHtml(facility.name)}</h2><p class="result-meta">${escapeHtml(facility.district)} · ${escapeHtml(distance)}<br>${escapeHtml(facility.age_range ? `이용연령 ${facility.age_range}` : '이용연령 확인 필요')}</p></div><span class="result-arrow" aria-hidden="true">›</span></div><span class="result-status ${status.tone === 'warn' ? 'warn' : ''}">${escapeHtml(status.label)}</span><div class="result-actions"><button class="small-action save-place ${saved ? 'saved' : ''}" data-save-id="${escapeHtml(facility.facility_id)}" type="button">${saved ? '일정에 담김' : '일정에 담기'}</button><a class="official-action" href="${escapeHtml(url)}" target="_blank" rel="noopener">${facility.reservation_url_verified ? '공식 예약 보기' : '공식 포털 보기'} ↗</a><button class="refresh-button" data-refresh="${escapeHtml(facility.facility_id)}" data-date="${escapeHtml(finder.date)}" type="button">새로고침</button></div></article>`; }).join('');
-  target.innerHTML = `<div class="result-intro"><p class="screen-eyebrow">우리 가족에게 맞춰봤어요</p><h1>이런 곳을<br />찾아봤어요.</h1><p class="result-condition">${escapeHtml(condition)} · ${finder.results.length}곳</p></div><div class="result-list">${rows || '<div class="error-line">조건에 맞는 시설이 없어요.<button type="button" id="changeFinder">조건을 다시 고를게요</button></div>'}</div><p class="result-footnote">표시된 회차 현황은 데모 시뮬레이션입니다. 예약 가능·잔여석을 보장하지 않으며, 최종 예약은 공식 포털에서 확인해 주세요.</p><button class="wide-orange-button" id="restartFinder" type="button">다른 조건으로 찾아보기</button>`;
+  const rows = finder.results.map((facility) => { const saved = isSaved(facility.facility_id); const distance = facility.distance_km == null ? '거리 미제공' : `${facility.distance_km}km`; const url = facility.reservation_url_verified ? facility.reservation_url : 'https://umppa.seoul.go.kr'; const sessions = (facility.availability?.sessions || []).map((session) => `<div class="session-item ${sessionTone(session)}"><span class="session-time">${escapeHtml(sessionTime(session))}</span><span class="session-number">${escapeHtml(sessionLabel(session))}</span></div>`).join(''); return `<article class="facility-card"><div class="facility-card-head"><div class="facility-card-title"><h2>${escapeHtml(facility.name)}</h2><p class="facility-meta">${escapeHtml(facility.district)} · ${escapeHtml(distance)}</p></div><span class="facility-age">${escapeHtml(facility.age_range || '연령 확인')}</span></div><div class="session-strip" aria-label="회차별 시간과 표시 현황">${sessions || '<div class="session-item warn"><span class="session-time">회차 없음</span><span class="session-number">확인 필요</span></div>'}</div><div class="facility-card-foot"><span class="facility-check">${escapeHtml(checkedTime(facility.availability?.checked_at))} 확인 · 데모 표시</span><button class="small-action save-place ${saved ? 'saved' : ''}" data-save-id="${escapeHtml(facility.facility_id)}" type="button">${saved ? '담김' : '일정 담기'}</button><a class="official-action" href="${escapeHtml(url)}" target="_blank" rel="noopener">${facility.reservation_url_verified ? '공식 예약' : '공식 포털'} ↗</a><button class="refresh-button" data-refresh="${escapeHtml(facility.facility_id)}" data-date="${escapeHtml(finder.date)}" type="button">새로고침</button></div><details class="facility-more"><summary>이용 정보</summary><p>${escapeHtml(facility.age_range ? `이용 연령 ${facility.age_range}` : '이용 연령 확인 필요')} · ${escapeHtml(facility.open_days || '운영일 확인 필요')}<br />표시 숫자는 실제 잔여석·정원 단위 확인 전 데모 값입니다.</p></details></article>`; }).join('');
+  target.innerHTML = `<div class="result-intro"><p class="screen-eyebrow">예약 가능한 시간부터 볼게요</p><h1>갈 수 있는 곳</h1><p class="result-condition">${escapeHtml(condition)} · ${finder.results.length}곳</p></div><div class="result-list">${rows || '<div class="error-line">조건에 맞는 시설이 없어요.<button type="button" id="changeFinder">조건을 다시 고를게요</button></div>'}</div><p class="result-footnote">카드의 시간과 표시 수치는 데모입니다. 실제 잔여석·정원과 예약 가능 여부는 공식 포털에서 확인해 주세요.</p><button class="wide-orange-button" id="restartFinder" type="button">다른 조건으로 찾아보기</button>`;
   $('restartFinder').addEventListener('click', resetFinder); $('changeFinder')?.addEventListener('click', () => { finder.step = 0; renderFinder(); });
 }
 
