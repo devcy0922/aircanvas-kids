@@ -1,0 +1,50 @@
+# S-Kids 데모 (demo)
+
+Phase 1 MVP(시설·필터 검색) + Phase 2 구조(5분 캐시 · stale-while-revalidate · 수동 새로고침 cooldown/singleflight)를 **예약 수집 없이** 검증하는 데모 서비스입니다.
+
+## 데모 범위와 한계
+
+- **시설 목록**: 서울 열린데이터광장 '서울형 키즈카페 시설현황정보'(OA-21716) 스키마를 참고한 **예시 데이터** (`data/facilities.json`). `SC240801`만 문서에 인용된 실제 시설 ID이며 나머지는 데모용 가상 ID입니다.
+- **예약 현황**: `demo-simulator` — 결정적 해시로 생성된 **시뮬레이션 수치**입니다. 실제 공식 사이트에서 수집·조회하지 않습니다 (Phase 0 법적·봇 정책 검증 미완료, `docs/LEGAL_AND_ROBOTS.md` 준수).
+- UI 전체에 데모 배너와 '표시 수치(단위 미검증)' 표기를 노출합니다.
+- 공식 예약 버튼은 **검증된 URL**(SC240801)만 직접 연결하고, 나머지는 공식 포털 홈으로 안내합니다.
+
+## 구조
+
+```
+demo/
+├── server.js              # zero-dependency Node.js HTTP 서버 (API + 정적)
+├── data/facilities.json   # 데모 시설 Registry
+├── public/index.html      # 모바일 퍼스트 UI
+├── Dockerfile             # node:20-alpine
+└── .dockerignore
+```
+
+## API
+
+| Endpoint | 설명 |
+| --- | --- |
+| `GET /healthz` | 헬스체크 (mode: demo) |
+| `GET /api/districts` | 자치구 목록 |
+| `GET /api/facilities?districts=&age_months=&lat=&lng=&radius_km=&date=` | 필터 검색 + 회차별 현황 (캐시 5분, stale 표시) |
+| `POST /api/facilities/{id}/availability/refresh` `{date}` | 수동 새로고침. 5분 내 캐시면 200 cached, 60초 cooldown 초과 시에만 200 refreshed, cooldown 내 재요청은 429 + Retry-After + 기존 캐시 |
+
+거리 계산: 사용자 좌표 우선 (직선거리, haversine), 위치 미사용 시 자치구 중심점 기준 fallback, 좌표 없는 시설은 '거리 미제공'.
+연령 필터: 개월 기반, 규칙 미확인 시설은 '연령 확인 필요'로 포함.
+
+## 실행 (cy-server 기준)
+
+```bash
+cd /srv/products/s-kids
+docker compose config        # 검증
+docker compose up -d --build # 기동 (컨테이너명: s-kids, 포트 8123)
+docker compose ps
+curl -s localhost:8123/healthz
+```
+
+브라우저: `http://192.168.0.10:8123/`
+
+## 운영 노트
+
+- 실제 예약 수집을 활성화하려면 Phase 0(법적/봇 정책) 통과 후 `simulateFetch`를 collector adapter로 교체합니다. SSRF allowlist·rate limit·파서 fixture를 함께 준비해야 합니다 (`docs/DATA_PIPELINE.md` §6).
+- 캐시 TTL(300s)·cooldown(60s)은 상수(`CACHE_TTL_MS`, `REFRESH_COOLDOWN_MS`)로 관리하며, 운영 한도 확인 후 조정합니다.

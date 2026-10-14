@@ -1,0 +1,28 @@
+# S-Kids 데모 배포 (cy-server)
+#
+#   docker compose up -d          # 기동
+#   docker compose ps             # 상태 확인
+#   docker compose logs -f s-kids # 로그
+#   docker compose down           # 중단
+#
+# 컨테이너명: s-kids (네이밍 규약 유지)
+# 포트: 8123 (cy-server 8080-8099 대역 사용 포트 확인 후 8123 배정)
+services:
+  s-kids:
+    build:
+      context: ./demo
+      dockerfile: Dockerfile
+    container_name: s-kids
+    image: s-kids:demo
+    ports:
+      - "8123:8123"
+    environment:
+      - PORT=8123
+      - TZ=Asia/Seoul
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8123/healthz", ">/dev/null", "||", "exit", "1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
