@@ -44,6 +44,15 @@ curl -s localhost:8123/healthz
 
 브라우저: `http://192.168.0.10:8123/`
 
+## 엣지 도메인 (sk.moru.my)
+
+cy-server `edge-nginx`를 통해 `https://sk.moru.my/`로 노출합니다.
+
+- vhost: `platform-edge-infra/nginx/config/conf.d/sk-moru.conf` (저장소 내 백업: `.edge/sk-moru.conf`)
+- 인증서: `newsroom-moru-wildcard`(`*.moru.my`) — moru.my 인증서 SAN에 sk.moru.my 추가는 Let's Encrypt HTTP-01 fetch가 cy-server로 도달하지 않는 현상(2026-10-14)이 해결되면 수행
+- 프록시: `172.17.0.1:8123` (도커 브리지 게이트웨이 → s-kids 컨테이너 포트). 컨테이너 정지 시 nginx 전체 장애를 막기 위해 static upstream 대신 IP 기반 프록시
+- 변경 후 반영: `platform-edge-infra/scripts/nginx-reload.sh` (문법 검증 + graceful reload)
+
 ## 운영 노트
 
 - 실제 예약 수집을 활성화하려면 Phase 0(법적/봇 정책) 통과 후 `simulateFetch`를 collector adapter로 교체합니다. SSRF allowlist·rate limit·파서 fixture를 함께 준비해야 합니다 (`docs/DATA_PIPELINE.md` §6).
