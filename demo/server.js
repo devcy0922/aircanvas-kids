@@ -317,6 +317,25 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
+    const singleFacilityMatch = p.match(/^\/api\/facilities\/([^/]+)$/);
+    if (req.method === 'GET' && singleFacilityMatch) {
+      const facilityId = decodeURIComponent(singleFacilityMatch[1]);
+      const facility = FACILITIES.find((f) => f.facility_id === facilityId);
+      if (!facility) {
+        return sendJson(res, 404, { error: 'facility not found' });
+      }
+      const date = /^\d{4}-\d{2}-\d{2}$/.test(url.searchParams.get('date') || '')
+        ? url.searchParams.get('date')
+        : new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10);
+      const availability = await ensureAvailability(facility, date);
+      return sendJson(res, 200, {
+        ...facility,
+        age_range: ageRangeLabel(facility),
+        availability,
+        date,
+      });
+    }
+
     const refreshMatch = p.match(
       /^\/api\/facilities\/([^/]+)\/availability\/refresh$/
     );

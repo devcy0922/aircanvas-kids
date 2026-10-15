@@ -19,6 +19,10 @@ services:
     environment:
       - PORT=8123
       - TZ=Asia/Seoul
+    volumes:
+      - ./demo/public:/app/public:ro
+      - ./demo/data:/app/data:ro
+      - ./demo/server.js:/app/server.js:ro
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8123/healthz"]

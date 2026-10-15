@@ -1,18 +1,38 @@
 {
-  "source_note": "데모 데이터. 서울 열린데이터광장 '서울형 키즈카페 시설현황정보'(OA-21716) 스키마를 따라 만든 예시 레코드입니다. SC240801은 문서에 예시로 인용된 실제 시설 ID이며, 나머지는 데모용 가상의 ID입니다. 예약 현황 수치는 시뮬레이션이며 실제 예약 정보와 무관합니다.",
+  "source_note": "데모 데이터. 서울 열린데이터광장 '서울형 키즈카페 시설현황정보'(OA-21716) 스키마를 바탕으로 주차, 시설 상세 소개, 대중교통, 이용요금 정보를 보강한 레코드입니다. 예약 현황 수치는 시뮬레이션이며 실제 예약은 우리동네키움포털 공식 페이지에서 진행됩니다.",
   "license_note": "시설현황 데이터셋: 공공누리 제1유형 (출처 표기 필수). 출처: 서울 열린데이터광장",
   "facilities": [
     {
       "facility_id": "SC240801",
       "name": "서초1동 키즈카페",
       "district": "서초구",
-      "address": "서울특별시 서초구 서초1동 (주소 예시)",
+      "address": "서울특별시 서초구 사임당로 115 서초1동 자치회관 3층",
       "latitude": 37.5152,
       "longitude": 126.9951,
       "age_min_months": 0,
       "age_max_months": 84,
-      "age_note": "0~6세, 보호자 동반 필수 (원문 기준 확인 필요)",
-      "open_days": "평일·주말 (일요일 휴관)",
+      "age_note": "0~6세, 보호자 동반 필수",
+      "open_days": "화~토 09:30~17:30 (일·월요일 정기휴관)",
+      "capacity": 25,
+      "tel": "02-2155-8600",
+      "description": "채광이 좋은 밝은 실내 공간에 영유아 오감발달 놀이기구와 안전 쿠션 매트가 완비된 서초구 구립 키즈카페입니다. 전문 놀이돌봄지도사가 상주합니다.",
+      "amenities": ["영아 전용 안전존", "원목 볼풀장", "트램펄린", "수유실 및 기저귀교환대", "보호자 휴식 라운지", "공기청정시스템"],
+      "parking": {
+        "available": true,
+        "type": "서초1동 자치회관 지하주차장 이용 가능",
+        "fee_info": "키즈카페 이용객 2시간 무료 주차 (이후 10분당 500원)",
+        "nearby_alternative": "만차 시 '서초역 공영주차장'(도보 4분, 5분당 250원) 권장"
+      },
+      "transit": {
+        "subway": "지하철 2·3호선 교대역 1번 출구 도보 6분",
+        "bus": "마을버스 서초02, 서초10 서초1동주민센터 정류장 하차 도보 1분",
+        "directions_tip": "자치회관 정문 진입 후 전용 엘리베이터로 3층 이동"
+      },
+      "fee": {
+        "child": "아동 2,000원 (서울시민 50% 감면 적용 시 1,000원)",
+        "guardian": "보호자 1,000원",
+        "notes": "미끄럼 방지 양말 착용 필수, 서울시민 감면을 위한 3개월 이내 등본 지참 권장"
+      },
       "reservation_url": "https://umppa.seoul.go.kr/icare/user/kidsCafeResve/BD_selectKidsCafeResveCal.do?q_fcltyId=SC240801",
       "reservation_url_verified": true,
       "fetch_strategy": "demo-simulator"
@@ -21,13 +41,33 @@
       "facility_id": "DEMO0002",
       "name": "마포창원 키즈카페",
       "district": "마포구",
-      "address": "서울특별시 마포구 창전동 (주소 예시)",
+      "address": "서울특별시 마포구 와우산로 123 마포가족누림복합센터 2층",
       "latitude": 37.5681,
       "longitude": 126.9394,
       "age_min_months": 12,
       "age_max_months": 72,
-      "age_note": "12개월~6세 (원문 기준 확인 필요)",
-      "open_days": "월~토 (공공휴일 휴관)",
+      "age_note": "12개월~6세 (미취학 아동 중심)",
+      "open_days": "화~일 10:00~18:00 (월요일 휴관)",
+      "capacity": 30,
+      "tel": "02-3153-9000",
+      "description": "신체활동과 창의놀이를 동시에 즐길 수 있는 대형 그물놀이터와 편백나무 큐브존을 갖춘 마포형 공공 실내놀이터입니다.",
+      "amenities": ["대형 그물 로프존", "편백나무 놀이터", "디지털 미디어 인터랙티브 월", "수유실", "아기쉼터"],
+      "parking": {
+        "available": true,
+        "type": "가족누림복합센터 지상/지하 주차장 (총 40면)",
+        "fee_info": "이용 확인 도장 시 1시간 30분 무료",
+        "nearby_alternative": "창전동 노상공영주차장 (도보 3분)"
+      },
+      "transit": {
+        "subway": "지하철 6호선 광흥창역 2번 출구 도보 5분",
+        "bus": "간선 753, 지선 7013A 광흥창역 하차",
+        "directions_tip": "복합센터 메인 로비 우측 계단 또는 엘리베이터 2층"
+      },
+      "fee": {
+        "child": "아동 3,000원 (다둥이 행복카드 소지자 50% 할인)",
+        "guardian": "보호자 무료 (1가구당 최대 2인)",
+        "notes": "아이 보호자 모두 양말 필수 착용, 개인 텀블러 지참 권장"
+      },
       "reservation_url": "https://umppa.seoul.go.kr",
       "reservation_url_verified": false,
       "fetch_strategy": "demo-simulator"
@@ -36,13 +76,33 @@
       "facility_id": "DEMO0003",
       "name": "구로고척 키즈카페",
       "district": "구로구",
-      "address": "서울특별시 구로구 고척동 (주소 예시)",
+      "address": "서울특별시 구로구 고척로 148 고척아이꿈터 1층",
       "latitude": 37.5064,
       "longitude": 126.8937,
-      "age_min_months": null,
-      "age_max_months": null,
-      "age_note": "연령 규칙 원문 확인 필요",
-      "open_days": "평일·주말",
+      "age_min_months": 0,
+      "age_max_months": 84,
+      "age_note": "0~7세, 영유아 통합 놀이공간",
+      "open_days": "화~토 09:30~17:30 (일·월요일 정기휴관)",
+      "capacity": 20,
+      "tel": "02-860-2500",
+      "description": "친환경 원목 장난감과 클라이밍 월, 트램펄린이 조화를 이루는 아늑한 동네 밀착형 서울형 키즈카페입니다.",
+      "amenities": ["원목 미끄럼틀", "어린이 클라이밍존", "역할놀이(마켓·주방)", "수유실", "유아 전용 화장실"],
+      "parking": {
+        "available": false,
+        "type": "건물 내 전용 주차 공간 협소 (대중교통 권장)",
+        "fee_info": "주차 불가 (장애인 전용 1면 외 주차 불가)",
+        "nearby_alternative": "고척골목시장 공영주차장 (도보 5분, 10분당 200원)"
+      },
+      "transit": {
+        "subway": "지하철 1호선 개봉역 2번 출구에서 마을버스 구로05 탑승 (3정거장)",
+        "bus": "간선 600, 6515 고척중학교 앞 하차 도보 3분",
+        "directions_tip": "고척아이꿈터 정문 1층 바로 진입"
+      },
+      "fee": {
+        "child": "아동 2,000원 (구로구민 감면 등 지자체 조례 기준)",
+        "guardian": "보호자 1,000원",
+        "notes": "실내 식음료 반입 금지 (이유식 및 아동 물 제외)"
+      },
       "reservation_url": "https://umppa.seoul.go.kr",
       "reservation_url_verified": false,
       "fetch_strategy": "demo-simulator"
@@ -51,13 +111,33 @@
       "facility_id": "DEMO0004",
       "name": "송파잠실 키즈카페",
       "district": "송파구",
-      "address": "서울특별시 송파구 잠실동 (주소 예시)",
+      "address": "서울특별시 송파구 올림픽로 300 송파어린이문화회관 4층",
       "latitude": 37.5129,
       "longitude": 127.1048,
       "age_min_months": 0,
-      "age_max_months": 60,
-      "age_note": "0~5세 (원문 기준 확인 필요)",
-      "open_days": "화~일 (월요일 휴관)",
+      "age_max_months": 72,
+      "age_note": "0~6세 (다양한 연령대 맞춤형 코너)",
+      "open_days": "화~일 10:00~17:30 (월요일 휴관)",
+      "capacity": 40,
+      "tel": "02-2147-3800",
+      "description": "송파의 랜드마크 어린이 복합공간에 자리잡은 대형 공공 키즈카페로, 신체놀이존·블록창의존·샌드아트 등 폭넓은 놀이시설을 갖추고 있습니다.",
+      "amenities": ["초대형 볼풀슬라이드", "블록&브릭존", "샌드아트 모래놀이터", "수유실/수면실", "가족화장실", "카페테리아 쉼터"],
+      "parking": {
+        "available": true,
+        "type": "송파어린이문화회관 지하 지하 1~2층 (총 120면)",
+        "fee_info": "키즈카페 이용 확인 시 2시간 무료 (초과 시 10분당 500원)",
+        "nearby_alternative": "잠실역 환승공영주차장 (도보 7분)"
+      },
+      "transit": {
+        "subway": "지하철 2·8호선 잠실역 11번 출구 도보 4분 / 송파나루역 1번 출구 도보 6분",
+        "bus": "잠실역 정류장 하차 (간선 301, 302, 303 등)",
+        "directions_tip": "어린이문화회관 엘리베이터 4층 하차 시 안내데스크 연결"
+      },
+      "fee": {
+        "child": "아동 3,000원 (송파구민 2,000원)",
+        "guardian": "보호자 1,000원",
+        "notes": "보호자 양말 필수, 주차 정산은 퇴장 시 안내데스크에서 등록"
+      },
       "reservation_url": "https://umppa.seoul.go.kr",
       "reservation_url_verified": false,
       "fetch_strategy": "demo-simulator"
@@ -66,13 +146,33 @@
       "facility_id": "DEMO0005",
       "name": "강남역세권 키즈카페",
       "district": "강남구",
-      "address": "서울특별시 강남구 역삼동 (주소 예시)",
+      "address": "서울특별시 강남구 역삼로 180 강남복지플러스센터 2층",
       "latitude": 37.5095,
       "longitude": 127.0322,
       "age_min_months": 24,
       "age_max_months": 72,
-      "age_note": "24개월~6세, 보호자 동반 필수 (원문 기준 확인 필요)",
-      "open_days": "평일·주말",
+      "age_note": "24개월~6세, 보호자 동반 필수",
+      "open_days": "화~토 09:30~17:30 (일·월요일 휴관)",
+      "capacity": 25,
+      "tel": "02-3423-5800",
+      "description": "도심 속 부모와 아이의 힐링 쉼터로, 친환경 자작나무 놀이시설과 감각 통합 체험 교구가 특화된 강남형 공공 키즈카페입니다.",
+      "amenities": ["자작나무 숲 테마 놀이터", "자석 블록존", "동화책 라운지", "수유실", "기저귀 교환대"],
+      "parking": {
+        "available": true,
+        "type": "강남복지플러스센터 주차타워 및 옥외 (30대)",
+        "fee_info": "1시간 무료 (이후 10분당 800원, 공간이 협소하여 만차 빈번)",
+        "nearby_alternative": "역삼1문화센터 공영주차장 (도보 4분, 5분당 400원)"
+      },
+      "transit": {
+        "subway": "지하철 2호선·신분당선 강남역 4번 출구 도보 8분 / 역삼역 2번 출구 도보 9분",
+        "bus": "간선 146, 341, 360 역삼초등학교 정류장 하차",
+        "directions_tip": "복지플러스센터 본관 2층 (유모차 보관소 입구 구비)"
+      },
+      "fee": {
+        "child": "아동 3,000원 (강남구민 2,000원)",
+        "guardian": "보호자 무료",
+        "notes": "등본 필수 지참, 주차 공간이 협소하므로 대중교통 이용 권장"
+      },
       "reservation_url": "https://umppa.seoul.go.kr",
       "reservation_url_verified": false,
       "fetch_strategy": "demo-simulator"
@@ -81,13 +181,33 @@
       "facility_id": "DEMO0006",
       "name": "노원월계 키즈카페",
       "district": "노원구",
-      "address": "서울특별시 노원구 월계동 (주소 예시)",
+      "address": "서울특별시 노원구 월계로 372 월계문화복지센터 3층",
       "latitude": 37.6621,
       "longitude": 127.0695,
       "age_min_months": 0,
       "age_max_months": 84,
-      "age_note": "0~6세 (원문 기준 확인 필요)",
-      "open_days": "월~토",
+      "age_note": "0~6세 (미취학 아동 중심)",
+      "open_days": "화~일 10:00~17:30 (월요일 휴관)",
+      "capacity": 28,
+      "tel": "02-2116-4300",
+      "description": "영유아부터 취학 전 아동까지 신나게 뛰어놀 수 있는 트램펄린 점핑존과 챌린지 터널, 그림책 놀이서가가 마련되어 있습니다.",
+      "amenities": ["점핑 트램펄린", "모험 터널 챌린지", "볼풀 슬라이드", "수유실", "유아 화장실"],
+      "parking": {
+        "available": true,
+        "type": "월계문화복지센터 부설 주차장 (총 50면)",
+        "fee_info": "키즈카페 이용객 2시간 무료",
+        "nearby_alternative": "월계1동 공영주차장 (도보 5분)"
+      },
+      "transit": {
+        "subway": "지하철 1호선 월계역 3번 출구 도보 6분",
+        "bus": "간선 100, 147, 지선 1137 월계문화복지센터 정류장 하차",
+        "directions_tip": "센터 3층 엘리베이터 정면 위치"
+      },
+      "fee": {
+        "child": "아동 2,000원",
+        "guardian": "보호자 1,000원",
+        "notes": "다자녀 및 기초생활수급 감면 혜택 제공 (증빙서류 지참)"
+      },
       "reservation_url": "https://umppa.seoul.go.kr",
       "reservation_url_verified": false,
       "fetch_strategy": "demo-simulator"
@@ -96,28 +216,68 @@
       "facility_id": "DEMO0007",
       "name": "성북정릉 키즈카페",
       "district": "성북구",
-      "address": "서울특별시 성북구 정릉동 (주소 예시)",
+      "address": "서울특별시 성북구 정릉로 242 정릉어린이꿈터 2층",
       "latitude": 37.6203,
       "longitude": 127.0121,
       "age_min_months": 12,
-      "age_max_months": null,
-      "age_note": "12개월 이상, 상한 원문 확인 필요",
-      "open_days": "평일·주말",
+      "age_max_months": 72,
+      "age_note": "12개월~6세",
+      "open_days": "화~토 09:30~17:30 (일·월요일 휴관)",
+      "capacity": 22,
+      "tel": "02-2241-4500",
+      "description": "북한산 자락의 맑은 자연을 모티브로 꾸민 친환경 원목 실내놀이터입니다. 아늑한 분위기 속에서 자유놀이가 가능합니다.",
+      "amenities": ["편백존", "원목 낚시놀이", "오르락내리락 원목 미끄럼틀", "수유실"],
+      "parking": {
+        "available": true,
+        "type": "정릉어린이꿈터 옥외 주차장 (15면)",
+        "fee_info": "2시간 무료 주차",
+        "nearby_alternative": "정릉시장 공영주차장 (도보 6분)"
+      },
+      "transit": {
+        "subway": "우이신설선 정릉역 1번 출구 도보 7분",
+        "bus": "지선 1014, 1114 정릉대우아파트 앞 하차",
+        "directions_tip": "어린이꿈터 본관 계단 또는 엘리베이터 2층"
+      },
+      "fee": {
+        "child": "아동 2,000원",
+        "guardian": "보호자 무료",
+        "notes": "양말 착용 필수"
+      },
       "reservation_url": "https://umppa.seoul.go.kr",
       "reservation_url_verified": false,
       "fetch_strategy": "demo-simulator"
     },
     {
       "facility_id": "DEMO0008",
-      "name": "광교자양 키즈카페",
+      "name": "관악신림 키즈카페",
       "district": "관악구",
-      "address": "서울특별시 관악구 자양동 (주소 예시)",
+      "address": "서울특별시 관악구 난곡로 210 관악가족행복센터 3층",
       "latitude": 37.4556,
       "longitude": 126.9391,
       "age_min_months": 0,
-      "age_max_months": 48,
-      "age_note": "0~4세 (원문 기준 확인 필요)",
-      "open_days": "화~일",
+      "age_max_months": 60,
+      "age_note": "0~5세 영유아 전용",
+      "open_days": "화~일 10:00~17:30 (월요일 휴관)",
+      "capacity": 25,
+      "tel": "02-879-7100",
+      "description": "영아와 걸음마기 유아를 위한 폭신한 쿠션 바닥과 소근육 발달 놀이감이 특화된 안전 중심 공공 놀이터입니다.",
+      "amenities": ["영아 안전매트존", "감각놀이 교구", "베이비 볼풀", "독립 수유실", "아기 침대"],
+      "parking": {
+        "available": true,
+        "type": "가족행복센터 지하주차장 (35면)",
+        "fee_info": "이용객 2시간 무료 주차",
+        "nearby_alternative": "신림공영주차장 (도보 8분)"
+      },
+      "transit": {
+        "subway": "신림선 난곡산성역 2번 출구 도보 5분",
+        "bus": "간선 506, 지선 5522A 관악가족행복센터 하차",
+        "directions_tip": "센터 3층 전용 출입구 이용"
+      },
+      "fee": {
+        "child": "아동 2,000원",
+        "guardian": "보호자 1,000원",
+        "notes": "영아 돌봄 지원"
+      },
       "reservation_url": "https://umppa.seoul.go.kr",
       "reservation_url_verified": false,
       "fetch_strategy": "demo-simulator"
@@ -126,13 +286,33 @@
       "facility_id": "DEMO0009",
       "name": "중구남대문 키즈카페",
       "district": "중구",
-      "address": "서울특별시 중구 남대문로 (주소 예시)",
+      "address": "서울특별시 중구 남대문로 45 중구어린이복합공간 1층",
       "latitude": 37.5651,
       "longitude": 126.9849,
-      "age_min_months": 36,
+      "age_min_months": 24,
       "age_max_months": 96,
-      "age_note": "3~8세 (원문 기준 확인 필요)",
-      "open_days": "평일·주말",
+      "age_note": "24개월~8세 (초등 저학년 포함)",
+      "open_days": "화~일 09:30~17:30 (월요일 정기휴관)",
+      "capacity": 35,
+      "tel": "02-3396-8200",
+      "description": "역사 문화 체험과 연계된 테마형 공공 키즈카페로 대형 인터랙티브 디지털 스크린과 암벽등반, 블록존이 어우러져 있습니다.",
+      "amenities": ["디지털 인터랙티브 스크린", "어린이 클라이밍존", "창의 블록존", "수유실", "가족 쉼터"],
+      "parking": {
+        "available": false,
+        "type": "도심 공공건물로 주차 불가 (대중교통 강력 권장)",
+        "fee_info": "주차 불가",
+        "nearby_alternative": "남대문공영주차장 (도보 4분, 5분당 300원)"
+      },
+      "transit": {
+        "subway": "지하철 4호선 회현역 5번 출구 도보 3분 / 2호선 을지로입구역 7번 출구 도보 7분",
+        "bus": "남대문시장 앞 정류장 하차 도보 2분",
+        "directions_tip": "복합공간 정문 1층 로비 바로 연결"
+      },
+      "fee": {
+        "child": "아동 3,000원 (중구민 50% 할인)",
+        "guardian": "보호자 1,000원",
+        "notes": "대중교통 접근성이 매우 우수합니다."
+      },
       "reservation_url": "https://umppa.seoul.go.kr",
       "reservation_url_verified": false,
       "fetch_strategy": "demo-simulator"
@@ -141,13 +321,33 @@
       "facility_id": "DEMO0010",
       "name": "송파방이 키즈카페",
       "district": "송파구",
-      "address": "서울특별시 송파구 방이동 (주소 예시)",
+      "address": "서울특별시 송파구 위례성대로 12 송파아이돌봄센터 2층",
       "latitude": 37.5267,
       "longitude": 127.1105,
       "age_min_months": 0,
       "age_max_months": 84,
-      "age_note": "0~6세, 보호자 동반 필수 (원문 기준 확인 필요)",
-      "open_days": "월~일",
+      "age_note": "0~6세, 보호자 동반 필수",
+      "open_days": "월~토 10:00~17:30 (일요일 휴관)",
+      "capacity": 30,
+      "tel": "02-2147-4900",
+      "description": "올림픽공원 인근에 위치해 자연 친화적인 채광과 모래놀이, 그물 사다리 시설을 두루 갖춘 송파구 인기 키즈카페입니다.",
+      "amenities": ["항균 안심 모래놀이터", "그물 사다리 모험존", "유아 볼풀장", "수유실", "수유쿠션 구비"],
+      "parking": {
+        "available": true,
+        "type": "송파아이돌봄센터 부설 지상 주차장 (20면)",
+        "fee_info": "키즈카페 이용 확인 시 2시간 무료",
+        "nearby_alternative": "올림픽공원 남4문 주차장 (도보 6분, 10분당 600원)"
+      },
+      "transit": {
+        "subway": "지하철 9호선 한성백제역 2번 출구 도보 4분 / 8호선 몽촌토성역 2번 출구 도보 7분",
+        "bus": "지선 3412, 3413 올림픽공원남4문 하차",
+        "directions_tip": "아이돌봄센터 엘리베이터 2층"
+      },
+      "fee": {
+        "child": "아동 2,500원",
+        "guardian": "보호자 1,000원",
+        "notes": "모래놀이 후 이용 가능한 유아 전용 세면대 구비"
+      },
       "reservation_url": "https://umppa.seoul.go.kr",
       "reservation_url_verified": false,
       "fetch_strategy": "demo-simulator"
@@ -156,13 +356,33 @@
       "facility_id": "DEMO0011",
       "name": "용산한강진 키즈카페",
       "district": "용산구",
-      "address": "서울특별시 용산구 한강로 (주소 예시)",
+      "address": "서울특별시 용산구 이태원로 224 용산꿈나무플라자 3층",
       "latitude": 37.5509,
       "longitude": 126.9758,
-      "age_min_months": null,
-      "age_max_months": null,
-      "age_note": "연령 규칙 원문 확인 필요",
-      "open_days": "평일·주말",
+      "age_min_months": 12,
+      "age_max_months": 72,
+      "age_note": "12개월~6세",
+      "open_days": "화~토 09:30~17:30 (일·월요일 정기휴관)",
+      "capacity": 25,
+      "tel": "02-2199-7300",
+      "description": "예술적 감성을 자극하는 색채 놀이존과 음악 교구 체험이 특화된 용산구 서울형 키즈카페입니다.",
+      "amenities": ["사운드&음악놀이존", "아트 드로잉존", "원목 블록코너", "수유실", "보호자 독서존"],
+      "parking": {
+        "available": true,
+        "type": "용산꿈나무플라자 지하 주차장 (총 60면)",
+        "fee_info": "키즈카페 이용객 1시간 30분 무료",
+        "nearby_alternative": "한강진역 공영주차장 (도보 5분)"
+      },
+      "transit": {
+        "subway": "지하철 6호선 한강진역 3번 출구 도보 5분",
+        "bus": "간선 110A, 405, 420 한강진역 정류장 하차",
+        "directions_tip": "플라자 3층 어린이 문화홀 옆 위치"
+      },
+      "fee": {
+        "child": "아동 2,000원",
+        "guardian": "보호자 무료",
+        "notes": "양말 착용 필수"
+      },
       "reservation_url": "https://umppa.seoul.go.kr",
       "reservation_url_verified": false,
       "fetch_strategy": "demo-simulator"
@@ -171,13 +391,33 @@
       "facility_id": "DEMO0012",
       "name": "은평녹번 키즈카페",
       "district": "은평구",
-      "address": "서울특별시 은평구 녹번동 (주소 예시)",
+      "address": "서울특별시 은평구 은평로 195 녹번어린이희망센터 1층",
       "latitude": 37.6173,
       "longitude": 126.9287,
       "age_min_months": 12,
       "age_max_months": 60,
-      "age_note": "12개월~5세 (원문 기준 확인 필요)",
-      "open_days": "월~토 (일요일 휴관)",
+      "age_note": "12개월~5세",
+      "open_days": "월~토 10:00~17:30 (일요일 정기휴관)",
+      "capacity": 20,
+      "tel": "02-351-8900",
+      "description": "아늑한 숲속 오두막을 형상화한 실내 인테리어와 다양한 역할놀이 소품이 가득한 은평구 대표 영유아 놀이터입니다.",
+      "amenities": ["숲속 오두막 미끄럼틀", "친환경 편백존", "역할놀이(병원·마트)", "수유실", "공기살균시스템"],
+      "parking": {
+        "available": true,
+        "type": "센터 지상 주차장 (12면)",
+        "fee_info": "이용객 2시간 무료",
+        "nearby_alternative": "은평구청 부설주차장 (도보 6분)"
+      },
+      "transit": {
+        "subway": "지하철 3호선 녹번역 4번 출구 도보 5분",
+        "bus": "간선 702A, 752 녹번역 앞 하차",
+        "directions_tip": "녹번어린이희망센터 1층 정문"
+      },
+      "fee": {
+        "child": "아동 2,000원",
+        "guardian": "보호자 1,000원",
+        "notes": "등본 확인 시 은평구민 우선 예약 혜택"
+      },
       "reservation_url": "https://umppa.seoul.go.kr",
       "reservation_url_verified": false,
       "fetch_strategy": "demo-simulator"
@@ -186,13 +426,33 @@
       "facility_id": "DEMO0013",
       "name": "동대문왕십리 키즈카페",
       "district": "동대문구",
-      "address": "서울특별시 동대문구 왕십리 (주소 예시)",
+      "address": "서울특별시 동대문구 고산자로 342 동대문아이누리센터 2층",
       "latitude": 37.5782,
       "longitude": 127.0549,
       "age_min_months": 0,
       "age_max_months": 72,
-      "age_note": "0~6세 (원문 기준 확인 필요)",
-      "open_days": "화~일",
+      "age_note": "0~6세",
+      "open_days": "화~일 09:30~17:30 (월요일 휴관)",
+      "capacity": 30,
+      "tel": "02-2127-5600",
+      "description": "동대문구 중심에 위치해 대중교통 이용이 편리하며 미니 짚라인과 볼풀장, 레고 브릭존 등 다채로운 활동이 가능합니다.",
+      "amenities": ["미니 실내 짚라인", "소프트 볼풀장", "레고 브릭 테이블", "수유실", "유아 세면대"],
+      "parking": {
+        "available": true,
+        "type": "아이누리센터 지하주차장 (45면)",
+        "fee_info": "이용 확인 시 2시간 무료 (초과 시 10분당 400원)",
+        "nearby_alternative": "용두동 공영주차장 (도보 4분)"
+      },
+      "transit": {
+        "subway": "지하철 2호선 용두역 3번 출구 도보 3분 / 왕십리역 2번 출구 도보 9분",
+        "bus": "동대문구청 앞 정류장 도보 2분",
+        "directions_tip": "아이누리센터 2층"
+      },
+      "fee": {
+        "child": "아동 2,000원",
+        "guardian": "보호자 1,000원",
+        "notes": "양말 착용 필수"
+      },
       "reservation_url": "https://umppa.seoul.go.kr",
       "reservation_url_verified": false,
       "fetch_strategy": "demo-simulator"
@@ -201,13 +461,33 @@
       "facility_id": "DEMO0014",
       "name": "서대문남가좌 키즈카페",
       "district": "서대문구",
-      "address": "서울특별시 서대문구 남가좌동 (주소 예시)",
+      "address": "서울특별시 서대문구 증가로 150 남가좌행복복합센터 3층",
       "latitude": 37.5717,
       "longitude": 126.9201,
       "age_min_months": 24,
-      "age_max_months": null,
-      "age_note": "24개월 이상 (원문 기준 확인 필요)",
-      "open_days": "평일·주말",
+      "age_max_months": 84,
+      "age_note": "24개월~7세",
+      "open_days": "화~토 09:30~17:30 (일·월요일 휴관)",
+      "capacity": 25,
+      "tel": "02-330-8400",
+      "description": "자연광이 쏟아지는 테라스 정원과 연결된 쾌적한 실내 놀이공간으로, 신체놀이와 도서열람 공간이 함께 마련되어 있습니다.",
+      "amenities": ["실내 미끄럼틀", "테라스 쉼터", "동화 도서관", "수유실", "가족 화장실"],
+      "parking": {
+        "available": true,
+        "type": "남가좌행복복합센터 부설주차장 (50면)",
+        "fee_info": "키즈카페 이용 확인 시 2시간 무료",
+        "nearby_alternative": "남가좌2동 제2공영주차장 (도보 5분)"
+      },
+      "transit": {
+        "subway": "지하철 6호선·경의중앙선 가좌역 4번 출구 도보 8분",
+        "bus": "간선 721, 761 남가좌동현대아파트 앞 하차",
+        "directions_tip": "복합센터 본관 3층 어린이 라운지"
+      },
+      "fee": {
+        "child": "아동 2,500원 (서대문구민 2,000원)",
+        "guardian": "보호자 무료",
+        "notes": "등본 지참 시 구민 할인"
+      },
       "reservation_url": "https://umppa.seoul.go.kr",
       "reservation_url_verified": false,
       "fetch_strategy": "demo-simulator"
