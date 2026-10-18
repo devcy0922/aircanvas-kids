@@ -113,7 +113,8 @@ async def main() -> int:
             )
             tv = await context.new_page()
             phone = await context.new_page()
-            pages = {"tv": tv, "phone": phone}
+            touch = await context.new_page()
+            pages = {"tv": tv, "phone": phone, "touch": touch}
             attach_diagnostics(pages, diagnostics)
 
             tv_url = app_url(TV_BASE, server=SERVER, room=ROOM, phoneApp=PHONE_BASE, debug="1")
@@ -192,6 +193,32 @@ async def main() -> int:
                 "미완성 작품 건너뛰기 → 갤러리 → 정글 월드 내보내기를 확인했습니다.",
             )
 
+            # 연결 게임과 분리된 터치 경로에서도 실제 마우스/터치 포인터를
+            # 누른 채 이동하고, 미완성 작품을 같은 정글 월드로 내보낸다.
+            touch_url = app_url(PHONE_BASE, content=CONTENT)
+            await touch.goto(touch_url, wait_until="domcontentloaded", timeout=30_000)
+            await wait_for_text(touch, "[data-testid='phone-welcome']", "AirCanvas Kids")
+            await touch.locator("[data-testid='phone-touch-start']").click()
+            await touch.locator("[data-testid='touch-game']").wait_for(state="visible", timeout=30_000)
+            touch_path = touch.locator(".touch-board path[data-region-id]").first
+            touch_box = await touch_path.bounding_box()
+            if touch_box is None:
+                raise AssertionError("터치 보드의 SVG 리전을 찾지 못했습니다.")
+            start = {"x": touch_box["x"] + touch_box["width"] * 0.45, "y": touch_box["y"] + touch_box["height"] * 0.45}
+            end = {"x": touch_box["x"] + touch_box["width"] * 0.58, "y": touch_box["y"] + touch_box["height"] * 0.5}
+            await touch.mouse.move(start["x"], start["y"])
+            await touch.mouse.down()
+            await touch.mouse.move(end["x"], end["y"], steps=8)
+            await touch.mouse.up()
+            await touch.locator("[data-testid='touch-export']").click()
+            await touch.locator("[data-testid='touch-world']").wait_for(state="visible", timeout=30_000)
+            await recorder.save_screenshot(touch, "09-touch-world.png")
+            recorder.record(
+                "verify_touch_export",
+                "completed",
+                "마우스 포인터를 누른 채 이동 → 미완성 터치 작품 정글 내보내기를 확인했습니다.",
+            )
+
             phone_text = await phone.locator("body").inner_text()
             tv_text = await tv.locator("[data-testid='tv-debug-state']").inner_text()
             canvas_state = await tv.locator("canvas").evaluate(
@@ -214,7 +241,7 @@ async def main() -> int:
                     "room": ROOM,
                     "tvUrl": safe_url(tv_url),
                     "phoneUrl": safe_url(phone_url),
-                    "states": ["home", "calib", "play", "gallery", "world"],
+                    "states": ["home", "calib", "play", "gallery", "world", "touch-world"],
                     "commands": ["set-cursor", "fill-at", "draw-stroke"],
                     "canvas": canvas_state,
                     "diagnostics": diagnostics,

@@ -251,15 +251,17 @@ export class GameEngine {
     const shadow = new Graphics()
       .ellipse(0, size * 0.42, size * 0.28, size * 0.07)
       .fill({ color: 0x123b2d, alpha: 0.38 });
-    const sprite = new Sprite(this.snapshotArtTexture(art));
+    const sprite = new Sprite(this.snapshotArtTexture(art, true));
     sprite.anchor.set(0.5);
     sprite.width = size;
     sprite.height = size;
     holder.addChild(shadow, sprite);
-    holder.x = -size;
+    // 내보내기 직후에도 캐릭터가 바로 보인 뒤 화면을 가로질러 이동한다.
+    const startX = w * 0.18;
+    holder.x = startX;
     holder.y = h * 0.63;
     this.artHolder.addChild(holder);
-    this.worldCharacter = { holder, x: -size, size };
+    this.worldCharacter = { holder, x: startX, size };
   }
 
   /** 캐릭터가 실제로 이동하는 레이어드 정글 배경 */
@@ -657,13 +659,15 @@ export class GameEngine {
   }
 
   /** 작품 스냅샷 텍스처(외곽선 + 현재 채색 합성) */
-  snapshotArtTexture(a: Artwork): Texture {
+  snapshotArtTexture(a: Artwork, transparent = false): Texture {
     const cv = document.createElement('canvas');
     cv.width = 300;
     cv.height = 300;
     const ctx = cv.getContext('2d')!;
-    ctx.fillStyle = 'rgba(255,255,255,0.9)';
-    ctx.fillRect(0, 0, 300, 300);
+    if (!transparent) {
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.fillRect(0, 0, 300, 300);
+    }
     for (const reg of a.regions) {
       ctx.fillStyle = '#f5ead8';
       ctx.fill(new Path2D(scalePath(reg.d, 3)));
