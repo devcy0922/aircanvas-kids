@@ -1,52 +1,68 @@
 # agents/rules.md — AirCanvas Kids 프로젝트 로컬 규칙
 
-> 전역 규칙(사용자 전역 규칙 문서)을 상속하며, 본 프로젝트에 특화된 사항을 Override 한다.
+> 전역 규칙과 에이전트 도구 규칙을 상속하며, 이 저장소의 제품·검증·배포 기준을 정의한다.
+> `agents/`가 프로젝트 지침의 원본이다. 변경 후 필요한 도구 투영은 `make agents-link` 또는
+> 저장소의 `skm sync` 절차로 확인한다.
 
-## 1. 프로젝트 정체성
-- **이름:** `AirCanvas Kids` (내부 코드명: `hand-tracking`)
-- **한 줄 정의:** 스마트폰 카메라로 아이의 손(검지 끝)을 추적해 좌표만 서버로 보내고, TV 화면 허공에 그림을 그려 색칠하면, 완성작이 이펙트와 함께 공룡/정글/바다 테마 월드에 투입되는 패밀리 게임.
-- **핵심 제약:**
-  - 스마트폰은 **영상을 전송하지 않는다.** 오직 손 좌표(x, y, pinch 등)만 WebSocket으로 전송하여 네트워크 트래픽을 최소화한다.
-  - TV는 렌더링 전담(React + PixiJS). 서버는 좌표 릴레이 + 세션 매칭(Rust/Axum)만 담당한다.
-  - 카메라↔TV 좌표계 불일치는 **4코너 호모그래피(Homography)** 캘리브레이션으로 해결한다.
+## 1. 제품 정의와 두 가지 진입 경로
 
-## 2. 실행 환경
-- 개발/빌드 머신: Windows(PC) — 본 저장소의 빌드·테스트 수행 주체.
-- 배포/실행 대상 환경:
-  - 스마트폰: Chrome 기반 모바일 브라우저(WebRTC getUserMedia + MediaPipe Tasks Vision WASM).
-  - TV: 스마트 TV 내장 브라우저(가능하면 Chromium 계열), 마우스/터치 폴백 포함.
-  - 서버: Wi-Fi LAN 안의 PC 또는 Mac mini 호스트 네이티브 바이너리(Rust).
-- M1 Max에서 vLLM 구동 등 무거운 추론을 하지 않는다(전역 규칙 상속). 본 프로젝트는 LLM 추론이 필수가 아니며, 도입 시 llm-gateway(vLLM)/MLX 폴백 정책을 따른다.
+- AirCanvas Kids는 스마트폰을 게임 브레인으로 사용하고 TV를 씬 렌더러로 사용하는
+  어린이용 공중 제스처 드로잉·색칠 게임이다.
+- **연결 게임 경로:** `소개 홈 → 시작하기 → TV 탐색/연결 → 테마 선택 → 명시적 시작 →
+  캘리브레이션 → 플레이 → 갤러리`.
+- **웹 터치 경로:** `소개 홈 → 카메라 없이 터치로 해보기 → 테마/그림 선택 → 칸 채우기
+  또는 자유 그리기`. 카메라·TV·릴레이 없이 폰 브라우저에서 동작하는 테스트/접근성 폴백이다.
+- 앱을 열자마자 카메라 권한을 요청하거나 게임을 시작하지 않는다. 소개 홈에서 사용자가
+  경로를 명시적으로 선택해야 한다.
 
-## 3. 아키텍처 표준 (v0.2: Phone=Brain / TV=Thin Display)
-- **역할 분리 원칙:**
-  - 폰 = 게임 브레인. 게임 상태 머신(로비/캘리브/플레이/갤러리), 패키지 관리, TV 탐색, 손 추적을 모두 담당.
-  - TV = 씬 렌더러. `TVCommand`(load-scene/set-cursor/draw-stroke/fill-region/play-effect) 수신 실행만 담당, 상태 없음(Stateless).
-  - 서버(Rust/Axum) = 방 코드 세션 매칭 + 커맨드 릴레이만 담당.
-  - 콘텐츠 서버(Nginx) = 게임 패키지 매니페스트(`content-server/manifest.json`) + 에셋 정적 서빙.
-- Design-First: 코드 변경 전 `docs/architecture.md` 및 Mermaid 다이어그램을 갱신한다.
-- Rust-First: 서버·고성능 로직은 Rust(Axum + tokio-tungstenite). Node/TS는 프론트엔드(Vite) 빌드에 한해 허용.
-- 프로토콜 단일 진실원(Source of Truth): `packages/protocol` 의 TypeScript 타입과 서버 Rust 타입은 항상 동기화 유지.
-- 프레임 전송 금지: 폰→서버는 좌표/커맨드 JSON/WebSocket 프레임만. 영상 프레임 절대 전송 금지.
-- 좌표 규약: 모든 추적 좌표는 0..1 정규화. TV 렌더링 시점에 화면 해상도로 스케일.
-- 콘텐츠 확장 규칙: 신규 게임/테마 추가 시 콘텐츠 서버 매니페스트+에셋만 수정한다(TV 코드 수정 불가 원칙).
+## 2. 아키텍처 표준: Phone=Brain / TV=Thin Display
 
-## 4. 콘텐츠 규격 (v0.2)
-- 테마 3종: 공룡 / 정글 / 바다. 테마당 10종 = 총 30종 아트워크(매니페스트는 샘플 7종, 점진 이관).
-- 각 아트워크: SVG path 기반 외곽선 + 영역(region) 분할 → 영역별 색칠 진행도 집계.
-- 패키지 버전 관리: semver 준수, `minProtocolVersion` 호환성 체크, 폰 IndexedDB 캐시.
-- 색상 팔레트: 8색 고정(어린이 가독성 우선).
+- **Phone:** 게임 상태 머신, 패키지 캐시, TV 탐색, 카메라 손 추적, 4코너 호모그래피,
+  One-Euro 필터, `TVCommand` 발행을 담당한다.
+- **Touch mode:** 연결 게임과 분리된 폰 로컬 경로다. 콘텐츠 패키지의 SVG region과 팔레트를
+  사용해 채우기/자유 그리기를 직접 렌더링하며 릴레이 프로토콜을 거치지 않는다.
+- **TV:** React + PixiJS 씬 렌더러다. 폰이 보낸 `TVCommand`를 실행하며 독자적인 게임
+  상태 결정이나 콘텐츠 선택을 하지 않는다.
+- **Relay server:** Rust/Axum WebSocket 방 매칭·커맨드 릴레이만 담당한다.
+- **Content server:** `manifest.json`과 썸네일/에셋을 정적으로 서빙한다.
+- 카메라 영상/프레임은 절대 서버·TV로 보내지 않는다. 네트워크에는 정규화 좌표와 JSON
+  커맨드만 흐른다.
 
-## 5. 작업 워크플로우
-- 글로벌 백로그: `.ai/state/task-board.json` 에 작업 단위(TASK-xxx)로 기록·갱신.
-- 프로젝트 스킬 참조: `agents/skills/` 하위의 스킬 가이드(아키텍처, 프로토콜, 캘리브레이션/트래킹, TV엔진, 릴레이서버, 프론트엔드 디자인)를 우선 참조하여 일관된 설계를 유지한다.
-- 세션 종료 시 `agents/state/sessions/{세션명}/state.json` + `handoff-{date}.md` 작성.
-- 커밋 메시지는 한국어 요약 + Conventional Prefix(`feat:`, `fix:`, `docs:` …) 권장.
-- 검증 게이트: 어떤 기능 추가 후에도 `npm run build`(전체 워크스페이스) + `cargo check`(server) 통과를 원칙으로 한다.
-- 개발 환경 참고: cy-server(Ubuntu)에서는 nvm 기반 Node 20 사용(`export NVM_DIR="$HOME/.nvm" && \. "$NVM_DIR/nvm.sh"`), Rust는 linux-gnu 툴체인으로 `cargo check` 수행. Windows 개발 PC용 GNU 툴체인 스크립트(package.json `server:*`)와 구분.
+## 3. 환경과 URL 규칙
+
+- 로컬 개발 포트: TV `:7100`, Phone `:7101`, Content `:8081`, Relay `:8180`.
+- 공개 웹 기본 주소: `https://kids.aircanvas.kr/` (폰 소개/터치 모드),
+  `https://kids.aircanvas.kr/tv/?room=WEB001` (TV 대기 화면).
+- HTTPS 페이지에서 `server=http://192.168.x.x:8180` 같은 오래된 LAN QR 파라미터를
+  사용하면 브라우저가 `ws://`를 Mixed Content로 차단할 수 있다. 운영 페이지는 같은 출처의
+  `https://kids.aircanvas.kr/ws` → `wss://kids.aircanvas.kr/ws`를 사용한다.
+- 코드가 HTTPS 페이지의 안전하지 않은 `server`, `content`, `phoneApp` 파라미터를
+  무시하는 것은 의도된 안전장치다. 운영 URL에는 사설 IP를 넣지 않는다.
+
+## 4. 콘텐츠와 프로토콜
+
+- `packages/protocol`이 TypeScript 프로토콜의 단일 진실원이며 서버 구현과 동기화한다.
+- 추적 좌표는 항상 0..1 정규화 좌표다.
+- 신규 연결 게임 콘텐츠는 `manifest.json`/에셋을 우선 확장하고 TV 코드에 콘텐츠별 분기를
+  추가하지 않는다.
+- SVG region은 닫힌 path와 명시적인 `region.id`를 갖고, 터치 채우기와 TV 히트테스트가
+  같은 아트워크 정의를 공유해야 한다.
+
+## 5. 작업·문서·검증 규칙
+
+- 구조나 진입 흐름을 바꾸기 전에 `docs/architecture.md`의 흐름/다이어그램을 먼저 맞춘다.
+- 사용자 진입 흐름, URL, 프로토콜, 콘텐츠 규격을 바꾸면 `README.md`와 관련 `docs/`를
+  함께 갱신한다. 에이전트 부트 경로를 바꾸면 `AGENTS.md`, `CODEX.md`, `CLAUDE.md`,
+  `GEMINI.md`, `ANTIGRAVITY.md`도 링크와 명령을 확인한다.
+- 기본 검증 게이트는 `npm run build`와 `cargo check --manifest-path server/Cargo.toml`이다.
+  배포 작업은 빌드 성공과 별도로 정적 파일/원격 커밋/공개 URL readback을 확인한다.
+- 웹 디버깅은 `/srv/demo/web-bot`의 격리 Playwright 실행을 사용한다. 페이지 도착만으로
+  성공 처리하지 않고 UI 상태, 콘솔 오류, 요청 실패, 실제 커맨드/터치 결과를 확인한다.
+- 기존 사용자의 dirty worktree 변경은 요청 범위와 겹치지 않으면 건드리지 않는다.
 
 ## 6. 금지 사항
-- 카메라 영상/프레임의 서버·TV 전송 (프라이버시 및 트래픽 원칙).
-- 검증 없는 대규모 리팩터링.
-- `.env`, 인증서 등 시크릿의 커밋.
 
+- 카메라 영상/프레임을 서버·TV로 전송하지 않는다.
+- HTTPS 운영 URL에서 사설 IP `http://`를 사용하도록 문서화하지 않는다.
+- 검증 없이 배포 완료, 실기기 E2E 완료, 자동 재기동 보장을 주장하지 않는다.
+- `.env`, 인증서, 토큰 등 시크릿을 커밋하지 않는다.

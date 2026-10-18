@@ -6,13 +6,22 @@
 ## 1. 연결
 
 ```
+// 로컬 HTTP 개발
 ws://<server>:8180/ws?role=tv&room=ABC123
 ws://<server>:8180/ws?role=phone&room=ABC123
+
+// HTTPS 공개 배포
+wss://<host>/ws?role=tv&room=ABC123
+wss://<host>/ws?role=phone&room=ABC123
 ```
 
 - `room`: 6자리 대문자 영숫자. TV가 생성하고 폰이 입력한다.
 - 한 room 에 `tv`는 최대 1대, `phone`은 최대 4대까지 허용(v0.2은 1대 사용).
 - 첫 메시지로 서버→클라이언트 `welcome`, 두 번째 클라이언트 접속 시 상대에게 `peer-joined` 전송.
+- 카메라 없는 웹 터치 모드는 이 WebSocket 연결을 사용하지 않는다. 폰에서 콘텐츠의 SVG
+  region을 직접 렌더링하고 입력/진행 상태를 로컬에서 관리한다.
+- 공개 HTTPS 경로에서는 브라우저의 same-origin `/ws`가 `wss://`로 연결된다. HTTPS 페이지에
+  `server=http://사설IP:8180`을 전달하지 않는다.
 
 ## 2. 메시지 공통 형태
 
