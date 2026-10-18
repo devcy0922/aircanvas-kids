@@ -1,8 +1,9 @@
 interface Props {
   onStart: () => void;
+  onTouchStart: () => void;
 }
 
-export function PhoneWelcome({ onStart }: Props) {
+export function PhoneWelcome({ onStart, onTouchStart }: Props) {
   return (
     <main className="phone-welcome" data-testid="phone-welcome">
       <div className="phone-welcome__orb phone-welcome__orb--top" />
@@ -28,6 +29,9 @@ export function PhoneWelcome({ onStart }: Props) {
 
         <button className="phone-welcome__start" data-testid="phone-start" type="button" onClick={onStart}>
           시작하기 <span aria-hidden="true">→</span>
+        </button>
+        <button className="phone-welcome__touch" data-testid="phone-touch-start" type="button" onClick={onTouchStart}>
+          카메라 없이 터치로 해보기
         </button>
         <p className="phone-welcome__hint">TV가 켜져 있다면 같은 Wi-Fi에서 바로 찾을 수 있어요.</p>
       </div>

@@ -15,10 +15,25 @@ import { PhoneControls } from './components/PhoneControls';
 import { CalibViewfinder, CALIB_TARGETS } from './components/CalibViewfinder';
 import { PhoneWelcome } from './components/PhoneWelcome';
 import { WebDebugPanel } from './components/WebDebugPanel';
+import { TouchColoringGame } from './components/TouchColoringGame';
+
+const query = new URLSearchParams(location.search);
+
+function safeQueryBase(value: string | null): string | null {
+  if (!value) return null;
+  try {
+    const parsed = new URL(value, location.origin);
+    // 예전 LAN QR 주소가 HTTPS 운영 페이지에서 ws://로 내려가지 않도록 한다.
+    if (location.protocol === 'https:' && parsed.protocol !== 'https:') return null;
+    return value;
+  } catch {
+    return null;
+  }
+}
 
 const SERVER_BASE = (() => {
-  const q = new URLSearchParams(location.search);
-  if (q.get('server')) return q.get('server')!;
+  const explicit = safeQueryBase(query.get('server'));
+  if (explicit) return explicit;
   if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     return `${location.protocol}//${location.hostname}:8180`;
   }
@@ -27,8 +42,8 @@ const SERVER_BASE = (() => {
 })();
 
 const CONTENT_SERVER_BASE = (() => {
-  const q = new URLSearchParams(location.search);
-  if (q.get('content')) return q.get('content')!;
+  const explicit = safeQueryBase(query.get('content'));
+  if (explicit) return explicit;
   if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     return `${location.protocol}//${location.hostname}:8081`;
   }
@@ -36,9 +51,9 @@ const CONTENT_SERVER_BASE = (() => {
   return location.origin;
 })();
 
-const DEBUG_MODE = new URLSearchParams(location.search).get('debug') === '1';
+const DEBUG_MODE = query.get('debug') === '1';
 
-type Screen = 'loading' | 'intro' | 'discover' | 'lobby' | 'calib' | 'play' | 'gallery' | 'error';
+type Screen = 'loading' | 'intro' | 'touch' | 'discover' | 'lobby' | 'calib' | 'play' | 'gallery' | 'error';
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('loading');
@@ -376,6 +391,7 @@ export default function App() {
   const currentTheme = themes.find((t) => t.id === gameState?.selectedTheme);
   const artworks = currentTheme?.artworks ?? [];
   const selectedArtwork = gameState?.selectedArtwork;
+  const allArtworks = pkg ? Array.from(pkg.artworksCache.values()) : [];
 
   // 렌더링
   if (screen === 'loading') {
@@ -402,7 +418,26 @@ export default function App() {
   }
 
   if (screen === 'intro') {
-    return <PhoneWelcome onStart={onStartJourney} />;
+    return (
+      <PhoneWelcome
+        onStart={onStartJourney}
+        onTouchStart={() => {
+          tvDiscoveryRef.current?.stop();
+          tvCommandSenderRef.current?.disconnect();
+          setScreen('touch');
+        }}
+      />
+    );
+  }
+
+  if (screen === 'touch') {
+    return (
+      <TouchColoringGame
+        themes={themes}
+        artworks={allArtworks}
+        onExit={() => setScreen('intro')}
+      />
+    );
   }
 
   if (screen === 'discover') {

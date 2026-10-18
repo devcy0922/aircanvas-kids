@@ -11,8 +11,21 @@ type TVScene = 'home' | 'calib' | 'play' | 'gallery';
 const query = new URLSearchParams(location.search);
 const ROOM_CODE = query.get('room') ?? 'DEMO01';
 
+function safeQueryBase(value: string | null): string | null {
+  if (!value) return null;
+  try {
+    const parsed = new URL(value, location.origin);
+    // 예전 LAN QR 주소가 HTTPS 운영 페이지에서 ws://로 내려가지 않도록 한다.
+    if (location.protocol === 'https:' && parsed.protocol !== 'https:') return null;
+    return value;
+  } catch {
+    return null;
+  }
+}
+
 const SERVER_BASE = (() => {
-  if (query.get('server')) return query.get('server')!;
+  const explicit = safeQueryBase(query.get('server'));
+  if (explicit) return explicit;
   if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
     return `${location.protocol}//${location.hostname}:8180`;
   }
@@ -20,7 +33,7 @@ const SERVER_BASE = (() => {
   return location.origin;
 })();
 
-const PHONE_APP_BASE = query.get('phoneApp') ?? (
+const PHONE_APP_BASE = safeQueryBase(query.get('phoneApp')) ?? (
   location.hostname === 'localhost' || location.hostname === '127.0.0.1'
     ? `${location.protocol}//${location.hostname}:7101`
     : location.origin

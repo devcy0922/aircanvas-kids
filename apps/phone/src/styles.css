@@ -256,6 +256,223 @@ h1 {
   text-align: center;
 }
 
+.phone-welcome__touch {
+  width: 100%;
+  margin-top: 12px;
+  padding: 13px 18px;
+  border: 1px solid rgba(255, 253, 247, 0.32);
+  border-radius: 15px;
+  color: rgba(255, 253, 247, 0.9);
+  background: rgba(255, 253, 247, 0.08);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.phone-welcome__touch:active {
+  background: rgba(255, 253, 247, 0.16);
+}
+
+/* --- 카메라 없는 웹 터치 모드 --- */
+.touch-game {
+  min-height: 100%;
+  padding: 22px 16px calc(30px + env(safe-area-inset-bottom));
+  background:
+    radial-gradient(circle at 90% 4%, rgba(239, 155, 88, 0.22), transparent 28%),
+    linear-gradient(160deg, #f2f6fb, #e8eef5);
+}
+
+.touch-game__header {
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+.touch-game__header h1 {
+  margin-top: 4px;
+  color: #244a3b;
+  letter-spacing: -0.06em;
+}
+
+.touch-game__eyebrow {
+  margin: 0;
+  color: #c1663d;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.touch-game__lead,
+.touch-status,
+.touch-section,
+.touch-tools,
+.touch-play-section {
+  width: min(100%, 620px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.touch-game__lead {
+  margin-top: 13px;
+  color: #53616b;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.touch-section {
+  margin-top: 18px;
+}
+
+.touch-section__heading,
+.touch-progress-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 9px;
+  color: #65747c;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.touch-section__heading strong,
+.touch-progress-row strong {
+  color: #244a3b;
+}
+
+.touch-theme-list,
+.touch-art-list,
+.touch-mode-list {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px 1px 5px;
+  scrollbar-width: none;
+}
+
+.touch-theme-list::-webkit-scrollbar,
+.touch-art-list::-webkit-scrollbar,
+.touch-mode-list::-webkit-scrollbar {
+  display: none;
+}
+
+.touch-theme-list button,
+.touch-art-list button,
+.touch-mode-list button {
+  flex: 0 0 auto;
+  min-height: 42px;
+  padding: 9px 13px;
+  border: 1px solid rgba(36, 74, 59, 0.14);
+  border-radius: 14px;
+  color: #53616b;
+  background: rgba(255, 255, 255, 0.76);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.touch-theme-list button.is-selected,
+.touch-art-list button.is-selected,
+.touch-mode-list button.is-selected {
+  border-color: #244a3b;
+  color: #fffdf7;
+  background: #244a3b;
+}
+
+.touch-art-list button {
+  min-height: 38px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.touch-play-section {
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid rgba(36, 74, 59, 0.1);
+  border-radius: 24px;
+  background: rgba(255, 253, 247, 0.78);
+  box-shadow: 0 14px 34px rgba(36, 74, 59, 0.1);
+}
+
+.touch-board-shell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.touch-board-label {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 9px;
+  color: #65747c;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.touch-board {
+  display: block;
+  width: min(100%, 460px);
+  aspect-ratio: 1;
+  overflow: visible;
+  border: 8px solid #fffdf7;
+  border-radius: 20px;
+  box-shadow: inset 0 0 0 1px rgba(36, 74, 59, 0.12), 0 9px 22px rgba(36, 74, 59, 0.12);
+  touch-action: none;
+  user-select: none;
+}
+
+.touch-board--fill path {
+  cursor: pointer;
+}
+
+.touch-board--fill path:active {
+  filter: brightness(0.96);
+}
+
+.touch-board--free {
+  cursor: crosshair;
+}
+
+.touch-board-hint {
+  margin: 10px 0 0;
+  color: #7b878e;
+  font-size: 12px;
+  text-align: center;
+}
+
+.touch-tools {
+  margin-top: 15px;
+}
+
+.touch-mode-list button {
+  flex: 1;
+}
+
+.touch-palette {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 9px;
+  margin-top: 12px;
+}
+
+.touch-palette button {
+  aspect-ratio: 1;
+  min-width: 28px;
+  border: 3px solid rgba(255, 255, 255, 0.94);
+  border-radius: 50%;
+  box-shadow: 0 3px 9px rgba(30, 40, 60, 0.14);
+}
+
+.touch-palette button.is-selected {
+  outline: 3px solid #244a3b;
+  outline-offset: 2px;
+}
+
+.touch-status {
+  margin-top: 14px;
+  color: #53616b;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+}
+
 .phone-welcome__orb,
 .phone-welcome__dino {
   position: absolute;
