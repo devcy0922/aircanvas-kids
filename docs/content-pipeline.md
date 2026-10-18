@@ -115,6 +115,10 @@ content-server/
 cd content-server
 nginx -c nginx.conf -p $(pwd)
 
+# Nginx가 없는 개발 환경에서는 저장소 루트로 돌아와 CORS 개발 서버 사용
+cd ..
+python3 tools/content-server.py --host 0.0.0.0 --port 8081 --directory content-server
+
 # 매니페스트 확인
 curl http://localhost:8081/manifest.json
 ```

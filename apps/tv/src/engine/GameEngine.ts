@@ -437,7 +437,7 @@ export class GameEngine {
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
     for (const reg of art.regions) {
-      const p = new Path2D(reg.d);
+      const p = new Path2D(scalePath(reg.d, PAINT_SCALE));
       ctx.fillStyle = 'rgba(255,255,255,0.55)';
       ctx.fill(p);
       ctx.strokeStyle = '#33383f';

@@ -17,6 +17,7 @@ Thumbs.db
 
 # Logs
 *.log
+logs/evidence/
 
 # Editor
 .idea/
@@ -28,3 +29,8 @@ Thumbs.db
 .cursor/
 .github/
 
+
+# Generated agent projection directories (SSOT: agents/)
+.claude/
+.codex/
+.github/copilot-instructions.md

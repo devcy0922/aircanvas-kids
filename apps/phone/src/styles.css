@@ -159,6 +159,137 @@ h1 {
   box-shadow: 0 8px 24px rgba(230, 57, 70, 0.35);
 }
 
+/* --- 소개 홈: 폰을 게임의 첫 장면으로 만든다 --- */
+.phone-welcome {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: 100%;
+  overflow: hidden;
+  padding: 48px 24px calc(34px + env(safe-area-inset-bottom));
+  color: #fffdf7;
+  background:
+    radial-gradient(circle at 84% 15%, rgba(239, 155, 88, 0.35), transparent 28%),
+    linear-gradient(150deg, #12231d 0%, #244a3b 100%);
+}
+
+.phone-welcome__content {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 420px);
+  margin: 0 auto;
+}
+
+.phone-welcome__eyebrow {
+  margin: 0 0 18px;
+  color: #b5d99c;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.phone-welcome h1 {
+  color: #fffdf7;
+  font-size: clamp(48px, 15vw, 76px);
+  line-height: 0.94;
+  letter-spacing: -0.08em;
+}
+
+.phone-welcome h1 span {
+  color: #ef9b58;
+}
+
+.phone-welcome__lead {
+  margin: 23px 0 0;
+  color: rgba(255, 253, 247, 0.82);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.65;
+  letter-spacing: -0.035em;
+}
+
+.phone-welcome__route {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 36px;
+  color: rgba(255, 253, 247, 0.4);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.phone-welcome__route .is-active {
+  color: #ef9b58;
+}
+
+.phone-welcome__route i {
+  width: 18px;
+}
+
+.phone-welcome__start {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 25px;
+  padding: 18px 21px 18px 23px;
+  border: 0;
+  border-radius: 18px;
+  color: #15231d;
+  background: #f4b37a;
+  box-shadow: 0 14px 28px rgba(6, 20, 14, 0.24);
+  font-size: 18px;
+  font-weight: 900;
+  text-align: left;
+}
+
+.phone-welcome__start span {
+  font-size: 25px;
+  line-height: 0.8;
+}
+
+.phone-welcome__hint {
+  margin: 14px 0 0;
+  color: rgba(255, 253, 247, 0.48);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.phone-welcome__orb,
+.phone-welcome__dino {
+  position: absolute;
+  pointer-events: none;
+}
+
+.phone-welcome__orb {
+  border: 1px solid rgba(181, 217, 156, 0.18);
+  border-radius: 50%;
+}
+
+.phone-welcome__orb--top {
+  top: -18vw;
+  right: -20vw;
+  width: 78vw;
+  height: 78vw;
+}
+
+.phone-welcome__orb--bottom {
+  right: -36vw;
+  bottom: -16vw;
+  width: 90vw;
+  height: 90vw;
+  border-color: rgba(239, 155, 88, 0.16);
+}
+
+.phone-welcome__dino {
+  top: 14vh;
+  right: 13vw;
+  font-size: clamp(76px, 25vw, 132px);
+  filter: drop-shadow(0 16px 18px rgba(5, 20, 12, 0.24));
+  transform: rotate(8deg);
+}
+
 .section-title {
   margin: 0 0 2px;
   font-size: 14px;
@@ -177,11 +308,167 @@ h1 {
   border-radius: 16px;
   border-width: 3px;
   border-style: solid;
+  border-color: var(--theme-accent, #d4dbe3);
   background: #fff;
   font-size: 16px;
   font-weight: 900;
   box-shadow: 0 4px 14px rgba(30, 40, 60, 0.1);
   cursor: pointer;
+}
+
+.theme-grid button.selected {
+  color: #1e352b;
+  background: color-mix(in srgb, var(--theme-accent, #d4dbe3) 14%, #fff);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--theme-accent, #d4dbe3) 20%, transparent), 0 7px 18px rgba(30, 40, 60, 0.12);
+  transform: translateY(-2px);
+}
+
+.theme-grid button small {
+  display: block;
+  margin-top: 6px;
+  color: #65706b;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.lobby-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 11px;
+}
+
+.section-kicker {
+  margin: 0 0 3px;
+  color: #c1663d;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.lobby-title {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.lobby-step {
+  color: #8a9690;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.theme-choice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: 68px;
+  margin-top: 13px;
+  padding: 14px 15px;
+  border: 1px dashed #cfd8d1;
+  border-radius: 17px;
+  color: #7a8580;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.theme-choice.has-selection {
+  border-style: solid;
+  border-color: #d8b08e;
+  color: #273a31;
+  background: #fffaf4;
+}
+
+.theme-choice__label {
+  display: block;
+  margin-bottom: 4px;
+  color: #a76b45;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.theme-choice strong {
+  display: block;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.theme-start-btn {
+  flex: 0 0 auto;
+  padding: 13px 15px;
+  border-radius: 13px;
+  background: #c1663d;
+  box-shadow: 0 7px 17px rgba(193, 102, 61, 0.26);
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.theme-start-btn span {
+  margin-left: 5px;
+}
+
+/* --- 웹 디버그 모드 (?debug=1) --- */
+.web-debug-panel {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #e0b28e;
+  border-radius: 16px;
+  background: rgba(255, 249, 241, 0.96);
+  box-shadow: 0 8px 22px rgba(110, 70, 40, 0.12);
+}
+
+.web-debug-panel__heading {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #8d4c2e;
+  font-size: 13px;
+}
+
+.web-debug-panel__heading > span:last-child {
+  margin-left: auto;
+  color: #b6795c;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.web-debug-panel__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e58b50;
+  box-shadow: 0 0 0 4px rgba(229, 139, 80, 0.13);
+}
+
+.web-debug-panel p {
+  margin: 9px 0 12px;
+  color: #886e60;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.web-debug-panel button {
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 11px;
+  color: #fff;
+  background: #b8643c;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.web-debug-panel__actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+}
+
+.web-debug-panel__actions button {
+  padding-inline: 6px;
+  font-size: 11px;
 }
 
 .theme-grid button:disabled {

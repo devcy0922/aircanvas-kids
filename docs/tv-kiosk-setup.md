@@ -5,7 +5,7 @@
 
 ## 사전 조건
 
-- AirCanvas 릴레이 서버가 LAN 내 PC에서 실행 중 (`http://<서버IP>:7180`)
+- AirCanvas 릴레이 서버가 LAN 내 PC에서 실행 중 (`http://<서버IP>:8180`)
 - TV 앱이 빌드되어 서빙 중 (`http://<서버IP>:7100` 또는 별도 호스트)
 - TV와 서버가 **같은 Wi-Fi/LAN**에 연결
 

@@ -106,7 +106,7 @@ async fn main() {
         .route("/announce", get(announce_handler))
         .with_state(rooms);
 
-    let addr = std::env::var("HT_BIND").unwrap_or_else(|_| "0.0.0.0:7180".into());
+    let addr = std::env::var("HT_BIND").unwrap_or_else(|_| "0.0.0.0:8180".into());
     let listener = tokio::net::TcpListener::bind(&addr).await.expect("bind 실패");
     tracing::info!("AirCanvas 릴레이 서버 시작: http://{addr}");
     axum::serve(listener, app.into_make_service_with_connect_info::<SocketAddr>()).await.expect("서버 오류");
@@ -128,7 +128,13 @@ async fn announce_handler(
     let hostname = headers
         .get(header::HOST)
         .and_then(|v| v.to_str().ok())
-        .unwrap_or("localhost:7180");
+        .unwrap_or("localhost:8180");
+
+    let proto = headers
+        .get("x-forwarded-proto")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("http");
+    let ws_proto = if proto == "https" { "wss" } else { "ws" };
 
     let map = rooms.lock().await;
     let mut announcements = Vec::new();
@@ -140,8 +146,8 @@ async fn announce_handler(
                 room_code: room_code.clone(),
                 tv_name: tv.display_name.clone(),
                 tv_id: format!("tv-{}", room_code),
-                ws_url: format!("ws://{}/ws?role=phone&room={}", hostname, room_code),
-                http_url: format!("http://{}", hostname),
+                ws_url: format!("{}://{}/ws?role=phone&room={}", ws_proto, hostname, room_code),
+                http_url: format!("{}://{}", proto, hostname),
                 capabilities: TvCapabilities {
                     max_resolution: Resolution { width: 1920, height: 1080 },
                     supports_web_gl2: true,

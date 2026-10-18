@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { CSSProperties } from 'react';
 import type { ArtworkPack, ThemePack, GamePhase } from '@ht/protocol';
 import { PALETTE } from '@ht/protocol';
 
@@ -22,6 +23,7 @@ interface Props {
   sendFill: (x: number, y: number, color: string) => void;
   artworks: ArtworkPack[];
   onSelectTheme: (themeId: string) => void;
+  onStartTheme: () => void;
   onSelectArtwork: (artworkId: string) => void;
   currentTheme: ThemePack | undefined;
   themes: ThemePack[];
@@ -49,6 +51,7 @@ export function PhoneControls({
   sendFill,
   artworks,
   onSelectTheme,
+  onStartTheme,
   onSelectArtwork,
   currentTheme,
   themes,
@@ -68,7 +71,7 @@ export function PhoneControls({
   const [paintOn, setPaintOn] = useState(false);
 
   // Discover screen mode
-  const isDiscover = !!roomInput;
+  const isDiscover = !joined && !!roomInput;
 
   const isLobby = gamePhase === 'lobby';
   const isPlaying = gamePhase === 'playing';
@@ -108,14 +111,48 @@ export function PhoneControls({
 
       {isLobby && (
         <section className="lobby-section">
-          <h2 className="section-title">테마 선택</h2>
+          <div className="lobby-heading">
+            <div>
+              <p className="section-kicker">두 번째 장면</p>
+              <h2 className="lobby-title">어느 세계로 갈까요?</h2>
+            </div>
+            <span className="lobby-step">02 / 03</span>
+          </div>
           <div className="theme-grid">
             {themes.map((t) => (
-              <button key={t.id} disabled={!joined} onClick={() => onSelectTheme(t.id)} style={{ borderColor: t.accentColor }}>
+              <button
+                key={t.id}
+                disabled={!joined}
+                className={currentTheme?.id === t.id ? 'selected' : ''}
+                data-testid={`theme-${t.id}`}
+                onClick={() => onSelectTheme(t.id)}
+                style={{ '--theme-accent': t.accentColor } as CSSProperties}
+              >
                 <span className="theme-emoji">{t.id === 'dino' ? '🦕' : t.id === 'jungle' ? '🐒' : '🐠'}</span>
-                {t.label}
+                <span>{t.label}</span>
+                <small>{t.id === 'dino' ? '쥬라기 탐험' : t.id === 'jungle' ? '초록 숲 모험' : '바닷속 산책'}</small>
               </button>
             ))}
+          </div>
+          <div className={`theme-choice ${currentTheme ? 'has-selection' : ''}`}>
+            {currentTheme ? (
+              <>
+                <div>
+                  <span className="theme-choice__label">선택한 세계</span>
+                  <strong>{currentTheme.label}에서 첫 작품을 준비해요</strong>
+                </div>
+                <button
+                  className="big-btn theme-start-btn"
+                  data-testid="theme-start"
+                  disabled={!joined || artworks.length === 0}
+                  onClick={onStartTheme}
+                >
+                  이 테마로 시작 <span aria-hidden="true">→</span>
+                </button>
+              </>
+            ) : (
+              <p>테마 카드를 고르면 시작 버튼이 나타나요.</p>
+            )}
           </div>
         </section>
       )}
