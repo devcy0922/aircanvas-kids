@@ -60,6 +60,8 @@ export class GameEngine {
   private lastProgress = 0;
   private completedIds = new Set<string>();
   private galleryMode = false;
+  private worldMode = false;
+  private worldCharacter: { holder: Container; x: number; size: number } | null = null;
 
   // 커서 상태
   private cursorG = new Graphics();
@@ -140,6 +142,8 @@ export class GameEngine {
   showBackdrop(theme: keyof typeof THEME_META) {
     if (!this.ready) return;
     this.galleryMode = false;
+    this.worldMode = false;
+    this.worldCharacter = null;
     this.clearContainers([this.artHolder, this.strokesC]);
     const w = window.innerWidth;
     const h = window.innerHeight;
@@ -230,6 +234,102 @@ export class GameEngine {
     }
   }
 
+  /** 현재 작품을 정글 월드의 이동 캐릭터로 전환한다. */
+  showWorld(_theme: keyof typeof THEME_META, art: Artwork) {
+    if (!this.ready) return;
+    this.currentArt = art;
+    this.galleryMode = false;
+    this.worldMode = true;
+    this.worldCharacter = null;
+    this.clearContainers([this.artHolder, this.strokesC]);
+    this.renderJungleWorld();
+
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    const size = Math.min(w, h) * 0.31;
+    const holder = new Container();
+    const shadow = new Graphics()
+      .ellipse(0, size * 0.42, size * 0.28, size * 0.07)
+      .fill({ color: 0x123b2d, alpha: 0.38 });
+    const sprite = new Sprite(this.snapshotArtTexture(art));
+    sprite.anchor.set(0.5);
+    sprite.width = size;
+    sprite.height = size;
+    holder.addChild(shadow, sprite);
+    holder.x = -size;
+    holder.y = h * 0.63;
+    this.artHolder.addChild(holder);
+    this.worldCharacter = { holder, x: -size, size };
+  }
+
+  /** 캐릭터가 실제로 이동하는 레이어드 정글 배경 */
+  private renderJungleWorld() {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    const sky = new Graphics()
+      .rect(0, 0, w, h)
+      .fill({ color: 0x9bd7bf });
+    const haze = new Graphics()
+      .ellipse(w * 0.5, h * 0.45, w * 0.48, h * 0.3)
+      .fill({ color: 0xd9f0c8, alpha: 0.28 });
+    const canopy = new Graphics();
+    const trunks = new Graphics();
+    const foliage = new Graphics();
+    const vines = new Graphics();
+    const ground = new Graphics()
+      .rect(0, h * 0.66, w, h * 0.34)
+      .fill({ color: 0x315d3b });
+    const path = new Graphics()
+      .ellipse(w * 0.5, h * 0.79, w * 0.52, h * 0.2)
+      .fill({ color: 0x5d8b4c, alpha: 0.82 });
+
+    // 뒤쪽 수관은 낮은 대비로 배치해 캐릭터가 전경에서 읽히게 한다.
+    for (let i = 0; i < 12; i++) {
+      const x = (i / 11) * w + (i % 2 ? 18 : -12);
+      const y = h * (0.13 + (i % 3) * 0.045);
+      canopy.circle(x, y, 56 + (i % 4) * 10).fill({ color: i % 2 ? 0x2d704d : 0x3e8152, alpha: 0.9 });
+    }
+
+    for (let i = 0; i < 7; i++) {
+      const x = i * (w / 6) - 34;
+      const trunkW = 34 + (i % 3) * 12;
+      trunks.rect(x, h * 0.16, trunkW, h * 0.63).fill({ color: i % 2 ? 0x6a4931 : 0x795334, alpha: 0.92 });
+      trunks.ellipse(x + trunkW * 0.5, h * 0.2, trunkW * 0.85, 18).fill({ color: 0x8a6542, alpha: 0.5 });
+    }
+
+    for (let i = 0; i < 30; i++) {
+      const x = (i * 83) % Math.max(w, 1);
+      const y = h * (0.2 + ((i * 37) % 48) / 100);
+      foliage.ellipse(x, y, 18 + (i % 5) * 5, 9 + (i % 4) * 4)
+        .fill({ color: i % 3 === 0 ? 0x82b94f : 0x4f984e, alpha: 0.88 });
+      foliage.ellipse(x + 12, y - 6, 13, 7).fill({ color: 0xb2cf5a, alpha: 0.7 });
+    }
+
+    for (let i = 0; i < 6; i++) {
+      const x = w * (0.06 + i * 0.18);
+      vines.moveTo(x, 0).bezierCurveTo(x - 26, h * 0.16, x + 30, h * 0.24, x - 8, h * 0.38);
+      vines.stroke({ width: 5, color: 0x28613f, alpha: 0.8 });
+      vines.circle(x - 8, h * 0.38, 9).fill(0x79aa4c);
+    }
+
+    // 바닥의 풀잎과 빛나는 반딧불이로 평면 배경 느낌을 줄인다.
+    const details = new Graphics();
+    for (let i = 0; i < 34; i++) {
+      const x = (i * 61) % Math.max(w, 1);
+      const y = h * (0.69 + ((i * 17) % 25) / 100);
+      details.moveTo(x, y + 13).lineTo(x - 7, y - 2).moveTo(x, y + 13).lineTo(x + 5, y);
+      details.stroke({ width: 3, color: i % 2 ? 0x8dbb5d : 0x6fa44f, alpha: 0.8 });
+    }
+    for (let i = 0; i < 14; i++) {
+      const x = (i * 137 + 46) % Math.max(w, 1);
+      const y = h * (0.26 + ((i * 29) % 32) / 100);
+      details.circle(x, y, 3 + (i % 2)).fill({ color: 0xffe58a, alpha: 0.75 });
+    }
+
+    this.clearContainers([this.bg]);
+    this.bg.addChild(sky, haze, canopy, trunks, foliage, vines, ground, path, details);
+  }
+
   // ------------------------------------------------------------------
   // 릴레이된 폰 입력 처리
   // ------------------------------------------------------------------
@@ -238,6 +338,7 @@ export class GameEngine {
   onPoint(nx: number, ny: number, painting = false, color?: string) {
     if (!this.ready) return;
     if (color) this.currentColor = color;
+    if (!painting) this.lastPaintPt = null;
     this.cursorVisible = true;
     this.targetX = nx * window.innerWidth;
     this.targetY = ny * window.innerHeight;
@@ -247,7 +348,8 @@ export class GameEngine {
       return;
     }
     if (painting && this.currentArt) {
-      this.paintStamp(this.targetX, this.targetY, this.currentColor, false);
+      if (!this.lastPaintPt) this.pushUndo();
+      if (this.paintStamp(this.targetX, this.targetY, this.currentColor, false)) this.evaluate();
     }
   }
 
@@ -255,12 +357,18 @@ export class GameEngine {
   onFill(nx: number, ny: number, color: string) {
     if (!this.ready) return;
     this.currentColor = color;
+    this.lastPaintPt = null;
     this.cursorVisible = true;
     this.targetX = nx * window.innerWidth;
     this.targetY = ny * window.innerHeight;
     this.pushUndo();
-    this.paintStamp(this.targetX, this.targetY, color, true);
-    this.evaluate();
+    if (this.paintStamp(this.targetX, this.targetY, color, true)) this.evaluate();
+    this.lastPaintPt = null;
+  }
+
+  /** 연속 핀치/터치 채색의 한 시퀀스를 종료한다. */
+  endPaint() {
+    this.lastPaintPt = null;
   }
 
   beginStroke(color: string) {
@@ -327,6 +435,17 @@ export class GameEngine {
         c.scale.set(Math.min(c.scale.x + 0.03, 1));
         c.y += Math.sin((this.time + i * 420) / 520) * 0.25;
       });
+    }
+
+    if (this.worldMode && this.worldCharacter) {
+      const { holder, size } = this.worldCharacter;
+      const speed = Math.max(0.7, window.innerWidth * 0.00055);
+      let x = this.worldCharacter.x + speed;
+      if (x > window.innerWidth + size) x = -size;
+      this.worldCharacter.x = x;
+      holder.x = x;
+      holder.y = window.innerHeight * 0.63 + Math.sin(this.time / 430) * 5;
+      holder.rotation = Math.sin(this.time / 210) * 0.018;
     }
   }
 
@@ -546,6 +665,8 @@ export class GameEngine {
     ctx.fillStyle = 'rgba(255,255,255,0.9)';
     ctx.fillRect(0, 0, 300, 300);
     for (const reg of a.regions) {
+      ctx.fillStyle = '#f5ead8';
+      ctx.fill(new Path2D(scalePath(reg.d, 3)));
       ctx.strokeStyle = '#33383f';
       ctx.lineWidth = 1.6;
       ctx.stroke(new Path2D(scalePath(reg.d, 3)));

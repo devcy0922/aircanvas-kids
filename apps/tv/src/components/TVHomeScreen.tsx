@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
+import { APP_VERSION_LABEL } from '@ht/protocol';
 
 interface Props {
   roomCode: string;
@@ -72,6 +73,7 @@ export function TVHomeScreen({ roomCode, joinUrl, status }: Props) {
             <span className={`tv-home__status-dot ${status === 'open' ? 'is-connected' : ''}`} />
             {status === 'open' ? '연결 준비가 되었어요' : 'TV를 연결하는 중이에요'}
           </p>
+          <p className="tv-home__version">{APP_VERSION_LABEL}</p>
         </div>
       </div>
     </section>

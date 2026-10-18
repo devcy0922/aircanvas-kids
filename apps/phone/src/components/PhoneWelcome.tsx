@@ -1,9 +1,12 @@
+import { APP_VERSION_LABEL } from '@ht/protocol';
+
 interface Props {
   onStart: () => void;
+  onCameraStart: () => void;
   onTouchStart: () => void;
 }
 
-export function PhoneWelcome({ onStart, onTouchStart }: Props) {
+export function PhoneWelcome({ onStart, onCameraStart, onTouchStart }: Props) {
   return (
     <main className="phone-welcome" data-testid="phone-welcome">
       <div className="phone-welcome__orb phone-welcome__orb--top" />
@@ -16,7 +19,7 @@ export function PhoneWelcome({ onStart, onTouchStart }: Props) {
         <p className="phone-welcome__lead">
           손짓으로 공룡 세계에 색을 입혀요.
           <br />
-          TV와 연결한 뒤, 함께 시작해볼까요?
+          이 기기에서 바로 시작하거나 큰 화면으로 이어갈 수 있어요.
         </p>
 
         <div className="phone-welcome__route" aria-label="게임 시작 순서">
@@ -27,13 +30,17 @@ export function PhoneWelcome({ onStart, onTouchStart }: Props) {
           <span>시작</span>
         </div>
 
-        <button className="phone-welcome__start" data-testid="phone-start" type="button" onClick={onStart}>
-          시작하기 <span aria-hidden="true">→</span>
+        <button className="phone-welcome__start" data-testid="phone-camera-start" type="button" onClick={onCameraStart}>
+          카메라로 바로 해보기 <span aria-hidden="true">→</span>
+        </button>
+        <button className="phone-welcome__tv" data-testid="phone-start" type="button" onClick={onStart}>
+          TV에 연결해서 큰 화면으로 하기 <span aria-hidden="true">↗</span>
         </button>
         <button className="phone-welcome__touch" data-testid="phone-touch-start" type="button" onClick={onTouchStart}>
           카메라 없이 터치로 해보기
         </button>
-        <p className="phone-welcome__hint">TV가 켜져 있다면 같은 Wi-Fi에서 바로 찾을 수 있어요.</p>
+        <p className="phone-welcome__hint">카메라 영상은 이 기기 안에서만 처리돼요.</p>
+        <p className="phone-welcome__version">{APP_VERSION_LABEL}</p>
       </div>
     </main>
   );

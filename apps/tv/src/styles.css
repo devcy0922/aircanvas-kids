@@ -218,6 +218,14 @@ body,
   box-shadow: 0 0 0 5px rgba(156, 221, 121, 0.12);
 }
 
+.tv-home__version {
+  margin: 12px 0 0;
+  color: rgba(255, 253, 247, 0.4);
+  font-size: 12px;
+  font-weight: 800;
+  text-align: center;
+}
+
 .tv-home__glow,
 .tv-home__leaf {
   position: absolute;

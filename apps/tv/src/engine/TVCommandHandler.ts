@@ -142,6 +142,9 @@ export class TVCommandHandler {
       case 'gallery':
         this.handleLoadGallery(payload as LoadScenePayload & { scene: 'gallery' });
         break;
+      case 'world':
+        this.handleLoadWorld(payload as LoadScenePayload & { scene: 'world' });
+        break;
     }
     this.callbacks.onSceneChange?.(scene);
   }
@@ -169,10 +172,18 @@ export class TVCommandHandler {
     this.engine.showGallery(payload.theme, payload.completed.map((c) => this.adaptCompletedToArtwork(c)));
   }
 
+  private handleLoadWorld(payload: LoadScenePayload & { scene: 'world' }) {
+    this.currentTheme = payload.theme;
+    this.currentArtwork = payload.character;
+    this.engine.showWorld(payload.world, this.adaptArtworkRuntime(payload.character));
+  }
+
   private handleSetCursor(cmd: Extract<TVCommand, { type: 'set-cursor' }>) {
     this.engine.setCursorVisible(cmd.visible);
     if (cmd.visible) {
-      this.engine.onPoint(cmd.x, cmd.y, false, cmd.color);
+      this.engine.onPoint(cmd.x, cmd.y, cmd.painting ?? false, cmd.color);
+    } else {
+      this.engine.endPaint();
     }
   }
 

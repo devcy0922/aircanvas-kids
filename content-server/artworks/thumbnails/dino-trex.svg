@@ -1,4 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
-  <rect width="200" height="200" fill="#f0f0f0"/>
-  <text x="100" y="100" text-anchor="middle" dominant-baseline="middle" font-family="sans-serif" font-size="16" fill="#999">썸네일: ${f}</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-labelledby="title desc">
+  <title id="title">티라노사우루스 색칠 그림</title>
+  <desc id="desc">정글 배경 앞에서 포효하는 귀여운 티라노사우루스</desc>
+  <defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#dff3d1"/><stop offset="1" stop-color="#8fc49d"/></linearGradient></defs>
+  <rect width="200" height="200" rx="24" fill="url(#sky)"/>
+  <circle cx="163" cy="38" r="20" fill="#ffe59a" opacity=".9"/>
+  <path d="M0 148 Q30 124 62 145 T125 138 T200 144 V200 H0Z" fill="#477f4d"/>
+  <path d="M20 18 C29 48 19 70 30 107 M176 0 C161 32 174 53 158 82" fill="none" stroke="#38714d" stroke-width="8" stroke-linecap="round"/>
+  <g transform="translate(9 14)" stroke="#263d35" stroke-width="3" stroke-linejoin="round">
+    <path d="M43 105 C31 101 20 93 8 97 C17 108 27 114 45 114Z" fill="#7ba75b"/>
+    <path d="M27 119 C22 104 27 91 42 86 C55 82 68 87 72 99 C75 108 68 117 56 120 L33 120Z" fill="#82b866"/>
+    <path d="M35 98 C44 94 58 95 66 102 C67 109 60 114 50 114 C40 113 34 107 35 98Z" fill="#c9de8d"/>
+    <path d="M53 118 C59 116 65 118 66 124 L67 138 L57 138 L55 128Z" fill="#6f9f55"/>
+    <path d="M34 116 C39 115 43 118 42 124 L40 137 L31 137 L33 126Z" fill="#6f9f55"/>
+    <path d="M57 89 C57 81 59 76 66 73 L78 80 L70 95Z" fill="#79aa5c"/>
+    <path d="M63 80 C61 70 68 61 80 62 C91 63 95 74 88 83 C82 90 70 90 63 87Z" fill="#8dc36b"/>
+    <path d="M64 83 L92 83 C91 92 83 97 72 94 L64 89Z" fill="#d7edaa"/>
+    <path d="M59 94 C64 92 69 95 68 100 L64 104 L60 101 L63 98 L58 98Z" fill="#6f9f55"/>
+    <path d="M30 90 L34 80 L39 86 L44 76 L48 85 L54 78 L57 89Z" fill="#6b9f55"/>
+    <path d="M77 71 C79 69 82 70 82 73 C81 75 78 75 77 73Z" fill="#263d35"/>
+    <path d="M72 85 L75 90 L78 85 L81 89 L84 84 L87 86 L84 91 L76 92Z" fill="#fff8dc"/>
+  </g>
+  <g fill="#c9e27e"><circle cx="24" cy="154" r="4"/><circle cx="183" cy="139" r="3"/><circle cx="146" cy="164" r="4"/></g>
 </svg>

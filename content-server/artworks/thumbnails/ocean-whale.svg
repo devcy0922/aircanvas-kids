@@ -1,4 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
-  <rect width="200" height="200" fill="#f0f0f0"/>
-  <text x="100" y="100" text-anchor="middle" dominant-baseline="middle" font-family="sans-serif" font-size="16" fill="#999">썸네일: ${f}</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="고래 색칠 그림">
+  <defs><linearGradient id="w" y2="1"><stop stop-color="#bfe8f1"/><stop offset="1" stop-color="#519bb8"/></linearGradient></defs>
+  <rect width="200" height="200" rx="24" fill="url(#w)"/><path d="M0 162 Q35 145 70 160 T140 158 T200 155 V200 H0Z" fill="#277d94"/>
+  <g stroke="#214956" stroke-width="3" stroke-linejoin="round">
+    <path d="M30 108 C18 89 36 72 65 69 C94 66 121 76 132 94 C137 110 116 124 87 128 C59 131 38 122 30 108Z" fill="#6fabc2"/>
+    <path d="M130 94 C153 78 170 87 177 102 C164 115 148 116 130 108Z" fill="#85bdd0"/><path d="M66 119 L51 143 C68 141 78 135 83 123Z" fill="#4e91ae"/>
+    <path d="M71 69 Q66 54 75 45 Q83 55 80 69 M83 68 Q86 52 96 49 Q95 63 89 71" fill="none" stroke-linecap="round"/>
+    <circle cx="54" cy="88" r="5" fill="#fffdf0"/><circle cx="54" cy="88" r="2.5" fill="#214956" stroke="none"/>
+    <path d="M31 106 Q42 111 51 107" fill="none"/>
+  </g>
+  <g fill="#dff5b1"><circle cx="20" cy="145" r="4"/><circle cx="164" cy="142" r="3"/><circle cx="179" cy="120" r="4"/></g>
 </svg>

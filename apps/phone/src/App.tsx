@@ -16,6 +16,7 @@ import { CalibViewfinder, CALIB_TARGETS } from './components/CalibViewfinder';
 import { PhoneWelcome } from './components/PhoneWelcome';
 import { WebDebugPanel } from './components/WebDebugPanel';
 import { TouchColoringGame } from './components/TouchColoringGame';
+import { CameraColoringGame } from './components/CameraColoringGame';
 
 const query = new URLSearchParams(location.search);
 
@@ -53,7 +54,7 @@ const CONTENT_SERVER_BASE = (() => {
 
 const DEBUG_MODE = query.get('debug') === '1';
 
-type Screen = 'loading' | 'intro' | 'touch' | 'discover' | 'lobby' | 'calib' | 'play' | 'gallery' | 'error';
+type Screen = 'loading' | 'intro' | 'camera' | 'touch' | 'discover' | 'lobby' | 'calib' | 'play' | 'gallery' | 'world' | 'error';
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('loading');
@@ -312,7 +313,14 @@ export default function App() {
       const res = lm.detectForVideo(v, now);
       const hand = res.landmarks?.[0] ? toTrackedHand(res.landmarks[0]) : null;
       const H = homographyRef.current;
-      if (!hand || !H) return;
+      if (!hand || !H) {
+        if (lastPointRef.current) {
+          gameStateRef.current?.onTrackingLost();
+          lastPointRef.current = null;
+          setLivePoint(null);
+        }
+        return;
+      }
 
       const raw = applyHomography(H, hand.indexTip.x, hand.indexTip.y);
       const sm = filterRef.current.filter(raw.x, raw.y, now);
@@ -321,7 +329,7 @@ export default function App() {
       setLivePoint({ x: clamped.x, y: clamped.y });
 
       // 게임 상태 머신에 포인트 전달
-      gameStateRef.current?.onTrackedPoint(clamped.x, clamped.y, hand.pinch, color);
+      gameStateRef.current?.onTrackedPoint(clamped.x, clamped.y, hand.pinch, color, mode);
 
       frames++;
       if (now - fpsTimer > 1000) {
@@ -334,7 +342,7 @@ export default function App() {
     (async () => {
       try {
         stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+          video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
           audio: false,
         });
         if (cancelled) return;
@@ -359,7 +367,7 @@ export default function App() {
       cancelAnimationFrame(rafRef.current);
       stream?.getTracks().forEach((t) => t.stop());
     };
-  }, [color]);
+  }, [color, mode]);
 
   // 진행도 업데이트 수신 (TV에서 오는 메시지 처리 필요 - 현재는 폴링 또는 별도 WS 채널 필요)
   // TODO: TV에서 progress 이벤트 수신하도록 WS 리스너 추가
@@ -421,6 +429,13 @@ export default function App() {
     return (
       <PhoneWelcome
         onStart={onStartJourney}
+        onCameraStart={() => {
+          tvDiscoveryRef.current?.stop();
+          tvCommandSenderRef.current?.disconnect();
+          tvCommandSenderRef.current = null;
+          setWsStatus('idle');
+          setScreen('camera');
+        }}
         onTouchStart={() => {
           tvDiscoveryRef.current?.stop();
           tvCommandSenderRef.current?.disconnect();
@@ -436,6 +451,17 @@ export default function App() {
         themes={themes}
         artworks={allArtworks}
         onExit={() => setScreen('intro')}
+      />
+    );
+  }
+
+  if (screen === 'camera') {
+    return (
+      <CameraColoringGame
+        themes={themes}
+        artworks={allArtworks}
+        onExit={() => setScreen('intro')}
+        onTouchFallback={() => setScreen('touch')}
       />
     );
   }
@@ -562,6 +588,8 @@ export default function App() {
         gamePhase={gameState?.phase ?? 'lobby'}
         onUndo={() => gameStateRef.current?.onUndo()}
         onNextArt={() => gameStateRef.current?.nextArtwork()}
+        onSkipArtwork={() => gameStateRef.current?.skipArtwork()}
+        onExport={() => gameStateRef.current?.exportToWorld()}
         onGoHome={() => gameStateRef.current?.goHome()}
         progress={gameState?.progress ?? 0}
         tvConnected={wsStatus === 'open'}
@@ -592,6 +620,7 @@ function mapPhaseToScreen(phase: GamePhase): Screen {
     case 'calibrating': return 'calib';
     case 'playing': return 'play';
     case 'gallery': return 'gallery';
+    case 'world': return 'world';
     case 'error': return 'error';
     default: return 'lobby';
   }

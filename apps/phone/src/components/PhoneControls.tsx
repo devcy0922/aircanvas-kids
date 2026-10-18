@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { CSSProperties } from 'react';
 import type { ArtworkPack, ThemePack, GamePhase } from '@ht/protocol';
-import { PALETTE } from '@ht/protocol';
+import { APP_VERSION_LABEL, PALETTE } from '@ht/protocol';
 
 type Mode = 'fill' | 'free';
 
@@ -31,6 +31,8 @@ interface Props {
   gamePhase: GamePhase;
   onUndo: () => void;
   onNextArt: () => void;
+  onSkipArtwork: () => void;
+  onExport: () => void;
   onGoHome: () => void;
   progress: number;
   tvConnected: boolean;
@@ -59,6 +61,8 @@ export function PhoneControls({
   gamePhase,
   onUndo,
   onNextArt,
+  onSkipArtwork,
+  onExport,
   onGoHome,
   progress,
   tvConnected,
@@ -76,6 +80,7 @@ export function PhoneControls({
   const isLobby = gamePhase === 'lobby';
   const isPlaying = gamePhase === 'playing';
   const isGallery = gamePhase === 'gallery';
+  const isWorld = gamePhase === 'world';
 
   return (
     <div className="phone-root">
@@ -157,7 +162,7 @@ export function PhoneControls({
         </section>
       )}
 
-      {!isLobby && currentTheme && (
+      {!isLobby && !isWorld && currentTheme && (
         <section className="theme-info">
           <span className="theme-badge" style={{ background: currentTheme.accentColor }}>
             {currentTheme.id === 'dino' ? '🦕' : currentTheme.id === 'jungle' ? '🐒' : '🐠'} {currentTheme.label}
@@ -165,7 +170,7 @@ export function PhoneControls({
         </section>
       )}
 
-      {!isLobby && (
+      {!isLobby && !isWorld && (
         <section>
           <h2 className="section-title">작품 고르기</h2>
           <div className="arts">
@@ -244,13 +249,33 @@ export function PhoneControls({
             <button className="btn-ghost" onClick={onUndo} disabled={!joined}>
               ↩ 실행취소
             </button>
+            <button className="btn-ghost" data-testid="skip-artwork" onClick={onSkipArtwork} disabled={!joined}>
+              다음으로 (건너뛰기)
+            </button>
           </section>
         </>
       )}
 
       {isGallery && (
         <section className="gallery-actions">
-          <p className="gallery-text">작품이 갤러리에 저장되었습니다!</p>
+          <p className="gallery-text">
+            {progress >= 0.85 ? '작품이 갤러리에 저장되었습니다!' : '여기까지 만든 모습 그대로 다음 장면으로 갈 수 있어요.'}
+          </p>
+          <button className="big-btn export-btn" data-testid="export-world" onClick={onExport}>
+            내 캐릭터 정글로 내보내기
+          </button>
+          <button className="big-btn" onClick={onNextArt}>
+            다음 작품 색칠하기
+          </button>
+          <button className="btn-ghost" onClick={onGoHome}>
+            처음으로
+          </button>
+        </section>
+      )}
+
+      {isWorld && (
+        <section className="gallery-actions world-actions">
+          <p className="gallery-text">내 캐릭터가 실제 정글을 돌아다니고 있어요!</p>
           <button className="big-btn" onClick={onNextArt}>
             다음 작품 색칠하기
           </button>
@@ -265,6 +290,7 @@ export function PhoneControls({
           손: {livePoint ? `(${livePoint.x.toFixed(2)}, ${livePoint.y.toFixed(2)})` : '감지 없음'} · {fps ?? 0}fps
         </span>
         {tvConnected && <button className="btn-ghost small" onClick={onDisconnect}>TV 연결 해제</button>}
+        <span className="version-label">{APP_VERSION_LABEL}</span>
       </footer>
     </div>
   );

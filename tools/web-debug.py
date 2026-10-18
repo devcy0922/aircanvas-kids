@@ -176,6 +176,22 @@ async def main() -> int:
             )
             await recorder.save_screenshot(tv, "06-tv-after-commands.png")
 
+            # 모든 영역을 채우지 않아도 갤러리로 넘어가고, 내보내기 후
+            # TV가 실제 정글 월드 씬으로 전환되는 제품 요구사항을 확인한다.
+            await phone.locator("[data-testid='skip-artwork']").click()
+            await wait_for_text(tv, "[data-testid='tv-debug-state']", "scene=gallery")
+            await wait_for_text(phone, "body", "여기까지 만든 모습 그대로")
+            await phone.locator("[data-testid='export-world']").click()
+            await wait_for_text(tv, "[data-testid='tv-debug-state']", "scene=world")
+            await wait_for_text(phone, "body", "내 캐릭터가 실제 정글을 돌아다니고 있어요")
+            await recorder.save_screenshot(phone, "07-phone-world.png")
+            await recorder.save_screenshot(tv, "08-tv-world.png")
+            recorder.record(
+                "verify_world_export",
+                "completed",
+                "미완성 작품 건너뛰기 → 갤러리 → 정글 월드 내보내기를 확인했습니다.",
+            )
+
             phone_text = await phone.locator("body").inner_text()
             tv_text = await tv.locator("[data-testid='tv-debug-state']").inner_text()
             canvas_state = await tv.locator("canvas").evaluate(
@@ -198,7 +214,7 @@ async def main() -> int:
                     "room": ROOM,
                     "tvUrl": safe_url(tv_url),
                     "phoneUrl": safe_url(phone_url),
-                    "states": ["home", "calib", "play"],
+                    "states": ["home", "calib", "play", "gallery", "world"],
                     "commands": ["set-cursor", "fill-at", "draw-stroke"],
                     "canvas": canvas_state,
                     "diagnostics": diagnostics,

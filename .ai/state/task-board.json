@@ -132,6 +132,20 @@
       "status": "done",
       "outputs": ["server/src/main.rs", "apps/phone/src/lib/tvDiscovery.ts", "apps/phone/src/App.tsx", "docs/tv-kiosk-setup.md"],
       "verification": "cargo check 및 npm run build 통과"
+    },
+    {
+      "id": "TASK-017",
+      "name": "소개 홈 → 테마 선택 → 명시적 시작 흐름 구현",
+      "status": "done",
+      "outputs": [
+        "apps/tv/src/components/TVHomeScreen.tsx",
+        "apps/tv/src/App.tsx",
+        "apps/phone/src/components/PhoneWelcome.tsx",
+        "apps/phone/src/components/PhoneControls.tsx",
+        "apps/phone/src/lib/gameStateMachine.ts",
+        "docs/architecture.md"
+      ],
+      "verification": "npm run build, cargo check, relay home 커맨드 전달 테스트 통과"
     }
   ]
 }

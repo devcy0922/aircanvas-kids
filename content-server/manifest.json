@@ -18,12 +18,18 @@
           "name": "티라노사우루스",
           "viewBox": "0 0 100 100",
           "regions": [
-            { "id": "body", "label": "몸통", "path": "M20 78 Q14 62 24 50 Q30 42 42 40 L58 38 Q72 36 78 46 Q84 56 76 66 L70 78 Z", "zIndex": 1 },
-            { "id": "head", "label": "머리", "path": "M58 38 Q60 22 70 18 Q80 16 82 26 Q83 34 74 38 L58 44 Z", "zIndex": 2 },
-            { "id": "front-leg", "label": "앞다리", "path": "M40 52 Q48 50 50 58 Q48 64 42 62 Z", "zIndex": 3 },
-            { "id": "left-leg", "label": "왼쪽 다리", "path": "M32 78 L30 92 L38 92 L40 78 Z", "zIndex": 4 },
-            { "id": "right-leg", "label": "오른쪽 다리", "path": "M60 78 L60 92 L68 92 L68 78 Z", "zIndex": 5 },
-            { "id": "tail", "label": "꼬리", "path": "M74 46 Q86 44 88 52 Q80 54 74 52 Z", "zIndex": 6 }
+            { "id": "tail", "label": "꼬리", "path": "M43 58 C31 54 19 46 8 49 C17 59 27 66 45 67 Z", "zIndex": 1 },
+            { "id": "body", "label": "몸통", "path": "M27 72 C22 62 27 50 42 45 C55 41 68 46 72 58 C75 67 68 76 56 79 L33 79 Z", "zIndex": 2 },
+            { "id": "belly", "label": "배", "path": "M35 57 C43 53 57 54 65 61 C66 68 59 73 49 73 C40 72 34 66 35 57 Z", "zIndex": 3 },
+            { "id": "back-leg", "label": "뒷다리", "path": "M53 71 C59 69 65 71 66 77 L67 91 L57 91 L55 81 Z", "zIndex": 4 },
+            { "id": "front-leg", "label": "앞다리", "path": "M34 69 C39 68 43 71 42 77 L40 90 L31 90 L33 79 Z", "zIndex": 5 },
+            { "id": "neck", "label": "목", "path": "M57 48 C57 40 59 35 66 33 L78 40 L70 54 Z", "zIndex": 6 },
+            { "id": "head", "label": "머리", "path": "M63 39 C61 29 68 20 80 21 C91 22 95 33 88 42 C82 49 70 49 63 46 Z", "zIndex": 7 },
+            { "id": "jaw", "label": "큰 턱", "path": "M64 42 L92 42 C91 51 83 56 72 53 L64 48 Z", "zIndex": 8 },
+            { "id": "arm", "label": "작은 앞발", "path": "M59 53 C64 51 69 54 68 59 L64 63 L60 60 L63 57 L58 57 Z", "zIndex": 9 },
+            { "id": "crest", "label": "등 볏", "path": "M30 49 L34 39 L39 45 L44 35 L48 44 L54 37 L57 48 Z", "zIndex": 10 },
+            { "id": "eye", "label": "눈", "path": "M77 30 C79 28 82 29 82 32 C81 34 78 34 77 32 Z", "zIndex": 11 },
+            { "id": "teeth", "label": "이빨", "path": "M72 44 L75 49 L78 44 L81 48 L84 43 L87 45 L84 50 L76 51 Z", "zIndex": 12 }
           ],
           "thumbnailUrl": "/artworks/thumbnails/dino-trex.svg"
         },

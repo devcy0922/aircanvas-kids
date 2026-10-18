@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { ArtworkPack, ThemePack } from '@ht/protocol';
 import { PALETTE } from '@ht/protocol';
 import { TouchColoringBoard, type TouchMode, type TouchPoint } from './TouchColoringBoard';
+import { TouchJungleWorld } from './TouchJungleWorld';
 
 type PaletteColor = typeof PALETTE[number];
 
@@ -25,16 +26,19 @@ export function TouchColoringGame({ themes, artworks, onExit }: Props) {
   const [color, setColor] = useState<PaletteColor>(PALETTE[0]);
   const [filledRegions, setFilledRegions] = useState<Set<string>>(new Set());
   const [strokes, setStrokes] = useState<TouchPoint[][]>([]);
+  const [isExported, setIsExported] = useState(false);
 
   useEffect(() => {
     setArtworkId(themeArtworks[0]?.id ?? '');
     setFilledRegions(new Set());
     setStrokes([]);
+    setIsExported(false);
   }, [themeId, themeArtworks]);
 
   useEffect(() => {
     setFilledRegions(new Set());
     setStrokes([]);
+    setIsExported(false);
   }, [artworkId]);
 
   if (!theme || !artwork) {
@@ -47,6 +51,25 @@ export function TouchColoringGame({ themes, artworks, onExit }: Props) {
   }
 
   const progress = artwork.regions.length === 0 ? 0 : filledRegions.size / artwork.regions.length;
+  const artworkIndex = themeArtworks.findIndex((item) => item.id === artwork.id);
+  const nextArtwork = artworkIndex >= 0 ? themeArtworks[artworkIndex + 1] : undefined;
+
+  if (isExported) {
+    return (
+      <TouchJungleWorld
+        artwork={artwork}
+        theme={theme}
+        color={color}
+        filledRegions={filledRegions}
+        strokes={strokes}
+        onBack={() => setIsExported(false)}
+        onNext={() => {
+          setIsExported(false);
+          if (nextArtwork) setArtworkId(nextArtwork.id);
+        }}
+      />
+    );
+  }
 
   return (
     <main className="touch-game" data-testid="touch-game">
@@ -58,7 +81,7 @@ export function TouchColoringGame({ themes, artworks, onExit }: Props) {
         <button className="btn-ghost small" onClick={onExit}>처음으로</button>
       </header>
 
-      <p className="touch-game__lead">화면을 톡 눌러 공룡을 채우고, 손가락으로 자유롭게 그려보세요.</p>
+      <p className="touch-game__lead">누른 채로 움직여 캐릭터를 색칠하고, 모두 채우지 않아도 바로 정글로 내보낼 수 있어요.</p>
 
       <section className="touch-section" aria-label="테마 선택">
         <div className="touch-section__heading">
@@ -111,6 +134,12 @@ export function TouchColoringGame({ themes, artworks, onExit }: Props) {
           }}
           onStroke={(points) => setStrokes((previous) => [...previous, points])}
         />
+        <div className="touch-export-row">
+          <button className="big-btn touch-export-btn" type="button" data-testid="touch-export" onClick={() => setIsExported(true)}>
+            내 캐릭터 정글로 내보내기
+          </button>
+          <span>색칠한 만큼만 가지고 다음 장면으로 가요.</span>
+        </div>
       </section>
 
       <section className="touch-tools" aria-label="색칠 도구">
@@ -132,7 +161,7 @@ export function TouchColoringGame({ themes, artworks, onExit }: Props) {
       </section>
 
       <p className="touch-status" data-testid="touch-status">
-        {progress >= 1 ? '완성했어요! 다른 그림도 칠해볼까요?' : mode === 'fill' ? '색을 고르고 그림 속 칸을 눌러보세요.' : '손가락을 떼면 선이 남아요.'}
+        {progress >= 1 ? '완성했어요! 정글로 내보내 볼까요?' : mode === 'fill' ? '색을 고르고 누른 채로 그림 위를 움직여 보세요.' : '손가락을 떼면 선이 남아요.'}
       </p>
     </main>
   );

@@ -1,3 +1,7 @@
+/** 제품 릴리스 버전 — Phone/TV UI와 워크스페이스 버전을 함께 관리한다. */
+export const APP_VERSION = '0.1.1';
+export const APP_VERSION_LABEL = `v${APP_VERSION}`;
+
 /**
  * AirCanvas Kids 통신 프로토콜 v0.2 — 단일 진실원
  *
@@ -66,7 +70,7 @@ export interface ErrorMessage {
 export type ThemeId = 'dino' | 'jungle' | 'ocean';
 
 /** 게임 페이즈 */
-export type GamePhase = 'lobby' | 'connecting' | 'calibrating' | 'playing' | 'gallery' | 'error';
+export type GamePhase = 'lobby' | 'connecting' | 'calibrating' | 'playing' | 'gallery' | 'world' | 'error';
 
 /** 폰 → TV: 테마 선택 (게임 시작 트리거) — 레거시 호환 */
 export interface SelectThemeMessage {
@@ -105,10 +109,10 @@ export type ClientEvent =
 
 /** TV가 실행하는 렌더 커맨드 (폰 → TV 단방향) */
 export type TVCommand =
-  /** 씬 로드: 홈/캘리브/플레이/갤러리 */
-  | { type: 'load-scene'; scene: 'home' | 'calib' | 'play' | 'gallery'; payload: LoadScenePayload }
+  /** 씬 로드: 홈/캘리브/플레이/갤러리/정글 월드 */
+  | { type: 'load-scene'; scene: 'home' | 'calib' | 'play' | 'gallery' | 'world'; payload: LoadScenePayload }
   /** 커서 위치/가시성 업데이트 (매 프레임) */
-  | { type: 'set-cursor'; x: number; y: number; visible: boolean; color?: string }
+  | { type: 'set-cursor'; x: number; y: number; visible: boolean; color?: string; painting?: boolean }
   /** 자유선 그리기: 점 배열로 경로 전송 */
   | { type: 'draw-stroke'; points: { x: number; y: number }[]; color: string }
   /** 영역 채우기: regionId로 식별 */
@@ -130,7 +134,8 @@ export type LoadScenePayload =
   | { scene: 'home'; roomCode: string; tvName?: string }
   | { scene: 'calib'; theme: ThemeId; artworkName: string; corners: { x: number; y: number }[] }
   | { scene: 'play'; artwork: ArtworkRuntime; theme: ThemeId }
-  | { scene: 'gallery'; theme: ThemeId; completed: CompletedArtwork[] };
+  | { scene: 'gallery'; theme: ThemeId; completed: CompletedArtwork[] }
+  | { scene: 'world'; world: 'jungle'; theme: ThemeId; character: ArtworkRuntime; progress: number };
 
 /** 런타임용 아트워크 데이터 (TV로 전송되는 최소 세트) */
 export interface ArtworkRuntime {

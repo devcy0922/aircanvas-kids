@@ -1,4 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
-  <rect width="200" height="200" fill="#f0f0f0"/>
-  <text x="100" y="100" text-anchor="middle" dominant-baseline="middle" font-family="sans-serif" font-size="16" fill="#999">썸네일: ${f}</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="브라키오사우루스 색칠 그림">
+  <defs><linearGradient id="bg" y2="1"><stop stop-color="#e9f5d2"/><stop offset="1" stop-color="#9bd0a0"/></linearGradient></defs>
+  <rect width="200" height="200" rx="24" fill="url(#bg)"/>
+  <path d="M0 155 Q45 128 88 151 T200 145 V200 H0Z" fill="#4e8751"/>
+  <g stroke="#263d35" stroke-width="3" stroke-linejoin="round">
+    <path d="M36 111 C25 99 34 84 51 78 C67 73 88 80 92 96 C95 108 83 120 64 122Z" fill="#8dbb63"/>
+    <path d="M48 84 C47 63 51 35 62 26 C74 17 84 24 82 35 C79 47 68 50 69 82Z" fill="#80af5b"/>
+    <path d="M72 27 C78 16 91 17 96 26 C99 35 92 42 83 39Z" fill="#9dca70"/>
+    <path d="M37 108 L33 140 L45 140 L49 111Z" fill="#6e9e55"/><path d="M72 111 L74 141 L86 141 L83 108Z" fill="#6e9e55"/>
+    <path d="M88 89 C111 80 133 87 143 99 C126 108 105 108 89 101Z" fill="#78a957"/>
+    <circle cx="87" cy="29" r="4" fill="#263d35" stroke="none"/>
+  </g>
+  <g fill="#cae88d"><circle cx="22" cy="139" r="4"/><circle cx="168" cy="151" r="3"/><circle cx="178" cy="120" r="4"/></g>
 </svg>

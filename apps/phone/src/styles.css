@@ -159,6 +159,33 @@ h1 {
   box-shadow: 0 8px 24px rgba(230, 57, 70, 0.35);
 }
 
+.btn-ghost {
+  min-height: 42px;
+  padding: 10px 14px;
+  border: 1px solid #cfd8d1;
+  border-radius: 13px;
+  color: #53616b;
+  background: rgba(255, 255, 255, 0.62);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.btn-ghost.small {
+  min-height: 34px;
+  padding: 7px 10px;
+  font-size: 11px;
+}
+
+.btn-ghost:disabled {
+  opacity: 0.42;
+}
+
+.version-label {
+  color: #7b878e;
+  font-size: 11px;
+  font-weight: 800;
+}
+
 /* --- 소개 홈: 폰을 게임의 첫 장면으로 만든다 --- */
 .phone-welcome {
   position: relative;
@@ -248,11 +275,39 @@ h1 {
   line-height: 0.8;
 }
 
+.phone-welcome__tv {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 10px;
+  padding: 15px 19px;
+  border: 1px solid rgba(255, 253, 247, 0.32);
+  border-radius: 16px;
+  color: rgba(255, 253, 247, 0.95);
+  background: rgba(255, 253, 247, 0.1);
+  font-size: 15px;
+  font-weight: 850;
+  text-align: left;
+}
+
+.phone-welcome__tv:active {
+  background: rgba(255, 253, 247, 0.18);
+}
+
 .phone-welcome__hint {
   margin: 14px 0 0;
   color: rgba(255, 253, 247, 0.48);
   font-size: 12px;
   line-height: 1.5;
+  text-align: center;
+}
+
+.phone-welcome__version {
+  margin: 16px 0 0;
+  color: rgba(255, 253, 247, 0.38);
+  font-size: 11px;
+  font-weight: 800;
   text-align: center;
 }
 
@@ -270,6 +325,300 @@ h1 {
 
 .phone-welcome__touch:active {
   background: rgba(255, 253, 247, 0.16);
+}
+
+/* --- 카메라 로컬 플레이: Controller와 Display를 한 기기에서 실행 --- */
+.camera-game {
+  min-height: 100%;
+  padding: 22px 16px calc(30px + env(safe-area-inset-bottom));
+  background:
+    radial-gradient(circle at 88% 4%, rgba(239, 155, 88, 0.24), transparent 28%),
+    linear-gradient(160deg, #f2f6fb, #e8eef5);
+}
+
+.camera-game__header,
+.camera-game__lead,
+.camera-section,
+.camera-play-section,
+.camera-tools,
+.camera-status,
+.camera-complete,
+.camera-error {
+  width: min(100%, 620px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.camera-game__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.camera-game__header h1 {
+  margin: 4px 0 0;
+  color: #244a3b;
+  font-size: 30px;
+  letter-spacing: -0.07em;
+}
+
+.camera-game__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.camera-game__eyebrow {
+  margin: 0;
+  color: #c1663d;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.camera-game__lead {
+  margin-top: 11px;
+  color: #53616b;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.camera-stage {
+  position: relative;
+  width: min(100%, 620px);
+  aspect-ratio: 4 / 3;
+  margin: 16px auto 0;
+  overflow: hidden;
+  border: 8px solid #fffdf7;
+  border-radius: 24px;
+  background: #17221d;
+  box-shadow: 0 14px 30px rgba(36, 74, 59, 0.16);
+}
+
+.camera-stage__video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #17221d;
+}
+
+.camera-stage__video.is-mirrored {
+  transform: scaleX(-1);
+}
+
+.camera-stage__status {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  color: #fffdf7;
+  background: rgba(18, 35, 29, 0.72);
+  font-size: 11px;
+  font-weight: 850;
+  backdrop-filter: blur(8px);
+}
+
+.camera-stage__cursor {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border: 3px solid #fffdf7;
+  border-radius: 50%;
+  background: #ef9b58;
+  box-shadow: 0 0 0 5px rgba(239, 155, 88, 0.25), 0 4px 12px rgba(0, 0, 0, 0.25);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.camera-stage__cursor.is-pinching {
+  width: 31px;
+  height: 31px;
+  background: #8bbf72;
+}
+
+.camera-error {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px solid rgba(193, 102, 61, 0.28);
+  border-radius: 17px;
+  color: #81492f;
+  background: rgba(255, 247, 238, 0.9);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.camera-error .big-btn {
+  padding: 13px 15px;
+  border-radius: 13px;
+  font-size: 14px;
+}
+
+.camera-section {
+  margin-top: 18px;
+}
+
+.camera-section__heading,
+.camera-progress-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 9px;
+  color: #65747c;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.camera-section__heading strong,
+.camera-progress-row strong {
+  color: #244a3b;
+}
+
+.camera-chip-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px 1px 5px;
+  scrollbar-width: none;
+}
+
+.camera-chip-row::-webkit-scrollbar {
+  display: none;
+}
+
+.camera-chip-row button,
+.camera-mode-row button {
+  flex: 0 0 auto;
+  min-height: 42px;
+  padding: 9px 13px;
+  border: 1px solid rgba(36, 74, 59, 0.14);
+  border-radius: 14px;
+  color: #53616b;
+  background: rgba(255, 255, 255, 0.76);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.camera-chip-row button.is-selected,
+.camera-mode-row button.is-selected {
+  border-color: #244a3b;
+  color: #fffdf7;
+  background: #244a3b;
+}
+
+.camera-chip-row--artworks {
+  margin-top: 3px;
+}
+
+.camera-chip-row--artworks button {
+  min-height: 36px;
+  border-radius: 12px;
+}
+
+.camera-play-section {
+  margin-top: 10px;
+  padding: 14px;
+  border: 1px solid rgba(36, 74, 59, 0.1);
+  border-radius: 24px;
+  background: rgba(255, 253, 247, 0.82);
+  box-shadow: 0 14px 34px rgba(36, 74, 59, 0.1);
+}
+
+.camera-board-shell {
+  display: flex;
+  justify-content: center;
+}
+
+.camera-board {
+  display: block;
+  width: min(100%, 460px);
+  aspect-ratio: 1;
+  overflow: visible;
+  border: 8px solid #fffdf7;
+  border-radius: 20px;
+  box-shadow: inset 0 0 0 1px rgba(36, 74, 59, 0.12), 0 9px 22px rgba(36, 74, 59, 0.12);
+  user-select: none;
+}
+
+.camera-board-hint,
+.camera-status {
+  color: #7b878e;
+  font-size: 12px;
+  text-align: center;
+}
+
+.camera-board-hint {
+  margin: 10px 0 0;
+}
+
+.camera-tools {
+  margin-top: 14px;
+}
+
+.camera-mode-row {
+  display: flex;
+  gap: 8px;
+}
+
+.camera-mode-row button {
+  flex: 1;
+}
+
+.camera-palette {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 9px;
+  margin-top: 12px;
+}
+
+.camera-palette button {
+  aspect-ratio: 1;
+  min-width: 28px;
+  border: 3px solid rgba(255, 255, 255, 0.94);
+  border-radius: 50%;
+  box-shadow: 0 3px 9px rgba(30, 40, 60, 0.14);
+}
+
+.camera-palette button.is-selected {
+  outline: 3px solid #244a3b;
+  outline-offset: 2px;
+}
+
+.camera-status {
+  margin-top: 13px;
+  color: #53616b;
+  font-weight: 800;
+}
+
+.camera-complete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 13px 14px;
+  border: 1px solid rgba(139, 191, 114, 0.35);
+  border-radius: 17px;
+  color: #244a3b;
+  background: rgba(232, 247, 224, 0.84);
+}
+
+.camera-complete .big-btn {
+  padding: 12px 14px;
+  border-radius: 13px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.version-label {
+  color: #8a9690;
+  font-size: 11px;
+  font-weight: 850;
 }
 
 /* --- 카메라 없는 웹 터치 모드 --- */
@@ -435,6 +784,386 @@ h1 {
   color: #7b878e;
   font-size: 12px;
   text-align: center;
+}
+
+.touch-export-row {
+  display: grid;
+  gap: 8px;
+  margin-top: 15px;
+  padding: 13px 14px;
+  border: 1px solid rgba(193, 102, 61, 0.2);
+  border-radius: 17px;
+  background: linear-gradient(135deg, rgba(255, 247, 231, 0.92), rgba(232, 246, 226, 0.9));
+}
+
+.touch-export-btn {
+  width: 100%;
+  margin: 0;
+  background: #c1663d;
+  box-shadow: 0 8px 18px rgba(193, 102, 61, 0.22);
+}
+
+.touch-export-row span {
+  color: #7c6d61;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.touch-world {
+  min-height: 100%;
+  padding: 28px 16px calc(30px + env(safe-area-inset-bottom));
+  background: linear-gradient(165deg, #eff7e9, #d8ecdc 58%, #c2dec7);
+}
+
+.touch-world__copy,
+.touch-world__actions {
+  width: min(100%, 620px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.touch-world__copy h1 {
+  margin: 5px 0 8px;
+  color: #244a3b;
+  font-size: clamp(26px, 7vw, 38px);
+  letter-spacing: -0.06em;
+}
+
+.touch-world__copy > p:last-child {
+  margin: 0;
+  color: #536f60;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.touch-world__scene {
+  display: block;
+  width: min(100%, 620px);
+  margin: 24px auto 0;
+  border: 8px solid rgba(255, 253, 247, 0.82);
+  border-radius: 27px;
+  box-shadow: 0 18px 38px rgba(36, 74, 59, 0.2);
+}
+
+.touch-world__actions {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.touch-world__actions .big-btn {
+  width: 100%;
+  margin: 0;
+  background: #244a3b;
+}
+
+.touch-world__actions .btn-ghost {
+  color: #244a3b;
+  border-color: rgba(36, 74, 59, 0.22);
+  background: rgba(255, 253, 247, 0.62);
+}
+
+.export-btn {
+  background: #c1663d;
+  box-shadow: 0 8px 18px rgba(193, 102, 61, 0.22);
+}
+
+.world-actions {
+  padding-top: 8px;
+}
+
+.camera-export-row {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid rgba(58, 90, 64, 0.18);
+  border-radius: 18px;
+  background: rgba(255, 253, 247, 0.7);
+}
+
+.camera-export-btn {
+  width: 100%;
+  padding: 16px;
+  background: #3a5a40;
+  box-shadow: 0 8px 18px rgba(58, 90, 64, 0.22);
+}
+
+.camera-skip-btn {
+  width: 100%;
+}
+
+.camera-export-row span {
+  color: #718078;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.camera-game {
+  min-height: 100%;
+  padding: 22px 16px calc(30px + env(safe-area-inset-bottom));
+  color: #263d35;
+  background: linear-gradient(160deg, #f2f6fb, #e2efe5);
+}
+
+.camera-game__header,
+.camera-game__lead,
+.camera-stage,
+.camera-section,
+.camera-play-section,
+.camera-tools,
+.camera-status,
+.camera-complete,
+.camera-error {
+  width: min(100%, 620px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.camera-game__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.camera-game__header h1 {
+  margin-top: 4px;
+  color: #244a3b;
+  letter-spacing: -0.06em;
+}
+
+.camera-game__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.camera-game__eyebrow {
+  margin: 0;
+  color: #c1663d;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.camera-game__lead {
+  margin-top: 12px;
+  color: #53616b;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.camera-stage {
+  position: relative;
+  overflow: hidden;
+  margin-top: 16px;
+  aspect-ratio: 16 / 10;
+  border: 8px solid #fffdf7;
+  border-radius: 22px;
+  background: #172820;
+  box-shadow: 0 12px 28px rgba(36, 74, 59, 0.16);
+}
+
+.camera-stage__video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera-stage__video.is-mirrored {
+  transform: scaleX(-1);
+}
+
+.camera-stage__cursor {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  transform: translate(-50%, -50%);
+  border: 3px solid #f4b37a;
+  border-radius: 50%;
+  box-shadow: 0 0 0 5px rgba(244, 179, 122, 0.2);
+  pointer-events: none;
+}
+
+.camera-stage__cursor.is-pinching {
+  width: 30px;
+  height: 30px;
+  border-color: #b5d99c;
+  box-shadow: 0 0 0 7px rgba(181, 217, 156, 0.22);
+}
+
+.camera-stage__status {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  color: #fffdf7;
+  background: rgba(18, 35, 29, 0.72);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.camera-error {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 13px;
+  border-radius: 15px;
+  color: #7a3f2c;
+  background: #fff0e8;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.camera-error .big-btn {
+  padding: 14px;
+  font-size: 15px;
+}
+
+.camera-section,
+.camera-play-section,
+.camera-tools {
+  margin-top: 16px;
+}
+
+.camera-section,
+.camera-play-section,
+.camera-tools,
+.camera-complete {
+  padding: 14px;
+  border: 1px solid rgba(36, 74, 59, 0.11);
+  border-radius: 21px;
+  background: rgba(255, 253, 247, 0.78);
+  box-shadow: 0 10px 24px rgba(36, 74, 59, 0.08);
+}
+
+.camera-section__heading,
+.camera-progress-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 9px;
+  color: #65747c;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.camera-section__heading strong,
+.camera-progress-row strong {
+  color: #244a3b;
+}
+
+.camera-chip-row,
+.camera-mode-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px 1px 5px;
+  scrollbar-width: none;
+}
+
+.camera-chip-row::-webkit-scrollbar {
+  display: none;
+}
+
+.camera-chip-row button,
+.camera-mode-row button {
+  flex: 0 0 auto;
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid rgba(36, 74, 59, 0.14);
+  border-radius: 12px;
+  color: #53616b;
+  background: rgba(255, 255, 255, 0.78);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.camera-chip-row button.is-selected,
+.camera-mode-row button.is-selected {
+  color: #fffdf7;
+  border-color: #244a3b;
+  background: #244a3b;
+}
+
+.camera-chip-row--artworks {
+  margin-top: 8px;
+}
+
+.camera-board-shell {
+  display: flex;
+  justify-content: center;
+}
+
+.camera-board {
+  display: block;
+  width: min(100%, 460px);
+  aspect-ratio: 1;
+  border: 8px solid #fffdf7;
+  border-radius: 20px;
+  box-shadow: inset 0 0 0 1px rgba(36, 74, 59, 0.12), 0 9px 22px rgba(36, 74, 59, 0.12);
+}
+
+.camera-board-hint {
+  margin: 10px 0 0;
+  color: #7b878e;
+  font-size: 12px;
+  text-align: center;
+}
+
+.camera-tools {
+  display: grid;
+  gap: 12px;
+}
+
+.camera-mode-row button {
+  flex: 1;
+}
+
+.camera-palette {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 9px;
+}
+
+.camera-palette button {
+  aspect-ratio: 1;
+  min-width: 28px;
+  border: 3px solid rgba(255, 255, 255, 0.94);
+  border-radius: 50%;
+  box-shadow: 0 3px 9px rgba(30, 40, 60, 0.14);
+}
+
+.camera-palette button.is-selected {
+  outline: 3px solid #244a3b;
+  outline-offset: 2px;
+}
+
+.camera-status {
+  margin-top: 14px;
+  color: #53616b;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.camera-complete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 14px;
+  color: #244a3b;
+}
+
+.camera-complete .big-btn {
+  padding: 12px 14px;
+  font-size: 13px;
 }
 
 .touch-tools {

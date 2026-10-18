@@ -25,7 +25,7 @@ export function CalibViewfinder({ step, onSample }: Props) {
     (async () => {
       try {
         stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+          video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
           audio: false,
         });
         if (videoRef.current) {

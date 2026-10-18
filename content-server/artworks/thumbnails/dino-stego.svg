@@ -1,4 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
-  <rect width="200" height="200" fill="#f0f0f0"/>
-  <text x="100" y="100" text-anchor="middle" dominant-baseline="middle" font-family="sans-serif" font-size="16" fill="#999">썸네일: ${f}</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="스테고사우루스 색칠 그림">
+  <rect width="200" height="200" rx="24" fill="#e8f3d6"/><path d="M0 151 Q55 126 104 149 T200 143 V200 H0Z" fill="#568b4d"/>
+  <g stroke="#263d35" stroke-width="3" stroke-linejoin="round">
+    <path d="M35 117 C26 101 36 88 53 82 C73 75 94 83 99 99 C102 111 91 121 72 123Z" fill="#87b85d"/>
+    <path d="M31 88 C19 79 22 66 35 65 C44 70 45 80 39 88Z" fill="#94c46b"/>
+    <path d="M46 84 L51 58 L62 83Z M65 82 L73 52 L84 84Z M84 85 L96 58 L104 91Z" fill="#e29a58"/>
+    <path d="M43 116 L39 141 L51 141 L54 116Z M77 116 L79 142 L91 142 L88 115Z" fill="#679d52"/>
+    <path d="M96 98 C119 93 132 102 140 113 C122 116 107 111 96 107Z" fill="#6e9f52"/>
+    <circle cx="33" cy="72" r="3.5" fill="#263d35" stroke="none"/>
+  </g>
+  <g fill="#c9e77f"><circle cx="19" cy="143" r="4"/><circle cx="163" cy="144" r="4"/><circle cx="177" cy="128" r="3"/></g>
 </svg>

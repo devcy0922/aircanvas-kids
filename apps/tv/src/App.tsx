@@ -6,7 +6,7 @@ import { useWsChannel } from './hooks/useWsChannel';
 import { TVHomeScreen } from './components/TVHomeScreen';
 
 type Phase = 'connecting' | 'home';
-type TVScene = 'home' | 'calib' | 'play' | 'gallery';
+type TVScene = 'home' | 'calib' | 'play' | 'gallery' | 'world';
 
 const query = new URLSearchParams(location.search);
 const ROOM_CODE = query.get('room') ?? 'DEMO01';
