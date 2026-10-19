@@ -223,8 +223,9 @@ async def main() -> int:
             await recorder.save_screenshot(touch, "09-touch-painted-mobile.png")
             await touch.locator("[data-testid='touch-export']").click()
             await touch.locator("[data-testid='touch-world']").wait_for(state="visible", timeout=30_000)
-            if await touch.locator("[data-testid='touch-world']").get_attribute("data-world") != "jungle":
-                raise AssertionError("공룡 작품이 정글 월드로 내보내지지 않았습니다.")
+            world_kind = await touch.locator("[data-testid='touch-world']").get_attribute("data-world")
+            if world_kind not in ("dino", "jungle"):
+                raise AssertionError(f"공룡 작품이 공룡/정글 월드로 내보내지지 않았습니다: {world_kind}")
             if await touch.locator(".world-creature[data-route]").count() != 1:
                 raise AssertionError("첫 작품이 월드에 하나의 생물로 남지 않았습니다.")
             route = int(await touch.locator(".world-creature").get_attribute("data-route") or "0")

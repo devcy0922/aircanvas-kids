@@ -894,8 +894,32 @@ h1 {
   background: linear-gradient(165deg, #eff7e9, #d8ecdc 58%, #c2dec7);
 }
 
+.touch-world--dino {
+  background: linear-gradient(165deg, #fff3e6, #fed7aa 55%, #fb923c);
+}
+
 .touch-world--ocean {
   background: linear-gradient(165deg, #e2f5f5, #c5e6ec 55%, #9fc9db);
+}
+
+.touch-world--dino .touch-world__copy h1 {
+  color: #7c2d12;
+}
+
+.touch-world--dino .touch-world__copy > p:last-of-type {
+  color: #9a3412;
+}
+
+.touch-world--dino .touch-world__room {
+  color: #7c2d12;
+}
+
+.touch-world--dino .touch-world__room strong {
+  background: #ea580c;
+}
+
+.touch-world--dino .touch-world__scene {
+  box-shadow: 0 18px 38px rgba(124, 45, 18, 0.28);
 }
 
 .touch-world__copy,
@@ -1919,4 +1943,174 @@ h1 {
 
 .muted {
   opacity: 0.65;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   AirCanvas Kids v0.4.0 — 생태 월드 인터랙션 & 채색 도구 고도화 스타일
+   ───────────────────────────────────────────────────────────── */
+
+.touch-game__header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.sound-btn {
+  font-size: 18px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.touch-mode-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: min(100%, 460px);
+  margin: 12px auto 0;
+  gap: 12px;
+}
+
+.mode-toggle-group {
+  display: flex;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+  padding: 3px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.mode-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.mode-btn.is-selected {
+  background: #ffffff;
+  color: #1a4d3a;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transform: scale(1.02);
+}
+
+.mode-icon {
+  font-size: 15px;
+}
+
+.touch-region {
+  cursor: pointer;
+  transition: fill 0.25s ease, opacity 0.2s ease;
+}
+
+.touch-board--paint.mode-fill .touch-region:hover {
+  filter: brightness(1.08);
+  stroke: #ff9f1c;
+  stroke-width: 1.5;
+}
+
+.touch-footer-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  max-width: 460px;
+  margin: 14px auto 0;
+}
+
+.wake-up-btn {
+  flex: 1;
+  background: linear-gradient(135deg, #f77f00, #d62828);
+  color: #ffffff;
+  font-weight: 800;
+  border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(214, 40, 40, 0.35);
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.wake-up-btn.pulse {
+  animation: wake-up-pulse 1.6s infinite alternate;
+}
+
+@keyframes wake-up-pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 4px 14px rgba(214, 40, 40, 0.35);
+  }
+  100% {
+    transform: scale(1.03);
+    box-shadow: 0 6px 20px rgba(247, 127, 0, 0.55);
+  }
+}
+
+/* 생물 인터랙션 점프 및 회전 */
+.world-creature.is-reacting {
+  animation: creature-jump 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+@keyframes creature-jump {
+  0% { transform: translateY(0) scale(1); }
+  25% { transform: translateY(0) scale(1.15, 0.85); }
+  50% { transform: translateY(-24px) scale(0.9, 1.15) rotate(6deg); }
+  75% { transform: translateY(-6px) scale(1.05, 0.95); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes float-up {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 0) scale(0.4);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -16px) scale(1.2);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(-50%, -36px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -52px) scale(0.7);
+  }
+}
+
+/* 화산 연기 뭉게뭉게 */
+.dino-smoke {
+  animation: dino-smoke-drift 4s ease-in-out infinite alternate;
+  transform-origin: 42px 28px;
+}
+
+@keyframes dino-smoke-drift {
+  0% { transform: translateY(0) scale(1); opacity: 0.35; }
+  100% { transform: translateY(-3px) scale(1.15) rotate(3deg); opacity: 0.55; }
+}
+
+/* 작은 익룡 활공 */
+.world-ptera-flight {
+  animation: ptera-flight 12s linear infinite;
+}
+
+@keyframes ptera-flight {
+  0% { transform: translate(50px, -5px) scale(0.8); }
+  50% { transform: translate(-30px, 4px) scale(0.9); }
+  100% { transform: translate(-120px, -2px) scale(0.75); }
+}
+
+/* 반딧불이 깜빡임 */
+.world-fireflies {
+  animation: firefly-blink 2s ease-in-out infinite alternate;
+}
+
+@keyframes firefly-blink {
+  0% { opacity: 0.2; transform: translateY(0); }
+  100% { opacity: 0.95; transform: translateY(-2px); }
 }

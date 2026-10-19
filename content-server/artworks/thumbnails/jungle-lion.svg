@@ -1,13 +1,26 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="사자 색칠 그림">
-  <defs><linearGradient id="j" y2="1"><stop stop-color="#cbe8a9"/><stop offset="1" stop-color="#77ad68"/></linearGradient></defs>
-  <rect width="200" height="200" rx="24" fill="url(#j)"/><path d="M0 155 Q45 129 94 151 T200 144 V200 H0Z" fill="#3f7748"/>
-  <g stroke="#263d35" stroke-width="3" stroke-linejoin="round">
-    <path d="M43 118 C34 101 45 88 63 84 C80 80 99 87 102 101 C105 113 94 122 75 124Z" fill="#dcae57"/>
-    <path d="M82 87 C67 77 70 56 84 48 C101 39 119 51 118 68 C117 84 103 93 88 92Z" fill="#b96d39"/>
-    <path d="M84 67 C84 54 97 48 109 55 C118 62 113 77 102 81 C91 84 84 77 84 67Z" fill="#e7b85c"/>
-    <path d="M51 116 L48 141 L60 141 L63 117Z M80 117 L83 141 L95 141 L91 115Z" fill="#c99043"/>
-    <path d="M99 101 C122 94 136 102 143 113 C125 117 111 112 99 108Z" fill="#dcae57"/>
-    <circle cx="96" cy="63" r="3.5" fill="#263d35" stroke="none"/><path d="M96 73 Q101 77 106 73" fill="none"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-labelledby="title desc">
+  <title id="title">정글 사자</title>
+  <desc id="desc">풍성한 갈기를 가진 귀여운 아기 사자</desc>
+  <defs>
+    <linearGradient id="sky-lion" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff2b2"/>
+      <stop offset="1" stop-color="#ffd166"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="32" fill="url(#sky-lion)"/>
+  <path d="M0 156 Q50 144 110 156 T200 152 V200 H0 Z" fill="#588157"/>
+  <path d="M0 168 Q60 160 120 170 T200 166 V200 H0 Z" fill="#3a5a40"/>
+  <g transform="translate(10, 10) scale(1.8)" stroke="#2b1e10" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M24 64 C14 62 8 50 4 40 C8 54 18 72 26 72 Z" fill="#e76f51"/>
+    <path d="M6 42 C3 38 4 32 8 32 C12 32 11 40 6 42 Z" fill="#bc4749"/>
+    <path d="M50 20 C68 18 78 30 78 46 C78 64 64 74 50 74 C36 74 24 62 26 44 C26 28 36 20 50 20 Z" fill="#f4a261"/>
+    <path d="M30 68 C24 54 34 44 48 46 C60 46 70 54 70 66 C70 76 58 78 46 78 C36 78 32 74 30 68 Z" fill="#e9c46a"/>
+    <path d="M40 34 C40 28 60 28 60 34 C64 42 62 56 50 58 C38 56 36 42 40 34 Z" fill="#e9c46a"/>
+    <path d="M44 46 C44 42 56 42 56 46 C56 52 44 52 44 46 Z" fill="#faedcd"/>
+    <path d="M48 44 L52 44 L50 48 Z" fill="#bc4749"/>
+    <ellipse cx="44" cy="39" rx="1.8" ry="1.8" fill="#1c281e" stroke="none"/>
+    <ellipse cx="56" cy="39" rx="1.8" ry="1.8" fill="#1c281e" stroke="none"/>
+    <path d="M52 68 L52 92 L60 92 L62 68 Z" fill="#e9c46a"/>
+    <path d="M34 68 L34 92 L42 92 L44 68 Z" fill="#e9c46a"/>
   </g>
-  <g fill="#d8f09a"><circle cx="22" cy="143" r="4"/><circle cx="162" cy="146" r="3"/><circle cx="178" cy="126" r="4"/></g>
 </svg>

@@ -1,12 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="고래 색칠 그림">
-  <defs><linearGradient id="w" y2="1"><stop stop-color="#bfe8f1"/><stop offset="1" stop-color="#519bb8"/></linearGradient></defs>
-  <rect width="200" height="200" rx="24" fill="url(#w)"/><path d="M0 162 Q35 145 70 160 T140 158 T200 155 V200 H0Z" fill="#277d94"/>
-  <g stroke="#214956" stroke-width="3" stroke-linejoin="round">
-    <path d="M30 108 C18 89 36 72 65 69 C94 66 121 76 132 94 C137 110 116 124 87 128 C59 131 38 122 30 108Z" fill="#6fabc2"/>
-    <path d="M130 94 C153 78 170 87 177 102 C164 115 148 116 130 108Z" fill="#85bdd0"/><path d="M66 119 L51 143 C68 141 78 135 83 123Z" fill="#4e91ae"/>
-    <path d="M71 69 Q66 54 75 45 Q83 55 80 69 M83 68 Q86 52 96 49 Q95 63 89 71" fill="none" stroke-linecap="round"/>
-    <circle cx="54" cy="88" r="5" fill="#fffdf0"/><circle cx="54" cy="88" r="2.5" fill="#214956" stroke="none"/>
-    <path d="M31 106 Q42 111 51 107" fill="none"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-labelledby="title desc">
+  <title id="title">바다 고래</title>
+  <desc id="desc">시원한 물줄기를 뿜는 귀여운 아기 고래</desc>
+  <defs>
+    <linearGradient id="sky-whale" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#caf0f8"/>
+      <stop offset="1" stop-color="#90e0ef"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="32" fill="url(#sky-whale)"/>
+  <circle cx="150" cy="40" r="14" fill="#ffffff" opacity="0.5"/>
+  <circle cx="170" cy="60" r="8" fill="#ffffff" opacity="0.6"/>
+  <g transform="translate(10, 10) scale(1.8)" stroke="#03045e" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M78 50 C88 38 96 40 98 48 C92 52 90 56 98 60 C94 66 86 64 78 56 Z" fill="#0077b6"/>
+    <path d="M38 28 C34 18 24 16 26 12 C34 16 38 22 40 26 C42 22 46 16 54 12 C56 16 46 18 42 28 Z" fill="#ade8f4"/>
+    <path d="M18 52 C14 40 26 30 48 30 C72 30 82 42 78 52 C74 62 58 66 38 66 C24 66 18 60 18 52 Z" fill="#0096c7"/>
+    <path d="M22 54 C28 58 46 64 66 58 C62 64 50 66 36 66 C26 66 22 60 22 54 Z" fill="#e0fbfc"/>
+    <path d="M30 58 L32 64 L34 64 L32 58 Z M42 60 L44 65 L46 65 L44 60 Z M54 59 L56 63 L58 63 L56 59 Z" fill="#90e0ef"/>
+    <path d="M36 54 C30 64 36 72 44 66 C46 60 42 54 36 54 Z" fill="#0077b6"/>
+    <ellipse cx="28" cy="45" rx="2.5" ry="2.5" fill="#ffffff"/>
+    <circle cx="28" cy="45" r="1.4" fill="#1c281e" stroke="none"/>
+    <path d="M22 52 Q28 56 34 52 L34 54 Q28 58 22 54 Z" fill="#ffb4a2"/>
   </g>
-  <g fill="#dff5b1"><circle cx="20" cy="145" r="4"/><circle cx="164" cy="142" r="3"/><circle cx="179" cy="120" r="4"/></g>
 </svg>

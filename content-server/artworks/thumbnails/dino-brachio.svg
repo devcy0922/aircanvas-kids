@@ -1,14 +1,42 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="브라키오사우루스 색칠 그림">
-  <defs><linearGradient id="bg" y2="1"><stop stop-color="#e9f5d2"/><stop offset="1" stop-color="#9bd0a0"/></linearGradient></defs>
-  <rect width="200" height="200" rx="24" fill="url(#bg)"/>
-  <path d="M0 155 Q45 128 88 151 T200 145 V200 H0Z" fill="#4e8751"/>
-  <g stroke="#263d35" stroke-width="3" stroke-linejoin="round">
-    <path d="M36 111 C25 99 34 84 51 78 C67 73 88 80 92 96 C95 108 83 120 64 122Z" fill="#8dbb63"/>
-    <path d="M48 84 C47 63 51 35 62 26 C74 17 84 24 82 35 C79 47 68 50 69 82Z" fill="#80af5b"/>
-    <path d="M72 27 C78 16 91 17 96 26 C99 35 92 42 83 39Z" fill="#9dca70"/>
-    <path d="M37 108 L33 140 L45 140 L49 111Z" fill="#6e9e55"/><path d="M72 111 L74 141 L86 141 L83 108Z" fill="#6e9e55"/>
-    <path d="M88 89 C111 80 133 87 143 99 C126 108 105 108 89 101Z" fill="#78a957"/>
-    <circle cx="87" cy="29" r="4" fill="#263d35" stroke="none"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-labelledby="title desc">
+  <title id="title">브라키오사우루스</title>
+  <desc id="desc">우아하고 긴 목을 가진 귀여운 아기 브라키오사우루스</desc>
+  <defs>
+    <linearGradient id="sky-brachio" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e0f4ff"/>
+      <stop offset="1" stop-color="#b9e7fe"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="32" fill="url(#sky-brachio)"/>
+  <circle cx="40" cy="50" r="18" fill="#ffd166" opacity="0.7"/>
+  <path d="M0 155 Q60 142 120 156 T200 150 V200 H0 Z" fill="#609966"/>
+  <path d="M0 170 Q40 162 100 170 T200 166 V200 H0 Z" fill="#40534C"/>
+  <g transform="translate(10, 10) scale(1.8)" stroke="#1a382b" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round">
+    <!-- Tail -->
+    <path d="M24 64 C14 62 4 48 1 38 C5 54 14 72 26 74 Z" fill="#4895ef"/>
+    <!-- Far Legs -->
+    <path d="M34 70 L35 88 L41 88 L42 70 Z" fill="#3a0ca3"/>
+    <path d="M46 70 L47 89 L53 89 L53 70 Z" fill="#3a0ca3"/>
+    <!-- Body -->
+    <path d="M22 72 C16 56 26 42 46 42 C62 42 74 52 74 66 C74 76 62 80 46 80 C32 80 24 78 22 72 Z" fill="#4cc9f0"/>
+    <!-- Belly -->
+    <path d="M30 62 C40 56 56 56 64 64 C65 72 55 76 44 76 C35 75 30 70 30 62 Z" fill="#caf0f8"/>
+    <!-- Neck -->
+    <path d="M46 44 C44 26 50 12 60 8 C64 6 70 9 70 14 C68 28 58 40 54 46 Z" fill="#4cc9f0"/>
+    <!-- Head & Snout -->
+    <path d="M58 10 C58 4 68 3 74 7 C78 10 78 17 72 19 C66 20 60 17 58 10 Z" fill="#4895ef"/>
+    <path d="M68 9 C76 8 82 12 80 17 C78 20 72 20 68 18 Z" fill="#4895ef"/>
+    <!-- Eye -->
+    <ellipse cx="68" cy="10" rx="2.5" ry="2.5" fill="#ffffff"/>
+    <circle cx="68.5" cy="10" r="1.5" fill="#1c281e" stroke="none"/>
+    <!-- Mouth -->
+    <path d="M72 17 Q76 16 78 17" fill="none" stroke="#1a382b" stroke-width="1.2"/>
+    <!-- Near Legs & Feet -->
+    <path d="M26 72 L25 93 L33 93 L35 72 Z" fill="#4361ee"/>
+    <path d="M24 93 L24 95 L34 95 L34 93 Z" fill="#ffd166"/>
+    <path d="M54 72 L54 93 L62 93 L64 72 Z" fill="#4361ee"/>
+    <path d="M53 93 L53 95 L63 95 L63 93 Z" fill="#ffd166"/>
+    <!-- Spots -->
+    <path d="M34 48 C37 45 42 47 41 51 C39 53 35 51 34 48 Z M46 48 C49 45 54 47 53 51 C51 53 47 51 46 48 Z M58 54 C61 51 66 53 65 57 C63 59 59 57 58 54 Z" fill="#7209b7"/>
   </g>
-  <g fill="#cae88d"><circle cx="22" cy="139" r="4"/><circle cx="168" cy="151" r="3"/><circle cx="178" cy="120" r="4"/></g>
 </svg>

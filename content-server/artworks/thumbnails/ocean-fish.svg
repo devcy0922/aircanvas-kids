@@ -1,11 +1,28 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="열대어 색칠 그림">
-  <defs><linearGradient id="o" y2="1"><stop stop-color="#bce9f0"/><stop offset="1" stop-color="#6ab3c3"/></linearGradient></defs>
-  <rect width="200" height="200" rx="24" fill="url(#o)"/><path d="M0 162 Q25 145 48 160 T96 160 T145 160 T200 155 V200 H0Z" fill="#328895"/>
-  <g stroke="#214956" stroke-width="3" stroke-linejoin="round">
-    <path d="M38 103 C30 83 48 69 76 70 C99 70 115 82 113 101 C110 117 91 128 66 123 C51 120 42 114 38 103Z" fill="#f4a261"/>
-    <path d="M112 88 L143 69 C149 84 142 101 114 105Z" fill="#e9c46a"/><path d="M71 72 L83 48 L94 72Z" fill="#2a9d8f"/><path d="M67 119 L80 141 L93 120Z" fill="#e9c46a"/>
-    <path d="M52 74 Q63 84 65 119 M76 72 Q88 83 87 121" fill="none" opacity=".8"/>
-    <circle cx="54" cy="88" r="5" fill="#fffdf0"/><circle cx="54" cy="88" r="2.5" fill="#214956" stroke="none"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-labelledby="title desc">
+  <title id="title">바다 열대어</title>
+  <desc id="desc">주황색 흰 줄무늬가 깜찍한 열대어 친구</desc>
+  <defs>
+    <linearGradient id="sky-fish" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#bbf2f6"/>
+      <stop offset="1" stop-color="#48cae4"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="32" fill="url(#sky-fish)"/>
+  <!-- Bubbles -->
+  <circle cx="40" cy="50" r="6" fill="#ffffff" opacity="0.5"/>
+  <circle cx="55" cy="35" r="4" fill="#ffffff" opacity="0.6"/>
+  <circle cx="160" cy="70" r="8" fill="#ffffff" opacity="0.4"/>
+  <g transform="translate(10, 10) scale(1.8)" stroke="#1d3557" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M64 48 L86 32 C88 44 84 56 86 68 L64 52 Z" fill="#e76f51"/>
+    <path d="M34 36 C42 22 56 22 62 38 Z" fill="#f4a261"/>
+    <path d="M34 64 C42 78 54 78 58 62 Z" fill="#f4a261"/>
+    <path d="M20 50 C16 38 28 30 46 32 C62 34 70 42 68 50 C66 58 58 66 42 66 C28 66 22 58 20 50 Z" fill="#f4a261"/>
+    <path d="M24 50 C26 42 36 36 46 38 L44 62 C34 62 26 58 24 50 Z" fill="#e76f51"/>
+    <path d="M36 34 C40 38 40 60 36 64 L42 63 C46 59 46 39 42 35 Z" fill="#ffffff"/>
+    <path d="M52 38 C55 42 55 58 52 62 L56 61 C59 57 59 43 56 39 Z" fill="#ffffff"/>
+    <path d="M38 50 C46 48 52 54 48 60 C42 62 36 56 38 50 Z" fill="#e76f51"/>
+    <ellipse cx="27" cy="45" rx="3" ry="3" fill="#ffffff"/>
+    <circle cx="27" cy="45" r="1.6" fill="#1c281e" stroke="none"/>
+    <path d="M18 49 C21 48 23 50 21 52 C19 53 17 51 18 49 Z" fill="#e63946"/>
   </g>
-  <g fill="#e6f5a6"><circle cx="22" cy="143" r="4"/><circle cx="164" cy="140" r="3"/><circle cx="178" cy="120" r="4"/></g>
 </svg>

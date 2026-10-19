@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-labelledby="title desc">
+  <title id="title">프테라노돈</title>
+  <desc id="desc">하늘을 시원하게 날아다니는 아기 익룡 프테라노돈</desc>
+  <defs>
+    <linearGradient id="sky-ptera" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#caf0f8"/>
+      <stop offset="1" stop-color="#ade8f4"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="32" fill="url(#sky-ptera)"/>
+  <!-- Clouds -->
+  <g fill="#ffffff" opacity="0.8">
+    <ellipse cx="40" cy="50" rx="24" ry="12"/>
+    <ellipse cx="60" cy="46" rx="18" ry="10"/>
+    <ellipse cx="160" cy="80" rx="28" ry="14"/>
+  </g>
+  <g transform="translate(10, 20) scale(1.8)" stroke="#1a2e3b" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round">
+    <!-- Wings -->
+    <path d="M46 46 C32 36 14 36 4 48 C16 58 32 58 46 54 Z" fill="#f39a59"/>
+    <path d="M58 46 C72 36 90 36 100 48 C88 58 72 58 58 54 Z" fill="#f39a59"/>
+    <!-- Crest -->
+    <path d="M56 36 L78 24 L64 38 Z" fill="#e76f51"/>
+    <!-- Body -->
+    <path d="M46 54 C44 46 48 42 52 42 C56 42 60 46 58 54 C58 62 54 66 52 66 C50 66 46 62 46 54 Z" fill="#f4a261"/>
+    <!-- Head & Beak -->
+    <path d="M46 42 C44 36 48 32 54 32 C58 32 60 36 58 42 Z" fill="#f4a261"/>
+    <path d="M44 38 L20 44 L44 42 Z" fill="#e9c46a"/>
+    <!-- Eye -->
+    <ellipse cx="51" cy="36" rx="2.2" ry="2.2" fill="#ffffff"/>
+    <circle cx="51" cy="36" r="1.2" fill="#1c281e" stroke="none"/>
+    <!-- Feet -->
+    <path d="M49 66 L47 76 L51 76 L52 66 L53 76 L57 76 L55 66 Z" fill="#e76f51"/>
+  </g>
+</svg>

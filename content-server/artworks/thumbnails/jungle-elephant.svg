@@ -1,12 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="코끼리 색칠 그림">
-  <rect width="200" height="200" rx="24" fill="#d8efd2"/><path d="M0 156 Q42 132 92 150 T200 144 V200 H0Z" fill="#4e8650"/>
-  <g stroke="#263d35" stroke-width="3" stroke-linejoin="round">
-    <path d="M34 117 C25 97 40 82 61 80 C83 78 104 88 104 104 C103 119 87 124 65 124Z" fill="#91aa9a"/>
-    <path d="M34 91 C25 75 31 58 45 54 C59 52 69 67 64 83 L57 98Z" fill="#9eb7a5"/>
-    <path d="M34 83 C20 82 16 71 23 61 C31 62 39 70 40 81Z" fill="#aac2ae"/>
-    <path d="M47 116 L44 142 L56 142 L59 117Z M79 116 L82 142 L94 142 L90 114Z" fill="#7f9c8d"/>
-    <path d="M102 99 C124 93 136 99 143 109 C130 117 114 113 102 107Z" fill="#8ba596"/>
-    <circle cx="47" cy="68" r="3.5" fill="#263d35" stroke="none"/><path d="M45 88 Q52 93 59 88" fill="none"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-labelledby="title desc">
+  <title id="title">정글 코끼리</title>
+  <desc id="desc">긴 코를 번쩍 든 귀여운 아기 코끼리</desc>
+  <defs>
+    <linearGradient id="sky-ele" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e8f5e9"/>
+      <stop offset="1" stop-color="#c8e6c9"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="32" fill="url(#sky-ele)"/>
+  <path d="M0 156 Q50 144 110 156 T200 152 V200 H0 Z" fill="#66bb6a"/>
+  <path d="M0 168 Q60 160 120 170 T200 166 V200 H0 Z" fill="#2e7d32"/>
+  <g transform="translate(10, 10) scale(1.8)" stroke="#263238" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M74 62 C84 62 88 70 90 74 C82 76 76 70 74 62 Z" fill="#78909c"/>
+    <path d="M26 72 C18 56 28 40 50 40 C70 40 80 52 80 68 C80 78 68 82 50 82 C34 82 28 78 26 72 Z" fill="#90a4ae"/>
+    <path d="M24 50 C18 42 22 30 36 28 C48 26 54 34 52 46 C50 54 40 58 30 56 Z" fill="#90a4ae"/>
+    <path d="M24 46 C16 46 8 38 8 28 C8 24 14 24 14 28 C14 34 18 40 24 40 Z" fill="#78909c"/>
+    <path d="M38 32 C48 26 56 32 54 48 C52 58 42 60 36 50 Z" fill="#b0bec5"/>
+    <ellipse cx="29" cy="37" rx="1.8" ry="1.8" fill="#1c281e" stroke="none"/>
+    <path d="M22 46 C18 48 16 52 14 54 C18 52 22 50 24 48 Z" fill="#ffffff"/>
+    <path d="M32 72 L32 94 L42 94 L44 72 Z" fill="#78909c"/>
+    <path d="M60 72 L60 94 L70 94 L68 72 Z" fill="#78909c"/>
   </g>
-  <g fill="#bfe68d"><circle cx="21" cy="143" r="4"/><circle cx="163" cy="145" r="3"/><circle cx="180" cy="124" r="4"/></g>
 </svg>

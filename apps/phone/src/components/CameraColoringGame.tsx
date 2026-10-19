@@ -413,7 +413,7 @@ export function CameraColoringGame({ themes, artworks, onExit, onTouchFallback }
 
       <section className="camera-export-row" aria-label="작품 다음 단계">
         <button className="big-btn camera-export-btn" type="button" onClick={() => setIsExported(true)}>
-          내 캐릭터 정글로 내보내기
+          내 캐릭터 생태 월드로 내보내기 🌟
         </button>
         <button className="btn-ghost camera-skip-btn" type="button" onClick={goNextArtwork}>
           다음으로 (건너뛰기)

@@ -172,6 +172,25 @@
         "tools/web-debug.py"
       ],
       "verification": "make check, npm audit(0건), 390px 격리 브라우저 및 공개 URL 세부 확대·5개 경로·종별 동작·룸 누적·전체 초기화 통과 (aircanvas-web-1792379580, aircanvas-web-1792379659)"
+    },
+    {
+      "id": "TASK-020",
+      "name": "공룡/테마 아트워크 고도화 및 살아있는 생태 월드 인터랙션 완성 (v0.4.0)",
+      "status": "done",
+      "outputs": [
+        "packages/tv-art/src/artworks/dino.ts",
+        "packages/tv-art/src/artworks/jungle.ts",
+        "packages/tv-art/src/artworks/ocean.ts",
+        "content-server/manifest.json",
+        "content-server/artworks/thumbnails/*.svg",
+        "apps/phone/src/lib/sound.ts",
+        "apps/phone/src/components/TouchColoringGame.tsx",
+        "apps/phone/src/components/TouchColoringBoard.tsx",
+        "apps/phone/src/components/TouchJungleWorld.tsx",
+        "apps/phone/src/styles.css",
+        "tools/web-debug.py"
+      ],
+      "verification": "make check 통과, Playwright E2E(공개 웹 PRODDBG 룸) 통과 (aircanvas-web-1792452997), /var/www/aircanvas 정적 동기화 배포, 릴레이 서비스 정상 가동"
     }
   ]
 }

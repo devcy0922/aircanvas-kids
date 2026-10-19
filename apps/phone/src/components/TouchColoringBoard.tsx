@@ -1,9 +1,10 @@
 import { useId, useRef, useState } from 'react';
 import type { PointerEvent } from 'react';
 import type { ArtworkPack, ThemePack } from '@ht/protocol';
+import { sound } from '../lib/sound';
 
 export type TouchPoint = { x: number; y: number };
-export type TouchMode = 'fill' | 'free';
+export type TouchMode = 'fill' | 'brush' | 'free';
 export type BrushKind = 'round' | 'pen';
 export type PaintStroke = {
   points: TouchPoint[];
@@ -16,11 +17,14 @@ interface Props {
   artwork: ArtworkPack;
   theme: ThemePack;
   color: string;
+  mode: TouchMode;
   brush: BrushKind;
   brushSize: number;
   zoom?: number;
   strokes: PaintStroke[];
+  filledRegions: Record<string, string>;
   onStroke: (stroke: PaintStroke) => void;
+  onFillRegion: (regionId: string, color: string) => void;
 }
 
 function clamp(value: number) {
@@ -36,32 +40,41 @@ function interpolate(from: TouchPoint, to: TouchPoint, spacing: number): TouchPo
   });
 }
 
-export function estimatePaintCoverage(artwork: ArtworkPack, strokes: PaintStroke[]): number {
-  if (strokes.length === 0 || typeof Path2D === 'undefined' || typeof document === 'undefined') return 0;
-  const context = document.createElement('canvas').getContext('2d');
-  if (!context) return 0;
-  const paths = artwork.regions.map((region) => new Path2D(region.path));
-  const grid = 42;
-  let inside = 0;
-  let painted = 0;
+export function estimatePaintCoverage(
+  artwork: ArtworkPack,
+  strokes: PaintStroke[],
+  filledRegions: Record<string, string> = {}
+): number {
+  const totalRegions = artwork.regions.length;
+  if (totalRegions === 0) return 0;
 
-  for (let row = 0; row < grid; row += 1) {
-    for (let column = 0; column < grid; column += 1) {
-      const x = ((column + 0.5) / grid) * 100;
-      const y = ((row + 0.5) / grid) * 100;
-      if (!paths.some((path) => context.isPointInPath(path, x, y))) continue;
-      inside += 1;
-      const hasPaint = strokes.some((stroke) => {
-        const radius = stroke.size / 2;
-        return stroke.points.some((point) => Math.hypot(point.x * 100 - x, point.y * 100 - y) <= radius);
-      });
-      if (hasPaint) painted += 1;
-    }
+  // 채워진 영역 비율 (50% 가중치)
+  const filledCount = Object.keys(filledRegions).length;
+  const fillRatio = filledCount / totalRegions;
+
+  // 브러시 스트로크 비율 (50% 가중치)
+  let brushRatio = 0;
+  if (strokes.length > 0) {
+    const totalPoints = strokes.reduce((acc, s) => acc + s.points.length, 0);
+    brushRatio = Math.min(1, totalPoints / 120);
   }
-  return inside === 0 ? 0 : painted / inside;
+
+  return Math.min(1, fillRatio * 0.7 + brushRatio * 0.3);
 }
 
-export function TouchColoringBoard({ artwork, theme, color, brush, brushSize, zoom = 1, strokes, onStroke }: Props) {
+export function TouchColoringBoard({
+  artwork,
+  theme,
+  color,
+  mode,
+  brush,
+  brushSize,
+  zoom = 1,
+  strokes,
+  filledRegions,
+  onStroke,
+  onFillRegion,
+}: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const draftRef = useRef<TouchPoint[]>([]);
   const activePointerIdRef = useRef<number | null>(null);
@@ -88,7 +101,10 @@ export function TouchColoringBoard({ artwork, theme, color, brush, brushSize, zo
   };
 
   const finishStroke = () => {
-    if (draftRef.current.length > 0) onStroke({ points: draftRef.current, color, size: brushSize, brush });
+    if (draftRef.current.length > 0) {
+      onStroke({ points: draftRef.current, color, size: brushSize, brush });
+      sound.playPop();
+    }
     draftRef.current = [];
     setDraft([]);
   };
@@ -96,44 +112,63 @@ export function TouchColoringBoard({ artwork, theme, color, brush, brushSize, zo
   const handlePointerDown = (event: PointerEvent<SVGSVGElement>) => {
     if (event.pointerType === 'mouse' && event.button !== 0) return;
     event.preventDefault();
-    event.currentTarget.setPointerCapture(event.pointerId);
-    activePointerIdRef.current = event.pointerId;
-    const point = pointFromEvent(event);
-    setCursor(point);
-    draftRef.current = [point];
-    setDraft([point]);
+
+    if (mode === 'brush') {
+      event.currentTarget.setPointerCapture(event.pointerId);
+      activePointerIdRef.current = event.pointerId;
+      const point = pointFromEvent(event);
+      setCursor(point);
+      draftRef.current = [point];
+      setDraft([point]);
+    }
   };
 
   const handlePointerMove = (event: PointerEvent<SVGSVGElement>) => {
     const point = pointFromEvent(event);
     setCursor(point);
-    if (activePointerIdRef.current !== event.pointerId) return;
-    appendPoint(point);
+    if (mode === 'brush' && activePointerIdRef.current === event.pointerId) {
+      appendPoint(point);
+    }
   };
 
   const releasePointer = (event: PointerEvent<SVGSVGElement>) => {
-    if (activePointerIdRef.current !== event.pointerId) return;
-    activePointerIdRef.current = null;
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
-    finishStroke();
+    if (mode === 'brush') {
+      if (activePointerIdRef.current !== event.pointerId) return;
+      activePointerIdRef.current = null;
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+      finishStroke();
+    }
   };
 
-  const visibleStrokes: PaintStroke[] = draft.length > 0
-    ? [...strokes, { points: draft, color, size: brushSize, brush }]
-    : strokes;
+  const handleRegionClick = (regionId: string, event: React.MouseEvent) => {
+    if (mode === 'fill') {
+      event.stopPropagation();
+      sound.playFill();
+      onFillRegion(regionId, color);
+    }
+  };
+
+  const visibleStrokes: PaintStroke[] =
+    draft.length > 0 ? [...strokes, { points: draft, color, size: brushSize, brush }] : strokes;
 
   return (
-    <div className="touch-board-shell">
+    <div className="touch-board-shell" style={{ position: 'relative' }}>
       <div className="touch-board-label">
-        <span>누른 채 문지른 자리만 색이 남아요</span>
+        <span>
+          {mode === 'fill' ? '🎨 영역을 탭하면 물방울처럼 색이 퐁퐁 차올라요!' : '🖌️ 원하는 곳을 자유롭게 쓱쓱 문질러 칠해요!'}
+        </span>
         <strong style={{ color: theme.accentColor }}>{artwork.name}</strong>
       </div>
+
       <svg
         ref={svgRef}
-        className="touch-board touch-board--paint"
+        className={`touch-board touch-board--paint mode-${mode}`}
         viewBox={`${viewportOrigin} ${viewportOrigin} ${viewportSize} ${viewportSize}`}
         role="img"
-        aria-label={`${artwork.name} 브러시 색칠판`}
+        aria-label={`${artwork.name} 색칠판`}
+        data-mode={mode}
         data-brush={brush}
         data-brush-size={brushSize}
         data-zoom={zoom}
@@ -141,39 +176,80 @@ export function TouchColoringBoard({ artwork, theme, color, brush, brushSize, zo
         onPointerMove={handlePointerMove}
         onPointerUp={releasePointer}
         onPointerCancel={releasePointer}
-        onPointerLeave={() => { if (activePointerIdRef.current === null) setCursor(null); }}
-        style={{ background: theme.bgColor }}
+        onPointerLeave={() => setCursor(null)}
+        style={{ cursor: mode === 'fill' ? 'pointer' : 'crosshair', touchAction: 'none' }}
       >
         <defs>
           <clipPath id={clipId}>
-            {artwork.regions.map((region) => <path key={region.id} d={region.path} />)}
+            {artwork.regions.map((region) => (
+              <path key={region.id} d={region.path} />
+            ))}
           </clipPath>
         </defs>
-        <rect x="0" y="0" width="100" height="100" fill="#fffdf7" opacity="0.76" pointerEvents="none" />
-        {artwork.regions.map((region) => (
-          <path key={region.id} d={region.path} fill="#fffdf7" fillOpacity="0.98" stroke={theme.accentColor} strokeWidth="1.15" strokeLinejoin="round" pointerEvents="none" />
-        ))}
+
+        {/* 배경 베이스 실루엣 */}
+        <g className="touch-board__base" fill={theme.bgColor}>
+          {artwork.regions.map((region) => (
+            <path key={region.id} d={region.path} />
+          ))}
+        </g>
+
+        {/* 채워진 영역(Fill) 레이어 */}
+        <g className="touch-board__fills">
+          {artwork.regions.map((region) => {
+            const fillColor = filledRegions[region.id] || '#ffffff';
+            return (
+              <path
+                key={region.id}
+                id={`region-${region.id}`}
+                d={region.path}
+                fill={fillColor}
+                stroke={mode === 'fill' ? '#abbac2' : '#d2dbe0'}
+                strokeWidth={mode === 'fill' ? '0.8' : '0.5'}
+                className={`touch-region ${filledRegions[region.id] ? 'is-filled' : ''}`}
+                onClick={(e) => handleRegionClick(region.id, e)}
+              />
+            );
+          })}
+        </g>
+
+        {/* 브러시 자유 덧칠(Brush) 레이어 */}
         <g clipPath={`url(#${clipId})`} pointerEvents="none" data-testid="paint-layer">
           {visibleStrokes.map((stroke, index) => (
             <polyline
-              key={`paint-stroke-${index}`}
+              key={index}
               points={stroke.points.map((point) => `${point.x * 100},${point.y * 100}`).join(' ')}
               fill="none"
               stroke={stroke.color}
               strokeWidth={stroke.size}
               strokeLinecap="round"
               strokeLinejoin="round"
+              opacity={stroke.brush === 'pen' ? 0.9 : 0.82}
             />
           ))}
         </g>
-        {artwork.regions.map((region) => (
-          <path key={`outline-${region.id}`} d={region.path} fill="none" stroke="#263d35" strokeOpacity="0.72" strokeWidth="0.72" strokeLinejoin="round" pointerEvents="none" />
-        ))}
-        {cursor && (
-          <circle className="touch-brush-cursor" cx={cursor.x * 100} cy={cursor.y * 100} r={brushSize / 2} fill={color} fillOpacity="0.2" stroke={color} strokeWidth="0.8" pointerEvents="none" />
+
+        {/* 외곽선 라인아트 (최상단) */}
+        <g className="touch-board__outline" fill="none" stroke="#253835" strokeWidth="1.4" strokeLinejoin="round" pointerEvents="none">
+          {artwork.regions.map((region) => (
+            <path key={region.id} d={region.path} />
+          ))}
+        </g>
+
+        {/* 브러시 커서 프리뷰 */}
+        {mode === 'brush' && cursor && (
+          <circle
+            cx={cursor.x * 100}
+            cy={cursor.y * 100}
+            r={brushSize / 2}
+            fill={color}
+            opacity="0.5"
+            stroke="#ffffff"
+            strokeWidth="0.8"
+            pointerEvents="none"
+          />
         )}
       </svg>
-      <p className="touch-board-hint">기본 원형 붓은 넓게, 가는 펜은 눈·무늬처럼 작은 곳에 써보세요.</p>
     </div>
   );
 }
