@@ -158,7 +158,7 @@
         "content-server/manifest.json",
         "tools/web-debug.py"
       ],
-      "verification": "make build, npm audit --omit=dev(0건), 390px 실제 브라우저 원형 붓 궤적, 정글/바다 내보내기, 주인공 6회 횡단 통과 (aircanvas-web-1792368274)"
+      "verification": "make build, npm audit(0건), 390px 실제 브라우저 원형 붓 궤적, 정글/바다 내보내기, 주인공 6회 횡단 통과 (aircanvas-web-1792368274)"
     }
   ]
 }
