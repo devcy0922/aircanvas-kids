@@ -1,7 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ArtworkPack, ThemePack } from '@ht/protocol';
 import { PALETTE } from '@ht/protocol';
-import { TouchColoringBoard, type TouchMode, type TouchPoint } from './TouchColoringBoard';
+import {
+  TouchColoringBoard,
+  estimatePaintCoverage,
+  type BrushKind,
+  type PaintStroke,
+} from './TouchColoringBoard';
 import { TouchJungleWorld } from './TouchJungleWorld';
 
 type PaletteColor = typeof PALETTE[number];
@@ -22,21 +27,20 @@ export function TouchColoringGame({ themes, artworks, onExit }: Props) {
   }, [artworks, theme]);
   const [artworkId, setArtworkId] = useState(themeArtworks[0]?.id ?? '');
   const artwork = themeArtworks.find((item) => item.id === artworkId) ?? themeArtworks[0];
-  const [mode, setMode] = useState<TouchMode>('fill');
+  const [brush, setBrush] = useState<BrushKind>('round');
+  const [brushSize, setBrushSize] = useState(14);
   const [color, setColor] = useState<PaletteColor>(PALETTE[0]);
-  const [filledRegions, setFilledRegions] = useState<Set<string>>(new Set());
-  const [strokes, setStrokes] = useState<TouchPoint[][]>([]);
+  const [strokes, setStrokes] = useState<PaintStroke[]>([]);
   const [isExported, setIsExported] = useState(false);
+  const progress = useMemo(() => artwork ? estimatePaintCoverage(artwork, strokes) : 0, [artwork, strokes]);
 
   useEffect(() => {
     setArtworkId(themeArtworks[0]?.id ?? '');
-    setFilledRegions(new Set());
     setStrokes([]);
     setIsExported(false);
   }, [themeId, themeArtworks]);
 
   useEffect(() => {
-    setFilledRegions(new Set());
     setStrokes([]);
     setIsExported(false);
   }, [artworkId]);
@@ -50,7 +54,6 @@ export function TouchColoringGame({ themes, artworks, onExit }: Props) {
     );
   }
 
-  const progress = artwork.regions.length === 0 ? 0 : filledRegions.size / artwork.regions.length;
   const artworkIndex = themeArtworks.findIndex((item) => item.id === artwork.id);
   const nextArtwork = artworkIndex >= 0 ? themeArtworks[artworkIndex + 1] : undefined;
 
@@ -60,8 +63,8 @@ export function TouchColoringGame({ themes, artworks, onExit }: Props) {
         artwork={artwork}
         theme={theme}
         color={color}
-        filledRegions={filledRegions}
-        strokes={strokes}
+        filledRegions={new Set()}
+        paintStrokes={strokes}
         onBack={() => setIsExported(false)}
         onNext={() => {
           setIsExported(false);
@@ -81,7 +84,7 @@ export function TouchColoringGame({ themes, artworks, onExit }: Props) {
         <button className="btn-ghost small" onClick={onExit}>처음으로</button>
       </header>
 
-      <p className="touch-game__lead">누른 채로 움직여 캐릭터를 색칠하고, 모두 채우지 않아도 바로 정글로 내보낼 수 있어요.</p>
+      <p className="touch-game__lead">원형 붓을 누른 채 움직이면 지나간 자리만 색이 남아요. 완성한 공룡은 정글로, 물고기는 바다로 출발해요.</p>
 
       <section className="touch-section" aria-label="테마 선택">
         <div className="touch-section__heading">
@@ -117,26 +120,24 @@ export function TouchColoringGame({ themes, artworks, onExit }: Props) {
 
       <section className="touch-section touch-play-section">
         <div className="touch-progress-row">
-          <span>{filledRegions.size}/{artwork.regions.length} 칸을 색칠했어요</span>
+          <span>도안 면적을 직접 색칠하고 있어요</span>
           <strong>{Math.round(progress * 100)}%</strong>
         </div>
         <TouchColoringBoard
           artwork={artwork}
           theme={theme}
-          mode={mode}
           color={color}
-          filledRegions={filledRegions}
+          brush={brush}
+          brushSize={brushSize}
           strokes={strokes}
-          onFillRegion={(regionId) => {
-            if (filledRegions.has(regionId)) return;
-            setFilledRegions((previous) => new Set(previous).add(regionId));
+          onStroke={(stroke) => {
+            setStrokes((previous) => [...previous, stroke]);
             navigator.vibrate?.(12);
           }}
-          onStroke={(points) => setStrokes((previous) => [...previous, points])}
         />
         <div className="touch-export-row">
           <button className="big-btn touch-export-btn" type="button" data-testid="touch-export" onClick={() => setIsExported(true)}>
-            내 캐릭터 정글로 내보내기
+            내 캐릭터 {theme.id === 'ocean' ? '바다' : '정글'}로 내보내기
           </button>
           <span>색칠한 만큼만 가지고 다음 장면으로 가요.</span>
         </div>
@@ -144,9 +145,35 @@ export function TouchColoringGame({ themes, artworks, onExit }: Props) {
 
       <section className="touch-tools" aria-label="색칠 도구">
         <div className="touch-mode-list">
-          <button className={mode === 'fill' ? 'is-selected' : ''} onClick={() => setMode('fill')}>🪣 칸 채우기</button>
-          <button className={mode === 'free' ? 'is-selected' : ''} onClick={() => setMode('free')}>✏️ 자유 그리기</button>
+          <button
+            className={brush === 'round' ? 'is-selected' : ''}
+            data-testid="brush-round"
+            onClick={() => { setBrush('round'); setBrushSize(14); }}
+          >
+            <span className="brush-preview brush-preview--round" /> 원형 붓
+          </button>
+          <button
+            className={brush === 'pen' ? 'is-selected' : ''}
+            data-testid="brush-pen"
+            onClick={() => { setBrush('pen'); setBrushSize(4); }}
+          >
+            <span className="brush-preview brush-preview--pen" /> 가는 펜
+          </button>
+          <button disabled={strokes.length === 0} onClick={() => setStrokes((previous) => previous.slice(0, -1))}>한 획 되돌리기</button>
         </div>
+        <label className="touch-brush-size">
+          <span>붓 크기</span>
+          <input
+            aria-label="붓 크기"
+            type="range"
+            min={brush === 'round' ? 8 : 2}
+            max={brush === 'round' ? 22 : 8}
+            step="1"
+            value={brushSize}
+            onChange={(event) => setBrushSize(Number(event.target.value))}
+          />
+          <strong>{brushSize}</strong>
+        </label>
         <div className="touch-palette">
           {PALETTE.map((item) => (
             <button
@@ -161,7 +188,9 @@ export function TouchColoringGame({ themes, artworks, onExit }: Props) {
       </section>
 
       <p className="touch-status" data-testid="touch-status">
-        {progress >= 1 ? '완성했어요! 정글로 내보내 볼까요?' : mode === 'fill' ? '색을 고르고 누른 채로 그림 위를 움직여 보세요.' : '손가락을 떼면 선이 남아요.'}
+        {progress >= 0.85
+          ? `멋져요! ${theme.id === 'ocean' ? '바다' : '정글'}로 내보내 볼까요?`
+          : '색을 고르고 도안 안을 천천히 문질러 보세요.'}
       </p>
     </main>
   );

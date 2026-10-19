@@ -1,7 +1,7 @@
 {
   "project": "aircanvas-kids",
   "codeName": "hand-tracking",
-  "updatedAt": "2026-08-24",
+  "updatedAt": "2026-10-19",
   "tasks": [
     {
       "id": "TASK-001",
@@ -146,6 +146,19 @@
         "docs/architecture.md"
       ],
       "verification": "npm run build, cargo check, relay home 커맨드 전달 테스트 통과"
+    },
+    {
+      "id": "TASK-018",
+      "name": "단일 기기 브러시 색칠과 테마별 생태 월드",
+      "status": "done",
+      "outputs": [
+        "apps/phone/src/components/TouchColoringBoard.tsx",
+        "apps/phone/src/components/TouchColoringGame.tsx",
+        "apps/phone/src/components/TouchJungleWorld.tsx",
+        "content-server/manifest.json",
+        "tools/web-debug.py"
+      ],
+      "verification": "make build, npm audit --omit=dev(0건), 390px 실제 브라우저 원형 붓 궤적, 정글/바다 내보내기, 주인공 6회 횡단 통과 (aircanvas-web-1792368274)"
     }
   ]
 }

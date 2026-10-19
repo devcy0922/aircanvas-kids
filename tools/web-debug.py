@@ -193,30 +193,53 @@ async def main() -> int:
                 "미완성 작품 건너뛰기 → 갤러리 → 정글 월드 내보내기를 확인했습니다.",
             )
 
-            # 연결 게임과 분리된 터치 경로에서도 실제 마우스/터치 포인터를
-            # 누른 채 이동하고, 미완성 작품을 같은 정글 월드로 내보낸다.
+            # 연결 게임과 분리된 터치 경로에서 기본 원형 붓이 지나간
+            # 궤적만 남는지 확인하고, 공룡/바다 작품을 각 월드로 내보낸다.
             touch_url = app_url(PHONE_BASE, content=CONTENT)
+            await touch.set_viewport_size({"width": 390, "height": 844})
             await touch.goto(touch_url, wait_until="domcontentloaded", timeout=30_000)
             await wait_for_text(touch, "[data-testid='phone-welcome']", "AirCanvas Kids")
             await touch.locator("[data-testid='phone-touch-start']").click()
             await touch.locator("[data-testid='touch-game']").wait_for(state="visible", timeout=30_000)
-            touch_path = touch.locator(".touch-board path[data-region-id]").first
-            touch_box = await touch_path.bounding_box()
+            touch_board = touch.locator(".touch-board")
+            if await touch_board.get_attribute("data-brush") != "round":
+                raise AssertionError("기본 터치 도구가 원형 붓이 아닙니다.")
+            touch_box = await touch_board.bounding_box()
             if touch_box is None:
-                raise AssertionError("터치 보드의 SVG 리전을 찾지 못했습니다.")
-            start = {"x": touch_box["x"] + touch_box["width"] * 0.45, "y": touch_box["y"] + touch_box["height"] * 0.45}
-            end = {"x": touch_box["x"] + touch_box["width"] * 0.58, "y": touch_box["y"] + touch_box["height"] * 0.5}
+                raise AssertionError("터치 보드를 찾지 못했습니다.")
+            start = {"x": touch_box["x"] + touch_box["width"] * 0.35, "y": touch_box["y"] + touch_box["height"] * 0.55}
+            end = {"x": touch_box["x"] + touch_box["width"] * 0.68, "y": touch_box["y"] + touch_box["height"] * 0.58}
             await touch.mouse.move(start["x"], start["y"])
             await touch.mouse.down()
             await touch.mouse.move(end["x"], end["y"], steps=8)
             await touch.mouse.up()
+            if await touch.locator("[data-testid='paint-layer'] polyline").count() < 1:
+                raise AssertionError("원형 붓 궤적이 SVG 클립 레이어에 남지 않았습니다.")
+            await recorder.save_screenshot(touch, "09-touch-painted-mobile.png")
             await touch.locator("[data-testid='touch-export']").click()
             await touch.locator("[data-testid='touch-world']").wait_for(state="visible", timeout=30_000)
-            await recorder.save_screenshot(touch, "09-touch-world.png")
+            if await touch.locator("[data-testid='touch-world']").get_attribute("data-world") != "jungle":
+                raise AssertionError("공룡 작품이 정글 월드로 내보내지지 않았습니다.")
+            await touch.locator("[data-testid='world-pass']").filter(has_text="6 / 6").wait_for(state="visible", timeout=25_000)
+            await recorder.save_screenshot(touch, "10-touch-jungle-world-mobile.png")
+
+            await touch.get_by_role("button", name="다시 칠하기").click()
+            await touch.locator(".touch-theme-list button").filter(has_text="바다").click()
+            await touch.locator("[data-testid='touch-game']").wait_for(state="visible")
+            touch_box = await touch.locator(".touch-board").bounding_box()
+            if touch_box is None:
+                raise AssertionError("바다 터치 보드를 찾지 못했습니다.")
+            await touch.mouse.move(touch_box["x"] + touch_box["width"] * 0.25, touch_box["y"] + touch_box["height"] * 0.5)
+            await touch.mouse.down()
+            await touch.mouse.move(touch_box["x"] + touch_box["width"] * 0.66, touch_box["y"] + touch_box["height"] * 0.5, steps=10)
+            await touch.mouse.up()
+            await touch.locator("[data-testid='touch-export']").click()
+            await touch.locator("[data-testid='touch-world'][data-world='ocean']").wait_for(state="visible", timeout=30_000)
+            await recorder.save_screenshot(touch, "11-touch-ocean-world-mobile.png")
             recorder.record(
                 "verify_touch_export",
                 "completed",
-                "마우스 포인터를 누른 채 이동 → 미완성 터치 작품 정글 내보내기를 확인했습니다.",
+                "원형 붓 궤적 클리핑 → 공룡 정글/물고기 바다 월드 내보내기를 확인했습니다.",
             )
 
             phone_text = await phone.locator("body").inner_text()

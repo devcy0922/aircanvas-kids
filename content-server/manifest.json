@@ -1,6 +1,6 @@
 {
   "id": "aircanvas-kids",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "title": "AirCanvas Kids",
   "description": "스마트폰 카메라로 손 추적하여 TV 화면에 그림 그리기/색칠 게임",
   "entryScene": "home",
@@ -29,7 +29,13 @@
             { "id": "arm", "label": "작은 앞발", "path": "M59 53 C64 51 69 54 68 59 L64 63 L60 60 L63 57 L58 57 Z", "zIndex": 9 },
             { "id": "crest", "label": "등 볏", "path": "M30 49 L34 39 L39 45 L44 35 L48 44 L54 37 L57 48 Z", "zIndex": 10 },
             { "id": "eye", "label": "눈", "path": "M77 30 C79 28 82 29 82 32 C81 34 78 34 77 32 Z", "zIndex": 11 },
-            { "id": "teeth", "label": "이빨", "path": "M72 44 L75 49 L78 44 L81 48 L84 43 L87 45 L84 50 L76 51 Z", "zIndex": 12 }
+            { "id": "teeth", "label": "이빨", "path": "M72 44 L75 49 L78 44 L81 48 L84 43 L87 45 L84 50 L76 51 Z", "zIndex": 12 },
+            { "id": "nostril", "label": "콧구멍", "path": "M86 31 C89 30 90 32 88 34 C86 34 85 33 86 31 Z", "zIndex": 13 },
+            { "id": "face-patch", "label": "얼굴 무늬", "path": "M67 25 Q73 21 79 23 L75 28 L69 30 Z", "zIndex": 14 },
+            { "id": "body-patch-one", "label": "등 무늬", "path": "M38 48 Q43 44 48 45 L46 51 L40 53 Z", "zIndex": 15 },
+            { "id": "body-patch-two", "label": "옆구리 무늬", "path": "M52 48 Q58 47 62 51 L59 56 L53 55 Z", "zIndex": 16 },
+            { "id": "front-claws", "label": "앞발톱", "path": "M59 89 L62 86 L64 90 L67 87 L68 91 L58 91 Z", "zIndex": 17 },
+            { "id": "back-claws", "label": "뒷발톱", "path": "M31 88 L34 85 L36 89 L39 86 L41 90 L31 90 Z", "zIndex": 18 }
           ],
           "thumbnailUrl": "/artworks/thumbnails/dino-trex.svg"
         },
@@ -111,11 +117,18 @@
           "name": "열대어",
           "viewBox": "0 0 100 100",
           "regions": [
-            { "id": "body", "label": "몸통", "path": "M35 50 Q30 42 40 38 Q55 35 65 42 Q60 50 55 55 Q45 58 35 55 Z", "zIndex": 1 },
-            { "id": "tail-fin", "label": "꼬리지느러미", "path": "M65 42 Q75 35 80 45 Q72 50 65 48 Z", "zIndex": 2 },
-            { "id": "top-fin", "label": "등지느러미", "path": "M42 38 Q45 30 52 32 Q55 38 48 38 Z", "zIndex": 3 },
-            { "id": "bottom-fin", "label": "배지느러미", "path": "M45 55 Q48 62 55 58 Q52 52 45 55 Z", "zIndex": 4 },
-            { "id": "eye", "label": "눈", "path": "M42 44 Q40 42 43 42 Q45 44 43 44 Z", "zIndex": 5 }
+            { "id": "body", "label": "몸통", "path": "M19 51 C15 41 24 34 38 35 C50 35 58 41 57 50 C55 59 46 64 33 62 C26 60 21 57 19 51 Z", "zIndex": 1 },
+            { "id": "tail-fin", "label": "꼬리지느러미", "path": "M56 44 L72 34 C75 42 71 51 57 53 Z", "zIndex": 2 },
+            { "id": "top-fin", "label": "등지느러미", "path": "M35 36 L42 23 L48 36 Z", "zIndex": 3 },
+            { "id": "bottom-fin", "label": "배지느러미", "path": "M34 61 L40 73 L47 61 Z", "zIndex": 4 },
+            { "id": "pectoral-fin", "label": "가슴지느러미", "path": "M42 50 Q49 51 51 58 Q44 58 39 54 Z", "zIndex": 5 },
+            { "id": "face", "label": "얼굴", "path": "M19 51 C18 44 22 38 29 36 L31 61 C25 59 21 56 19 51 Z", "zIndex": 6 },
+            { "id": "stripe-one", "label": "앞쪽 무늬", "path": "M32 35 Q38 40 37 61 L31 61 L29 36 Z", "zIndex": 7 },
+            { "id": "stripe-two", "label": "뒤쪽 무늬", "path": "M44 36 Q51 40 52 55 Q48 60 43 61 Q46 49 44 36 Z", "zIndex": 8 },
+            { "id": "gill", "label": "아가미", "path": "M29 43 Q34 49 29 56 Q26 50 29 43 Z", "zIndex": 9 },
+            { "id": "eye-white", "label": "눈", "path": "M23 42 C25 39 29 40 29 43 C28 46 24 46 23 42 Z", "zIndex": 10 },
+            { "id": "eye", "label": "눈동자", "path": "M25 42 C26 41 28 42 27 44 C26 45 24 44 25 42 Z", "zIndex": 11 },
+            { "id": "mouth", "label": "입", "path": "M18 51 Q23 49 26 52 Q22 54 18 51 Z", "zIndex": 12 }
           ],
           "thumbnailUrl": "/artworks/thumbnails/ocean-fish.svg"
         },

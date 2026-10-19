@@ -7,6 +7,13 @@
   box-sizing: border-box;
 }
 
+button:focus-visible,
+input:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid #ef9b58;
+  outline-offset: 3px;
+}
+
 html,
 body,
 #root {
@@ -767,16 +774,12 @@ h1 {
   user-select: none;
 }
 
-.touch-board--fill path {
-  cursor: pointer;
-}
-
-.touch-board--fill path:active {
-  filter: brightness(0.96);
-}
-
-.touch-board--free {
+.touch-board--paint {
   cursor: crosshair;
+}
+
+.touch-brush-cursor {
+  filter: drop-shadow(0 1px 1px rgba(20, 40, 32, 0.25));
 }
 
 .touch-board-hint {
@@ -810,10 +813,63 @@ h1 {
   text-align: center;
 }
 
+.brush-preview {
+  display: inline-block;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.brush-preview--round {
+  width: 16px;
+  height: 16px;
+}
+
+.brush-preview--pen {
+  width: 6px;
+  height: 6px;
+  box-shadow: 0 0 0 2px rgba(83, 97, 107, 0.18);
+}
+
+.touch-mode-list button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.touch-mode-list button:disabled {
+  opacity: 0.42;
+}
+
+.touch-brush-size {
+  display: grid;
+  grid-template-columns: auto 1fr 28px;
+  align-items: center;
+  gap: 12px;
+  margin-top: 11px;
+  color: #596a72;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.touch-brush-size input {
+  width: 100%;
+  accent-color: #244a3b;
+}
+
+.touch-brush-size strong {
+  color: #244a3b;
+  text-align: right;
+}
+
 .touch-world {
   min-height: 100%;
   padding: 28px 16px calc(30px + env(safe-area-inset-bottom));
   background: linear-gradient(165deg, #eff7e9, #d8ecdc 58%, #c2dec7);
+}
+
+.touch-world--ocean {
+  background: linear-gradient(165deg, #e2f5f5, #c5e6ec 55%, #9fc9db);
 }
 
 .touch-world__copy,
@@ -837,6 +893,48 @@ h1 {
   font-weight: 700;
 }
 
+.touch-world--ocean .touch-world__copy h1 {
+  color: #0b5068;
+}
+
+.touch-world--ocean .touch-world__copy > p:last-of-type {
+  color: #356b7a;
+}
+
+.touch-world__pass {
+  display: grid;
+  grid-template-columns: auto minmax(100px, 1fr);
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  color: #315743;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.touch-world__pass i {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(36, 74, 59, 0.13);
+}
+
+.touch-world__pass b {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #c1663d;
+  transition: width 220ms ease-out;
+}
+
+.touch-world--ocean .touch-world__pass {
+  color: #1e6278;
+}
+
+.touch-world--ocean .touch-world__pass b {
+  background: #168ead;
+}
+
 .touch-world__scene {
   display: block;
   width: min(100%, 620px);
@@ -844,6 +942,170 @@ h1 {
   border: 8px solid rgba(255, 253, 247, 0.82);
   border-radius: 27px;
   box-shadow: 0 18px 38px rgba(36, 74, 59, 0.2);
+}
+
+.touch-world--ocean .touch-world__scene {
+  box-shadow: 0 18px 38px rgba(11, 80, 104, 0.24);
+}
+
+.world-hero {
+  animation: world-cross 3.4s linear 6 both;
+  transform-origin: center;
+}
+
+.world-hero__body {
+  animation: world-walk-bob 360ms ease-in-out infinite alternate;
+  transform-box: fill-box;
+  transform-origin: center bottom;
+}
+
+.world-hero--swim .world-hero__body {
+  animation-name: world-swim-bob;
+  animation-duration: 920ms;
+}
+
+.world-hero__limb {
+  animation: world-limb-step 360ms ease-in-out infinite alternate;
+  transform-box: fill-box;
+  transform-origin: center top;
+}
+
+.world-hero__limb:nth-of-type(even) {
+  animation-direction: alternate-reverse;
+}
+
+.world-hero--swim .world-hero__limb {
+  animation-name: world-fin-wave;
+  animation-duration: 620ms;
+}
+
+.world-hero__shadow {
+  animation: world-shadow 360ms ease-in-out infinite alternate;
+}
+
+.world-hero--swim .world-hero__shadow {
+  opacity: 0.12;
+}
+
+.world-hero__trail {
+  animation: world-trail 520ms ease-out infinite;
+}
+
+.world-neighbor--stego,
+.world-neighbor--fish {
+  animation: world-react-hop 3.4s ease-in-out 6;
+  transform-box: fill-box;
+  transform-origin: center bottom;
+}
+
+.world-neighbor--brachio,
+.world-neighbor--turtle,
+.world-neighbor--jelly {
+  animation: world-react-look 3.4s ease-in-out 6;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.world-birds {
+  animation: world-birds-fly 5s ease-in-out infinite alternate;
+}
+
+.world-bubbles circle {
+  animation: world-bubble-rise 2.8s ease-in infinite;
+}
+
+.world-bubbles circle:nth-child(even) {
+  animation-delay: 900ms;
+}
+
+.world-seagrass,
+.world-coral {
+  animation: world-current-sway 1.8s ease-in-out infinite alternate;
+  transform-box: fill-box;
+  transform-origin: center bottom;
+}
+
+@keyframes world-cross {
+  0% { transform: translate(-2px, 0); }
+  46% { transform: translate(56px, -2px); }
+  100% { transform: translate(113px, 0); }
+}
+
+@keyframes world-walk-bob {
+  from { transform: translateY(0) rotate(-1deg); }
+  to { transform: translateY(-2px) rotate(1deg); }
+}
+
+@keyframes world-swim-bob {
+  from { transform: translateY(-7px) rotate(-2deg); }
+  to { transform: translateY(1px) rotate(2deg); }
+}
+
+@keyframes world-limb-step {
+  from { transform: rotate(-7deg); }
+  to { transform: rotate(7deg); }
+}
+
+@keyframes world-fin-wave {
+  from { transform: rotate(-12deg); }
+  to { transform: rotate(12deg); }
+}
+
+@keyframes world-shadow {
+  from { transform: scaleX(0.82); opacity: 0.22; }
+  to { transform: scaleX(1); opacity: 0.34; }
+}
+
+@keyframes world-trail {
+  from { transform: translateX(5px) scale(0.7); opacity: 0.8; }
+  to { transform: translateX(-7px) scale(1.35); opacity: 0; }
+}
+
+@keyframes world-react-hop {
+  0%, 32%, 60%, 100% { transform: translateY(0) rotate(0); }
+  42% { transform: translateY(-4px) rotate(-4deg); }
+  50% { transform: translateY(0) rotate(3deg); }
+}
+
+@keyframes world-react-look {
+  0%, 38%, 62%, 100% { transform: rotate(0); }
+  48% { transform: rotate(-6deg) translateY(-2px); }
+  55% { transform: rotate(4deg); }
+}
+
+@keyframes world-birds-fly {
+  from { transform: translate(-7px, 1px); }
+  to { transform: translate(8px, -4px); }
+}
+
+@keyframes world-bubble-rise {
+  from { transform: translateY(10px); opacity: 0; }
+  30% { opacity: 0.7; }
+  to { transform: translateY(-18px); opacity: 0; }
+}
+
+@keyframes world-current-sway {
+  from { transform: skewX(-3deg); }
+  to { transform: skewX(4deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .world-hero,
+  .world-hero__body,
+  .world-hero__limb,
+  .world-hero__shadow,
+  .world-hero__trail,
+  .world-neighbor,
+  .world-birds,
+  .world-bubbles circle,
+  .world-seagrass,
+  .world-coral {
+    animation: none !important;
+  }
+
+  .world-hero {
+    transform: translate(68px, 0);
+  }
 }
 
 .touch-world__actions {
