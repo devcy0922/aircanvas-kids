@@ -450,6 +450,7 @@ export default function App() {
       <TouchColoringGame
         themes={themes}
         artworks={allArtworks}
+        roomKey={new URLSearchParams(location.search).get('room') ?? 'LOCAL'}
         onExit={() => setScreen('intro')}
       />
     );

@@ -5,6 +5,7 @@ import { loadHandLandmarker, toTrackedHand } from '../lib/tracking';
 import { OneEuroPair } from '../lib/oneEuro';
 import type { TouchPoint, TouchMode } from './TouchColoringBoard';
 import { TouchJungleWorld } from './TouchJungleWorld';
+import type { WorldCreation } from './TouchColoringGame';
 
 type PaletteColor = typeof PALETTE[number];
 
@@ -227,6 +228,15 @@ export function CameraColoringGame({ themes, artworks, onExit, onTouchFallback }
   }, []);
 
   const progress = artwork?.regions.length ? filledRegions.size / artwork.regions.length : 0;
+  const cameraCreation = useMemo<WorldCreation | null>(() => artwork && theme ? ({
+    id: `camera-${theme.id}-${artwork.id}`,
+    artworkId: artwork.id,
+    themeId: theme.id,
+    color,
+    filledRegionIds: [...filledRegions],
+    paintStrokes: strokes.map((points) => ({ points, color, size: 2.4, brush: 'pen' as const })),
+    routeSeed: artwork.id.split('').reduce((sum, character) => sum + character.charCodeAt(0), 0),
+  }) : null, [artwork, color, filledRegions, strokes, theme]);
 
   useEffect(() => {
     if (progress >= 0.85) setCompleted(true);
@@ -247,18 +257,21 @@ export function CameraColoringGame({ themes, artworks, onExit, onTouchFallback }
     if (next) setArtworkId(next.id);
   };
 
-  if (isExported) {
+  if (isExported && cameraCreation) {
     return (
       <TouchJungleWorld
-        artwork={artwork}
         theme={theme}
-        color={color}
-        filledRegions={filledRegions}
-        strokes={strokes}
+        artworks={artworks}
+        creations={[cameraCreation]}
         onBack={() => setIsExported(false)}
         onNext={() => {
           setIsExported(false);
           goNextArtwork();
+        }}
+        onReset={() => {
+          setFilledRegions(new Set());
+          setStrokes([]);
+          setIsExported(false);
         }}
       />
     );

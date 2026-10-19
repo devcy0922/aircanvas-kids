@@ -14,10 +14,31 @@ type PaletteColor = typeof PALETTE[number];
 interface Props {
   themes: ThemePack[];
   artworks: ArtworkPack[];
+  roomKey?: string;
   onExit: () => void;
 }
 
-export function TouchColoringGame({ themes, artworks, onExit }: Props) {
+export type WorldCreation = {
+  id: string;
+  artworkId: string;
+  themeId: string;
+  color: string;
+  paintStrokes: PaintStroke[];
+  filledRegionIds?: string[];
+  routeSeed: number;
+};
+
+function loadCreations(storageKey: string): WorldCreation[] {
+  try {
+    const value = JSON.parse(sessionStorage.getItem(storageKey) ?? '[]');
+    return Array.isArray(value) ? value.slice(-12) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function TouchColoringGame({ themes, artworks, roomKey = 'LOCAL', onExit }: Props) {
+  const storageKey = `aircanvas.touch-world.v1:${roomKey}`;
   const [themeId, setThemeId] = useState(themes[0]?.id ?? '');
   const theme = themes.find((item) => item.id === themeId) ?? themes[0];
   const themeArtworks = useMemo(() => {
@@ -28,20 +49,31 @@ export function TouchColoringGame({ themes, artworks, onExit }: Props) {
   const [artworkId, setArtworkId] = useState(themeArtworks[0]?.id ?? '');
   const artwork = themeArtworks.find((item) => item.id === artworkId) ?? themeArtworks[0];
   const [brush, setBrush] = useState<BrushKind>('round');
-  const [brushSize, setBrushSize] = useState(14);
+  const [brushSize, setBrushSize] = useState(7);
+  const [zoom, setZoom] = useState(1);
   const [color, setColor] = useState<PaletteColor>(PALETTE[0]);
   const [strokes, setStrokes] = useState<PaintStroke[]>([]);
   const [isExported, setIsExported] = useState(false);
+  const [activeCreationId, setActiveCreationId] = useState<string | null>(null);
+  const [creations, setCreations] = useState<WorldCreation[]>(() => loadCreations(storageKey));
   const progress = useMemo(() => artwork ? estimatePaintCoverage(artwork, strokes) : 0, [artwork, strokes]);
+
+  useEffect(() => {
+    sessionStorage.setItem(storageKey, JSON.stringify(creations));
+  }, [creations, storageKey]);
 
   useEffect(() => {
     setArtworkId(themeArtworks[0]?.id ?? '');
     setStrokes([]);
+    setZoom(1);
+    setActiveCreationId(null);
     setIsExported(false);
   }, [themeId, themeArtworks]);
 
   useEffect(() => {
     setStrokes([]);
+    setZoom(1);
+    setActiveCreationId(null);
     setIsExported(false);
   }, [artworkId]);
 
@@ -55,20 +87,28 @@ export function TouchColoringGame({ themes, artworks, onExit }: Props) {
   }
 
   const artworkIndex = themeArtworks.findIndex((item) => item.id === artwork.id);
-  const nextArtwork = artworkIndex >= 0 ? themeArtworks[artworkIndex + 1] : undefined;
+  const nextArtwork = artworkIndex >= 0 && themeArtworks.length > 0
+    ? themeArtworks[(artworkIndex + 1) % themeArtworks.length]
+    : undefined;
 
   if (isExported) {
+    const worldCreations = creations.filter((creation) => creation.themeId === theme.id);
     return (
       <TouchJungleWorld
-        artwork={artwork}
         theme={theme}
-        color={color}
-        filledRegions={new Set()}
-        paintStrokes={strokes}
+        artworks={artworks}
+        creations={worldCreations}
         onBack={() => setIsExported(false)}
         onNext={() => {
           setIsExported(false);
+          setActiveCreationId(null);
           if (nextArtwork) setArtworkId(nextArtwork.id);
+        }}
+        onReset={() => {
+          setCreations([]);
+          setStrokes([]);
+          setActiveCreationId(null);
+          setIsExported(false);
         }}
       />
     );
@@ -129,6 +169,7 @@ export function TouchColoringGame({ themes, artworks, onExit }: Props) {
           color={color}
           brush={brush}
           brushSize={brushSize}
+          zoom={zoom}
           strokes={strokes}
           onStroke={(stroke) => {
             setStrokes((previous) => [...previous, stroke]);
@@ -136,7 +177,29 @@ export function TouchColoringGame({ themes, artworks, onExit }: Props) {
           }}
         />
         <div className="touch-export-row">
-          <button className="big-btn touch-export-btn" type="button" data-testid="touch-export" onClick={() => setIsExported(true)}>
+          <button
+            className="big-btn touch-export-btn"
+            type="button"
+            data-testid="touch-export"
+            onClick={() => {
+              const creationId = activeCreationId ?? `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+              const creation: WorldCreation = {
+                id: creationId,
+                artworkId: artwork.id,
+                themeId: theme.id,
+                color,
+                paintStrokes: strokes,
+                routeSeed: Math.floor(Math.random() * 10_000),
+              };
+              setActiveCreationId(creationId);
+              setCreations((previous) => {
+                const existingIndex = previous.findIndex((item) => item.id === creationId);
+                if (existingIndex < 0) return [...previous, creation].slice(-12);
+                return previous.map((item) => item.id === creationId ? creation : item);
+              });
+              setIsExported(true);
+            }}
+          >
             내 캐릭터 {theme.id === 'ocean' ? '바다' : '정글'}로 내보내기
           </button>
           <span>색칠한 만큼만 가지고 다음 장면으로 가요.</span>
@@ -148,14 +211,14 @@ export function TouchColoringGame({ themes, artworks, onExit }: Props) {
           <button
             className={brush === 'round' ? 'is-selected' : ''}
             data-testid="brush-round"
-            onClick={() => { setBrush('round'); setBrushSize(14); }}
+            onClick={() => { setBrush('round'); setBrushSize(7); }}
           >
             <span className="brush-preview brush-preview--round" /> 원형 붓
           </button>
           <button
             className={brush === 'pen' ? 'is-selected' : ''}
             data-testid="brush-pen"
-            onClick={() => { setBrush('pen'); setBrushSize(4); }}
+            onClick={() => { setBrush('pen'); setBrushSize(2); }}
           >
             <span className="brush-preview brush-preview--pen" /> 가는 펜
           </button>
@@ -166,14 +229,22 @@ export function TouchColoringGame({ themes, artworks, onExit }: Props) {
           <input
             aria-label="붓 크기"
             type="range"
-            min={brush === 'round' ? 8 : 2}
-            max={brush === 'round' ? 22 : 8}
+            min={brush === 'round' ? 3 : 1}
+            max={brush === 'round' ? 14 : 5}
             step="1"
             value={brushSize}
             onChange={(event) => setBrushSize(Number(event.target.value))}
           />
           <strong>{brushSize}</strong>
         </label>
+        <div className="touch-zoom" aria-label="세부 확대">
+          <span>세부 확대</span>
+          {[1, 1.5, 2].map((level) => (
+            <button key={level} className={zoom === level ? 'is-selected' : ''} onClick={() => setZoom(level)}>
+              {level}×
+            </button>
+          ))}
+        </div>
         <div className="touch-palette">
           {PALETTE.map((item) => (
             <button

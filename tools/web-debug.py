@@ -195,7 +195,7 @@ async def main() -> int:
 
             # 연결 게임과 분리된 터치 경로에서 기본 원형 붓이 지나간
             # 궤적만 남는지 확인하고, 공룡/바다 작품을 각 월드로 내보낸다.
-            touch_url = app_url(PHONE_BASE, content=CONTENT)
+            touch_url = app_url(PHONE_BASE, content=CONTENT, room=ROOM)
             await touch.set_viewport_size({"width": 390, "height": 844})
             await touch.goto(touch_url, wait_until="domcontentloaded", timeout=30_000)
             await wait_for_text(touch, "[data-testid='phone-welcome']", "AirCanvas Kids")
@@ -204,6 +204,11 @@ async def main() -> int:
             touch_board = touch.locator(".touch-board")
             if await touch_board.get_attribute("data-brush") != "round":
                 raise AssertionError("기본 터치 도구가 원형 붓이 아닙니다.")
+            if await touch_board.get_attribute("data-brush-size") != "7":
+                raise AssertionError("기본 붓이 세부 채색용 크기 7이 아닙니다.")
+            await touch.get_by_role("button", name="2×").click()
+            if await touch_board.get_attribute("data-zoom") != "2":
+                raise AssertionError("2배 세부 확대가 도안에 적용되지 않았습니다.")
             touch_box = await touch_board.bounding_box()
             if touch_box is None:
                 raise AssertionError("터치 보드를 찾지 못했습니다.")
@@ -220,10 +225,16 @@ async def main() -> int:
             await touch.locator("[data-testid='touch-world']").wait_for(state="visible", timeout=30_000)
             if await touch.locator("[data-testid='touch-world']").get_attribute("data-world") != "jungle":
                 raise AssertionError("공룡 작품이 정글 월드로 내보내지지 않았습니다.")
-            await touch.locator("[data-testid='world-pass']").filter(has_text="6 / 6").wait_for(state="visible", timeout=25_000)
+            if await touch.locator(".world-creature[data-route]").count() != 1:
+                raise AssertionError("첫 작품이 월드에 하나의 생물로 남지 않았습니다.")
+            route = int(await touch.locator(".world-creature").get_attribute("data-route") or "0")
+            if route not in range(1, 6):
+                raise AssertionError("생물이 5개 월드 경로 중 하나를 선택하지 않았습니다.")
+            if await touch.locator(".behavior-stomp").count() != 1:
+                raise AssertionError("티라노 고유의 무거운 보행 동작이 선택되지 않았습니다.")
             await recorder.save_screenshot(touch, "10-touch-jungle-world-mobile.png")
 
-            await touch.get_by_role("button", name="다시 칠하기").click()
+            await touch.get_by_role("button", name="이 그림 더 칠하기").click()
             await touch.locator(".touch-theme-list button").filter(has_text="바다").click()
             await touch.locator("[data-testid='touch-game']").wait_for(state="visible")
             touch_box = await touch.locator(".touch-board").bounding_box()
@@ -235,7 +246,23 @@ async def main() -> int:
             await touch.mouse.up()
             await touch.locator("[data-testid='touch-export']").click()
             await touch.locator("[data-testid='touch-world'][data-world='ocean']").wait_for(state="visible", timeout=30_000)
+            if await touch.locator(".behavior-swim").count() != 1:
+                raise AssertionError("열대어가 보행 대신 유영 동작을 사용하지 않았습니다.")
+            saved_count = await touch.evaluate(
+                "room => JSON.parse(sessionStorage.getItem(`aircanvas.touch-world.v1:${room}`) || '[]').length",
+                ROOM,
+            )
+            if saved_count != 2:
+                raise AssertionError(f"같은 룸의 정글·바다 작품 2개가 누적되지 않았습니다: {saved_count}")
             await recorder.save_screenshot(touch, "11-touch-ocean-world-mobile.png")
+            await touch.get_by_role("button", name="모두 지우고 새로 그리기").click()
+            await touch.locator("[data-testid='touch-game']").wait_for(state="visible")
+            saved_count = await touch.evaluate(
+                "room => JSON.parse(sessionStorage.getItem(`aircanvas.touch-world.v1:${room}`) || '[]').length",
+                ROOM,
+            )
+            if saved_count != 0:
+                raise AssertionError("전체 초기화 후에도 룸 작품이 남아 있습니다.")
             recorder.record(
                 "verify_touch_export",
                 "completed",

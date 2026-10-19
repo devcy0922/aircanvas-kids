@@ -159,6 +159,19 @@
         "tools/web-debug.py"
       ],
       "verification": "make build, npm audit(0건), 390px 실제 브라우저 원형 붓 궤적, 정글/바다 내보내기, 주인공 6회 횡단 통과 (aircanvas-web-1792368274)"
+    },
+    {
+      "id": "TASK-019",
+      "name": "룸 누적형 입체 생태 월드와 정밀 터치 도구",
+      "status": "done",
+      "outputs": [
+        "apps/phone/src/components/TouchColoringBoard.tsx",
+        "apps/phone/src/components/TouchColoringGame.tsx",
+        "apps/phone/src/components/TouchJungleWorld.tsx",
+        "apps/phone/src/styles.css",
+        "tools/web-debug.py"
+      ],
+      "verification": "make check, npm audit(0건), 390px 격리 브라우저 및 공개 URL 세부 확대·5개 경로·종별 동작·룸 누적·전체 초기화 통과 (aircanvas-web-1792379580, aircanvas-web-1792379659)"
     }
   ]
 }

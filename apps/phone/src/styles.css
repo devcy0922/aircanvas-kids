@@ -862,6 +862,32 @@ h1 {
   text-align: right;
 }
 
+.touch-zoom {
+  display: grid;
+  grid-template-columns: 1fr repeat(3, 48px);
+  align-items: center;
+  gap: 7px;
+  margin-top: 10px;
+  color: #596a72;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.touch-zoom button {
+  min-height: 36px;
+  border: 1px solid rgba(36, 74, 59, 0.16);
+  border-radius: 10px;
+  color: #53616b;
+  background: rgba(255, 255, 255, 0.72);
+  font-weight: 850;
+}
+
+.touch-zoom button.is-selected {
+  color: #fffdf7;
+  border-color: #244a3b;
+  background: #244a3b;
+}
+
 .touch-world {
   min-height: 100%;
   padding: 28px 16px calc(30px + env(safe-area-inset-bottom));
@@ -901,37 +927,32 @@ h1 {
   color: #356b7a;
 }
 
-.touch-world__pass {
-  display: grid;
-  grid-template-columns: auto minmax(100px, 1fr);
+.touch-world__room {
+  display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   margin-top: 14px;
   color: #315743;
   font-size: 12px;
   font-weight: 900;
 }
 
-.touch-world__pass i {
-  height: 7px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: rgba(36, 74, 59, 0.13);
-}
-
-.touch-world__pass b {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
+.touch-world__room strong {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 50%;
+  color: #fffdf7;
   background: #c1663d;
-  transition: width 220ms ease-out;
+  font-size: 16px;
 }
 
-.touch-world--ocean .touch-world__pass {
+.touch-world--ocean .touch-world__room {
   color: #1e6278;
 }
 
-.touch-world--ocean .touch-world__pass b {
+.touch-world--ocean .touch-world__room strong {
   background: #168ead;
 }
 
@@ -948,62 +969,86 @@ h1 {
   box-shadow: 0 18px 38px rgba(11, 80, 104, 0.24);
 }
 
-.world-hero {
-  animation: world-cross 3.4s linear 6 both;
-  transform-origin: center;
+.world-creature {
+  animation-duration: var(--world-duration, 10s);
+  animation-delay: var(--world-delay, -3s);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  transform-origin: 0 0;
 }
 
-.world-hero__body {
-  animation: world-walk-bob 360ms ease-in-out infinite alternate;
+.world-creature.is-reverse {
+  animation-direction: reverse;
+}
+
+.world-route-0 { animation-name: world-route-far; }
+.world-route-1 { animation-name: world-route-ridge; }
+.world-route-2 { animation-name: world-route-middle; }
+.world-route-3 { animation-name: world-route-near; }
+.world-route-4 { animation-name: world-route-front; }
+
+.world-creature__body {
+  animation: world-walk-bob 440ms cubic-bezier(.45, 0, .55, 1) infinite alternate;
   transform-box: fill-box;
   transform-origin: center bottom;
+  filter: drop-shadow(0 2px 1px rgba(5, 28, 25, 0.22));
 }
 
-.world-hero--swim .world-hero__body {
-  animation-name: world-swim-bob;
-  animation-duration: 920ms;
+.touch-world--ocean .world-creature__body,
+.behavior-swim,
+.behavior-glide,
+.behavior-hover {
+  animation: world-swim-bob 1.15s ease-in-out infinite alternate;
 }
 
-.world-hero__limb {
-  animation: world-limb-step 360ms ease-in-out infinite alternate;
+.world-creature__part {
   transform-box: fill-box;
+}
+
+.world-creature__part.part-limb,
+.world-creature__part.part-fin {
+  animation: world-limb-step 420ms ease-in-out infinite alternate;
   transform-origin: center top;
 }
 
-.world-hero__limb:nth-of-type(even) {
+.world-creature__part.part-limb:nth-of-type(even),
+.world-creature__part.part-fin:nth-of-type(even) {
   animation-direction: alternate-reverse;
 }
 
-.world-hero--swim .world-hero__limb {
-  animation-name: world-fin-wave;
-  animation-duration: 620ms;
+.world-creature__part.part-tail {
+  animation: world-tail-swing 620ms ease-in-out infinite alternate;
+  transform-origin: right center;
 }
 
-.world-hero__shadow {
-  animation: world-shadow 360ms ease-in-out infinite alternate;
-}
-
-.world-hero--swim .world-hero__shadow {
-  opacity: 0.12;
-}
-
-.world-hero__trail {
-  animation: world-trail 520ms ease-out infinite;
-}
-
-.world-neighbor--stego,
-.world-neighbor--fish {
-  animation: world-react-hop 3.4s ease-in-out 6;
-  transform-box: fill-box;
+.world-creature__part.part-head {
   transform-origin: center bottom;
 }
 
-.world-neighbor--brachio,
-.world-neighbor--turtle,
-.world-neighbor--jelly {
-  animation: world-react-look 3.4s ease-in-out 6;
-  transform-box: fill-box;
-  transform-origin: center;
+.behavior-stomp .part-head { animation: world-roar 2.4s ease-in-out infinite; }
+.behavior-longneck .part-head { animation: world-neck-reach 3.2s ease-in-out infinite; }
+.behavior-armored .part-tail { animation-duration: 360ms; }
+.touch-world .world-creature__body.behavior-breach { animation: world-breach 2.8s ease-in-out infinite; }
+.touch-world .world-creature__body.behavior-pulse { animation: world-pulse 1.8s ease-in-out infinite; }
+.touch-world .world-creature__body.behavior-scuttle { animation: world-scuttle 520ms steps(2, jump-none) infinite alternate; }
+.behavior-glide .part-fin { animation-duration: 1.4s; }
+.touch-world .world-creature__body.behavior-hover { animation: world-hover 1.9s ease-in-out infinite alternate; }
+
+.touch-world--ocean .world-creature__part.part-tail,
+.touch-world--ocean .world-creature__part.part-fin {
+  animation-name: world-fin-wave;
+}
+
+.world-creature__shadow {
+  animation: world-shadow 440ms ease-in-out infinite alternate;
+}
+
+.touch-world--ocean .world-creature__shadow {
+  opacity: 0.1;
+}
+
+.world-creature__trail {
+  animation: world-trail 520ms ease-out infinite;
 }
 
 .world-birds {
@@ -1019,16 +1064,48 @@ h1 {
 }
 
 .world-seagrass,
-.world-coral {
+.world-coral,
+.world-jelly {
   animation: world-current-sway 1.8s ease-in-out infinite alternate;
   transform-box: fill-box;
   transform-origin: center bottom;
 }
 
-@keyframes world-cross {
-  0% { transform: translate(-2px, 0); }
-  46% { transform: translate(56px, -2px); }
-  100% { transform: translate(113px, 0); }
+@keyframes world-route-far {
+  0% { transform: translate(-32px, 7px) scale(.3); opacity: .28; }
+  18% { opacity: .72; }
+  52% { transform: translate(64px, 3px) scale(.33); opacity: .82; }
+  82% { opacity: .7; }
+  100% { transform: translate(166px, 9px) scale(.29); opacity: .18; }
+}
+
+@keyframes world-route-ridge {
+  0% { transform: translate(-38px, 20px) scale(.37); opacity: .25; }
+  30% { transform: translate(22px, 15px) scale(.4); opacity: .92; }
+  62% { transform: translate(91px, 22px) scale(.37); }
+  100% { transform: translate(168px, 16px) scale(.41); opacity: .2; }
+}
+
+@keyframes world-route-middle {
+  0% { transform: translate(-42px, 30px) scale(.4); opacity: .2; }
+  22% { opacity: 1; }
+  48% { transform: translate(58px, 24px) scale(.44); }
+  72% { transform: translate(108px, 32px) scale(.39); opacity: 1; }
+  100% { transform: translate(170px, 27px) scale(.42); opacity: .15; }
+}
+
+@keyframes world-route-near {
+  0% { transform: translate(-53px, 39px) scale(.5); opacity: .12; }
+  20% { opacity: 1; }
+  55% { transform: translate(70px, 34px) scale(.56); }
+  100% { transform: translate(174px, 43px) scale(.48); opacity: .08; }
+}
+
+@keyframes world-route-front {
+  0% { transform: translate(-62px, 48px) scale(.59); opacity: .08; }
+  18% { opacity: 1; }
+  50% { transform: translate(64px, 39px) scale(.66); }
+  100% { transform: translate(177px, 45px) scale(.61); opacity: .06; }
 }
 
 @keyframes world-walk-bob {
@@ -1042,13 +1119,49 @@ h1 {
 }
 
 @keyframes world-limb-step {
-  from { transform: rotate(-7deg); }
-  to { transform: rotate(7deg); }
+  from { transform: rotate(-10deg) translateY(0); }
+  to { transform: rotate(11deg) translateY(-1px); }
 }
 
 @keyframes world-fin-wave {
-  from { transform: rotate(-12deg); }
-  to { transform: rotate(12deg); }
+  from { transform: rotate(-16deg) scaleY(.9); }
+  to { transform: rotate(16deg) scaleY(1.08); }
+}
+
+@keyframes world-tail-swing {
+  from { transform: rotate(-7deg); }
+  to { transform: rotate(9deg); }
+}
+
+@keyframes world-roar {
+  0%, 62%, 100% { transform: rotate(0) translateY(0); }
+  70% { transform: rotate(-7deg) translateY(-3px); }
+  82% { transform: rotate(4deg) translateY(-1px); }
+}
+
+@keyframes world-neck-reach {
+  0%, 100% { transform: rotate(-2deg) translateY(1px); }
+  48% { transform: rotate(7deg) translateY(-4px); }
+}
+
+@keyframes world-breach {
+  0%, 100% { transform: translateY(3px) rotate(-2deg); }
+  48% { transform: translateY(-10px) rotate(8deg); }
+}
+
+@keyframes world-pulse {
+  0%, 100% { transform: scale(.94, 1.04) translateY(2px); }
+  50% { transform: scale(1.06, .91) translateY(-4px); }
+}
+
+@keyframes world-scuttle {
+  from { transform: translateX(-3px) rotate(-2deg); }
+  to { transform: translateX(3px) rotate(2deg); }
+}
+
+@keyframes world-hover {
+  from { transform: translateY(3px) rotate(-4deg); }
+  to { transform: translateY(-4px) rotate(4deg); }
 }
 
 @keyframes world-shadow {
@@ -1059,18 +1172,6 @@ h1 {
 @keyframes world-trail {
   from { transform: translateX(5px) scale(0.7); opacity: 0.8; }
   to { transform: translateX(-7px) scale(1.35); opacity: 0; }
-}
-
-@keyframes world-react-hop {
-  0%, 32%, 60%, 100% { transform: translateY(0) rotate(0); }
-  42% { transform: translateY(-4px) rotate(-4deg); }
-  50% { transform: translateY(0) rotate(3deg); }
-}
-
-@keyframes world-react-look {
-  0%, 38%, 62%, 100% { transform: rotate(0); }
-  48% { transform: rotate(-6deg) translateY(-2px); }
-  55% { transform: rotate(4deg); }
 }
 
 @keyframes world-birds-fly {
@@ -1090,21 +1191,21 @@ h1 {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .world-hero,
-  .world-hero__body,
-  .world-hero__limb,
-  .world-hero__shadow,
-  .world-hero__trail,
-  .world-neighbor,
+  .world-creature,
+  .world-creature__body,
+  .world-creature__part,
+  .world-creature__shadow,
+  .world-creature__trail,
   .world-birds,
   .world-bubbles circle,
   .world-seagrass,
-  .world-coral {
+  .world-coral,
+  .world-jelly {
     animation: none !important;
   }
 
-  .world-hero {
-    transform: translate(68px, 0);
+  .world-creature {
+    transform: translate(58px, 26px) scale(.45);
   }
 }
 
@@ -1124,6 +1225,21 @@ h1 {
   color: #244a3b;
   border-color: rgba(36, 74, 59, 0.22);
   background: rgba(255, 253, 247, 0.62);
+}
+
+.btn-reset-world {
+  min-height: 42px;
+  border: 0;
+  color: #7a4b3a;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 850;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.touch-world--ocean .btn-reset-world {
+  color: #245f72;
 }
 
 .export-btn {

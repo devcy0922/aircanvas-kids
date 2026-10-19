@@ -18,6 +18,7 @@ interface Props {
   color: string;
   brush: BrushKind;
   brushSize: number;
+  zoom?: number;
   strokes: PaintStroke[];
   onStroke: (stroke: PaintStroke) => void;
 }
@@ -60,20 +61,22 @@ export function estimatePaintCoverage(artwork: ArtworkPack, strokes: PaintStroke
   return inside === 0 ? 0 : painted / inside;
 }
 
-export function TouchColoringBoard({ artwork, theme, color, brush, brushSize, strokes, onStroke }: Props) {
+export function TouchColoringBoard({ artwork, theme, color, brush, brushSize, zoom = 1, strokes, onStroke }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const draftRef = useRef<TouchPoint[]>([]);
   const activePointerIdRef = useRef<number | null>(null);
   const [draft, setDraft] = useState<TouchPoint[]>([]);
   const [cursor, setCursor] = useState<TouchPoint | null>(null);
   const clipId = `paint-${useId().replace(/:/g, '')}`;
+  const viewportSize = 100 / zoom;
+  const viewportOrigin = (100 - viewportSize) / 2;
 
   const pointFromEvent = (event: PointerEvent<SVGSVGElement>): TouchPoint => {
     const rect = svgRef.current?.getBoundingClientRect();
     if (!rect) return { x: 0.5, y: 0.5 };
     return {
-      x: clamp((event.clientX - rect.left) / rect.width),
-      y: clamp((event.clientY - rect.top) / rect.height),
+      x: clamp((viewportOrigin + ((event.clientX - rect.left) / rect.width) * viewportSize) / 100),
+      y: clamp((viewportOrigin + ((event.clientY - rect.top) / rect.height) * viewportSize) / 100),
     };
   };
 
@@ -128,11 +131,12 @@ export function TouchColoringBoard({ artwork, theme, color, brush, brushSize, st
       <svg
         ref={svgRef}
         className="touch-board touch-board--paint"
-        viewBox={artwork.viewBox}
+        viewBox={`${viewportOrigin} ${viewportOrigin} ${viewportSize} ${viewportSize}`}
         role="img"
         aria-label={`${artwork.name} 브러시 색칠판`}
         data-brush={brush}
         data-brush-size={brushSize}
+        data-zoom={zoom}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={releasePointer}
