@@ -120,3 +120,17 @@ aircanvas-kids/                 (저장소 이름은 유지. 변경은 별도 �
 
 5. `tools/site-smoke.py`의 카드 개수 기대값과 새 서비스 연결 확인을 갱신하고 `make site-smoke`를 통과시킨다.
 6. 새 서비스의 문서(`apps/<이름>/README.md` 또는 `docs/`)와 이 문서를 갱신한다. 디자인은 `packages/ui/tokens.css`의 토큰을 쓴다.
+
+## 9. 엣지 nginx 변경 기록 (2026-10-21, v0.8.0)
+
+실제 설정은 저장소 밖 `platform-edge-infra/nginx/config/conf.d/aircanvas.conf`(kids/play 서버 블록, `location /` 앞)에 있다. 사용자 승인 후 추가했다.
+
+```nginx
+location = /play { return 301 /play/; }
+location /play/ { root /var/www/aircanvas/phone; index index.html; try_files $uri $uri/ /play/index.html; }
+location = /cafe { return 301 /cafe/; }
+location /cafe/ { proxy_pass http://172.17.0.1:8124/; … }   # 접두 제거, kids-cafe 컨테이너
+```
+
+- 사이트 루트 마운트는 옛 이름 그대로 `/var/www/aircanvas/phone`(= `/srv/airCanvas/aircanvas-kids/apps/phone/dist`)이며 지금은 포털(`/`)과 게임(`/play/`)을 함께 담는다.
+- 되돌리기: 변경 전 백업으로 `aircanvas.conf`를 복원하고 `platform-edge-infra/scripts/nginx-reload.sh`. 그 저장소의 git에는 아직 커밋되지 않은 작업 트리 변경이다.

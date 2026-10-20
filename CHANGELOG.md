@@ -14,6 +14,7 @@
   - 문서: `docs/platform-plan.md`(결정·이행·서비스 추가법), `docs/architecture.md` §9(nginx 경로 다이어그램), `agents/rules.md` §1.1·§3·§7(배포 절차에 사이트 루트·엄빠 컨테이너), README
   - 로컬 스킬 등록: `agents/skills/kids-platform`, `kids-cafe`, `kids-design`
 - 검증: `make check` 통과, 로컬 미리보기(nginx 라우팅 모사)에서 `make site-smoke` 전 항목 통과, `/play/`에서 `make ui-smoke` 통과(도안 5종·월드 7마리 이동·콘솔 오류 없음), TV QR을 해독해 `/play/?server=…&room=…` 확인. 공개 배포 결과는 아래 배포 기록 참고
+- 배포 기록(2026-10-21): 엣지 nginx(`platform-edge-infra/nginx/config/conf.d/aircanvas.conf`)에 `/play/`·`/cafe/` location을 추가(사용자 승인, 변경 전 백업 → `nginx -t` → graceful reload, 해당 저장소에는 커밋하지 않음). `site/`→`apps/phone/dist`(사이트 루트), `apps/tv/dist`, `content-server`를 rsync하고 `diff -rq` 깨끗함. `kids-cafe` 컨테이너(:8124) 기동. 공개 URL readback: `/manifest.json` 0.8.0, 포털 번들 `index-Cqx04aAW.js`·게임 번들 `index-BvMk9Snk.js`가 빌드와 일치, `/play`→301 `/play/`, `/cafe`→301 `/cafe/`, `/cafe/api/districts` 200. 공개 URL에서 `make site-smoke` 전 항목 통과, `make ui-smoke` 통과(월드 7마리, 콘솔 오류·실패 요청 없음)
 - 알려진 한계: `make web-debug`의 터치 구간은 v0.6.0 이전 UI 선택자를 쓰는 낡은 코드라 이번에도 돌리지 않음(연결 게임 경로는 TV QR 해독으로 대체 확인). 엄빠 데이터는 데모(시뮬레이션)이며 실제 예약 수집은 하지 않음
 
 ## v0.7.0 — 2026-10-21
