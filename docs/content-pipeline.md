@@ -115,7 +115,7 @@ packages/tv-art/src/artworks/dino.ts           자동 생성 (직접 수정 금�
   결과에서 버리고 가장 가까운 영역에 배정한다. 원본의 흰 눈·이빨은 투명 구멍이라 작은 구멍(<1500px)은 흰색으로 메운다.
 - 새 도안 추가: `source/`에 PNG 추가 → `--debug`로 영역 분할 확인 → `seeds.json`의 시드 보정 → 재생성.
 - 결과 확인은 `--debug` 오버레이와 `make ui-smoke` 스크린샷으로 한다. 렌더링 확인 없이 완료하지 않는다.
-- 정글·바다 도안은 아직 이 파이프라인이 아닌 수작업 path이다 (후속 과제: 일러스트 PNG 준비 후 동일 적용).
+- 정글·바다 도안은 아직 이 파이프라인이 아닌 수작업 path이다 (후속 과제: 일러스트 PNG 준비 후 동일 적용, §9).
   스프라이트가 없는 도안의 월드 NPC는 영역 색으로 합성한다(`creatureSprite.npcBaseColor`).
 - **월드 부위 분할**: 영역 라벨로 머리·꼬리·다리(가까운/먼)·팔·날개·몸통을 정한다(`creatureSprite.partOf`).
   라벨이 애매한 조각(점무늬·발톱)은 가장 가까운 부위를 따른다. 새 도안의 영역 이름은 이 규칙(`꼬리`, `다리`, `날개`, `머리`, `눈` 등)을 따르면 월드에서 부위별로 움직인다.
@@ -196,3 +196,56 @@ curl http://localhost:8081/manifest.json
 - [ ] 버전 번호 semver 준수
 - [ ] Nginx 설정 테스트 (`nginx -t -c nginx.conf`)
 - [ ] 폰 앱에서 매니페스트 로드/캐시 테스트
+
+## 9. 사람·로컬 도구만으로 콘텐츠 추가하기 (클라우드 LLM 없이)
+
+> 정글·바다·하늘 테마와 신규 공룡은 사용자가 직접 만든다(`agents/rules.md` §6.1). 아래는 v0.6.0 코드를 조사해 적은 절차이며,
+> 필요한 도구는 `python3` + `numpy` + `opencv-python-headless`, Node 빌드(`make check`)뿐이다. 원본 그림은 외부 서비스에 올리지 않는다.
+
+### 9.1 신규 공룡 1종 추가 (공룡 테마에 한 마리)
+
+1. **원본**: `tools/art/source/dino-<이름>.png` — 512×512 RGBA, 투명 배경, 옆모습, 머리가 한쪽을 향한 그림.
+2. **시드**: `tools/art/seeds.json`의 `artworks`에 `{ "id": "dino-<이름>", "parts": [...] }` 추가.
+   부위 `id`/`label`/`seeds`(원본 픽셀 좌표)를 적고, 눈·이빨처럼 작은 조각은 `radius`로 번짐을 제한한다. 기존 5종을 본보기로 삼는다.
+3. **월드에서 부위별로 움직이게 하는 이름 규칙**(`creatureSprite.partOf`): 라벨에 `머리`/`꼬리`/`다리`/`팔`/`날개`/`눈` 등을 넣는다.
+   `가까운`/`먼` 접두는 앞뒤 다리 구분에 쓰인다. 규칙에 안 맞는 조각은 가장 가까운 부위를 따라간다.
+4. **매니페스트 뼈대**: `content-server/manifest.json`의 `dino` 테마 `artworks`에 아래 한 줄짜리 항목을 먼저 넣는다
+   (`build_art.py`가 이 항목을 id로 찾아 채우며, 없으면 `KeyError`로 멈춘다 — 알려진 제약 ①).
+   ```json
+   { "id": "dino-<이름>", "name": "한국어 이름", "viewBox": "0 0 100 100", "regions": [] }
+   ```
+5. **생성·확인**: `python3 tools/art/build_art.py --only dino-<이름> --debug /tmp/art-debug` 후 오버레이 PNG로 영역이 나뉜 모양을 눈으로 본다.
+   영역이 비거나 번지면 시드를 고쳐 재생성한다. `git diff`에는 선화·썸네일·스프라이트 PNG, `manifest.json`, `dino.ts`가 나타난다.
+6. **월드 행동**: `apps/phone/src/lib/worldEngine.ts`의 `speciesOf` 표에 이름이 없으면 `generic`(기본 걷기)으로 움직인다.
+   전용 행동을 원하면 `Species`와 `CFG`에 종을 추가하고 `speciesOf` 표에 이름을 넣는다.
+7. **검증·릴리스**: `make check` → `make ui-smoke` → `agents/rules.md` §7 체크리스트(콘텐츠 추가는 patch bump).
+
+### 9.2 정글·바다 도안을 일러스트로 교체
+
+현재 두 테마의 도안은 손으로 쓴 path이고(`packages/tv-art/src/artworks/{jungle,ocean}.ts`), 월드 NPC는 영역 색 한 톤으로 합성된다.
+일러스트 PNG를 §9.1 1~3번처럼 준비하면 스프라이트가 생겨 NPC가 공룡처럼 그려진다. 단 `build_art.py`가 공룡 전용이라
+(제약 ①②) 그대로는 정글·바다에 적용되지 않는다.
+
+### 9.3 새 테마(하늘) 추가 시 손대는 곳
+
+아래는 `ThemeId`, `WorldKind`, 테마별 삼항식을 검색해 찾은 접점이다. 빠뜨리면 타입 오류나 "정글" 화면이 대신 뜬다.
+
+| 영역 | 파일 | 할 일 |
+|---|---|---|
+| 프로토콜 | `packages/protocol/src/index.ts` `ThemeId` | `'sky'` 추가 (연결 게임 `scene: 'world'`의 `world` 타입도 확인) |
+| TV 아트 | `packages/tv-art/src/types.ts` `Theme`, `THEME_META` | `sky` 색상 추가 |
+| TV 배경 | `apps/tv/src/engine/GameEngine.ts` `showBackdrop` | 테마별 배경 장식 분기(지금은 ocean/jungle 외에는 공룡 장식이 쓰인다) |
+| 콘텐츠 | `content-server/manifest.json` | `themes`에 `{id:'sky',label,bgColor,accentColor,artworks:[...]}` 추가, 에셋 PNG는 `content-server/artworks/` |
+| 폰 테마 선택 | `PhoneControls.tsx`, `CameraColoringGame.tsx`, `TouchColoringGame.tsx` | 이모지·부제 삼항식에 sky 추가 (`'🦕' : '🐒' : '🐠'`가 반복됨) |
+| 월드 | `TouchJungleWorld.tsx` | `kind` 결정, `worldName`, 안내 문구, 터치 이모지, `Scene`/`Foreground` 선택에 sky 추가 |
+| 월드 엔진 | `apps/phone/src/lib/worldEngine.ts` | `WorldKind`에 sky, 서식지(`Habitat`)·종·`CFG`, 등장 연출(공룡=알, 정글=덤불, 바다=물방울에 대응하는 것), 파티클 색 |
+| 월드 장면 | `apps/phone/src/components/WorldScenes.tsx`, `styles.css` | `SkyScene`/`SkyForeground`, `.touch-world--sky` 와 움직임 CSS (`prefers-reduced-motion` 포함) |
+| 검증 도구 | `tools/ui-smoke.py`, `tools/web-debug.py` | 월드 종류 확인과 테마 칩 선택에 sky 추가 |
+
+### 9.4 알려진 제약 (v0.6.0)
+
+- ① `tools/art/build_art.py`는 `dino` 테마만 읽고(`next(t … == 'dino')`), 매니페스트에 이미 있는 항목만 채우며 `dino.ts`의 `theme: 'dino'`를 고정으로 쓴다.
+  정글·바다·하늘에 쓰려면 테마 인자(`--theme`)로 일반화하고 TS 출력 파일을 테마별로 나눠야 한다.
+- ② 신규 항목의 매니페스트 뼈대를 손으로 넣어야 한다(§9.1 4번).
+- ③ `worldEngine.speciesOf`의 종 이름 표가 고정이라 새 종은 `generic`으로 움직인다.
+- ④ 정글·바다 NPC는 스프라이트가 없어 영역 색 한 톤이다. 하늘 테마 NPC는 처음부터 스프라이트가 필요하다.
