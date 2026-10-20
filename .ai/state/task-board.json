@@ -279,6 +279,13 @@
       "status": "done",
       "outputs": ["content-src/", "tools/art/build_content.py", "tools/art/ingest.py", "apps/phone/src/lib/worldEngine.ts", "apps/phone/src/components/WorldScenes.tsx", "apps/phone/src/components/TouchJungleWorld.tsx", "apps/phone/src/components/PhoneControls.tsx", "apps/phone/src/components/CameraColoringGame.tsx", "apps/phone/src/styles.css", "apps/tv/src/engine/GameEngine.ts", "packages/protocol/src/index.ts", "packages/tv-art/src/", "content-server/manifest.json", "docs/architecture.md", "docs/content-pipeline.md", "agents/rules.md", "agents/skills/aircanvas-content/SKILL.md", "Makefile", "CHANGELOG.md"],
       "verification": "build_content.py 재생성 결과가 이전 매니페스트와 영역·URL 동일(behavior만 추가), make check 통과, make ui-smoke 통과, 임시 skytest 테마를 YAML만으로 추가해 폰 크기 스크린샷 확인 후 제거, ingest.py를 배경 합성 JPEG로 시험(24부위 제안·빌드 성공)"
+    },
+    {
+      "id": "TASK-026",
+      "name": "kids 플랫폼화 계획: 메인 포털 + 게임(/play) + 엄빠(/cafe) 모노레포 재편 (단계 0: 계획 기록, 이후 단계는 미착수)",
+      "status": "planned",
+      "outputs": ["docs/platform-plan.md", "agents/rules.md", "docs/architecture.md", "docs/roadmap.md", "README.md"],
+      "verification": "문서만 변경(코드·배포 변화 없음). 단계 1~5는 미구현이며 구현 시 단계별로 검증을 기록한다."
     }
   ]
 }
