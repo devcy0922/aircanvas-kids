@@ -156,12 +156,9 @@ export function TouchColoringBoard({
 
   return (
     <div className="touch-board-shell" style={{ position: 'relative' }}>
-      <div className="touch-board-label">
-        <span>
-          {mode === 'fill' ? '🎨 영역을 탭하면 물방울처럼 색이 퐁퐁 차올라요!' : '🖌️ 원하는 곳을 자유롭게 쓱쓱 문질러 칠해요!'}
-        </span>
-        <strong style={{ color: theme.accentColor }}>{artwork.name}</strong>
-      </div>
+      <p className="touch-board-label" style={{ color: theme.accentColor }}>
+        {mode === 'fill' ? '🎨 칸을 탭하면 색이 퐁퐁 차올라요!' : '🖌️ 원하는 곳을 쓱쓱 문질러 칠해요!'}
+      </p>
 
       <svg
         ref={svgRef}

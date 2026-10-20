@@ -1,5 +1,5 @@
 /** 제품 릴리스 버전 — Phone/TV UI와 워크스페이스 버전을 함께 관리한다. */
-export const APP_VERSION = '0.5.0';
+export const APP_VERSION = '0.6.0';
 export const APP_VERSION_LABEL = `v${APP_VERSION}`;
 
 /**
@@ -236,6 +236,7 @@ export interface ArtworkPack {
   regions: RegionPack[];
   thumbnailUrl: string; // 썸네일 이미지 URL
   imageUrl?: string; // 고품질 공룡/캐릭터 일러스트 도안 URL
+  spriteUrl?: string; // 월드 NPC로 쓰는 컬러 스프라이트 URL (없으면 영역 색으로 합성)
 }
 
 /** 패키지용 리전 (메타데이터 포함) */

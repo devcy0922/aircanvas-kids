@@ -10,6 +10,7 @@
 출력
   content-server/artworks/images/<id>-line.png   투명 배경 외곽선 선화 (모든 화면이 multiply로 얹음)
   content-server/artworks/thumbnails/<id>.png    256px 컬러 썸네일
+  content-server/artworks/sprites/<id>.png       384px 컬러 스프라이트 (월드 NPC)
   packages/tv-art/src/artworks/dino.ts           Artwork[] 정의
   content-server/manifest.json                   dino 테마 artworks 영역/이미지 URL
   (--debug DIR) 시드/영역 확인용 오버레이 PNG
@@ -29,11 +30,13 @@ ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / 'tools/art/source'
 IMG_OUT = ROOT / 'content-server/artworks/images'
 THUMB_OUT = ROOT / 'content-server/artworks/thumbnails'
+SPRITE_OUT = ROOT / 'content-server/artworks/sprites'
 MANIFEST = ROOT / 'content-server/manifest.json'
 TS_OUT = ROOT / 'packages/tv-art/src/artworks/dino.ts'
 SEEDS = ROOT / 'tools/art/seeds.json'
 
 SIZE = 512
+SPRITE_SIZE = 384      # 월드에서 NPC로 걸어 다니는 컬러 스프라이트 (화면에서 최대 ~140css px)
 HOLE_MAX = 1500        # 이보다 작은 내부 투명 구멍(눈 흰자·이빨)은 흰색 내부로 메운다
 MIN_AREA = 40          # 이보다 작은 조각은 버린다 (원본 px)
 LINE_RGB = (0x28, 0x2c, 0x1c)  # BGR of #1c2c28
@@ -181,10 +184,14 @@ def main():
         cv2.imwrite(str(IMG_OUT / f'{aid}-line.png'), line_art(bgr, alpha))
         thumb = cv2.resize(np.dstack([bgr, alpha]), (256, 256), interpolation=cv2.INTER_AREA)
         cv2.imwrite(str(THUMB_OUT / f'{aid}.png'), thumb)
+        SPRITE_OUT.mkdir(parents=True, exist_ok=True)
+        sprite = cv2.resize(np.dstack([bgr, alpha]), (SPRITE_SIZE, SPRITE_SIZE), interpolation=cv2.INTER_AREA)
+        cv2.imwrite(str(SPRITE_OUT / f'{aid}.png'), sprite, [cv2.IMWRITE_PNG_COMPRESSION, 9])
         m = by_id[aid]
         m['regions'] = [{'id': r['id'], 'label': r['label'], 'path': r['d'], 'zIndex': r['zIndex']} for r in regions]
         m['thumbnailUrl'] = f'/artworks/thumbnails/{aid}.png'
         m['imageUrl'] = f'/artworks/images/{aid}-line.png'
+        m['spriteUrl'] = f'/artworks/sprites/{aid}.png'
         print(f'{aid}: 영역 {len(regions)}개, 최소 면적 {min(r["area"] for r in regions)}px')
         if args.debug:
             debug_overlay(aid, bgr, alpha, lab, parts, Path(args.debug))

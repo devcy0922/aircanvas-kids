@@ -1,7 +1,7 @@
 {
   "project": "aircanvas-kids",
   "codeName": "hand-tracking",
-  "updatedAt": "2026-10-20",
+  "updatedAt": "2026-10-21",
   "tasks": [
     {
       "id": "TASK-001",
@@ -247,6 +247,31 @@
         "CHANGELOG.md"
       ],
       "verification": "make check 통과, 공개 URL에서 make ui-smoke 통과(390x844·360x740, 도안 5종 17~25칸, 탭1회=1칸=되돌리기1회, 콘솔 오류 없음), 스크린샷 육안 확인"
+    },
+    {
+      "id": "TASK-024",
+      "name": "월드 화면 개편: 부위 레이어 캐릭터·행동 엔진·풍성한 배경·NPC·부화 등장 연출, 영역별 색 보존 (v0.6.0)",
+      "status": "done",
+      "outputs": [
+        "apps/phone/src/lib/creatureSprite.ts",
+        "apps/phone/src/lib/worldEngine.ts",
+        "apps/phone/src/components/WorldScenes.tsx",
+        "apps/phone/src/components/TouchJungleWorld.tsx",
+        "apps/phone/src/components/TouchColoringGame.tsx",
+        "apps/phone/src/components/CameraColoringGame.tsx",
+        "apps/phone/src/components/TouchColoringBoard.tsx",
+        "apps/phone/src/styles.css",
+        "packages/protocol/src/index.ts",
+        "tools/art/build_art.py",
+        "tools/ui-smoke.py",
+        "content-server/artworks/sprites/*.png",
+        "content-server/manifest.json",
+        "docs/architecture.md",
+        "docs/content-pipeline.md",
+        "agents/rules.md",
+        "CHANGELOG.md"
+      ],
+      "verification": "make check 통과, make ui-smoke(월드: 부화·NPC 7마리·5종·색 3가지 보존·6마리 이동·터치 반응·가로 넘침 없음)와 3개 월드 연속 프레임 육안 확인"
     }
   ]
 }

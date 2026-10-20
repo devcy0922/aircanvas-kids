@@ -1,4 +1,4 @@
-# 콘텐츠 파이프라인 v0.5 — 패키지 기반 아트워크 및 일러스트 에셋 관리
+# 콘텐츠 파이프라인 v0.6 — 패키지 기반 아트워크 및 일러스트 에셋 관리
 
 ## 1. 데이터 모델
 
@@ -28,6 +28,7 @@ interface ArtworkPack {
   regions: RegionPack[];
   thumbnailUrl: string; // 썸네일 이미지 URL (PNG)
   imageUrl?: string;    // 투명 외곽선 선화 PNG URL
+  spriteUrl?: string;   // 월드 NPC용 컬러 스프라이트 PNG URL (없으면 영역 색으로 합성)
 }
 
 interface RegionPack {
@@ -104,7 +105,8 @@ tools/art/seeds.json        작품별 부위 시드 점(원본 픽셀 좌표) + 
         ▼
 content-server/artworks/images/<id>-line.png   외곽선만 남긴 투명 선화 (모든 화면이 multiply로 얹음)
 content-server/artworks/thumbnails/<id>.png    컬러 썸네일
-content-server/manifest.json                   regions[].path, thumbnailUrl, imageUrl
+content-server/artworks/sprites/<id>.png       384px 컬러 스프라이트 (월드 NPC, 부위 레이어로 구워 쓴다)
+content-server/manifest.json                   regions[].path, thumbnailUrl, imageUrl, spriteUrl
 packages/tv-art/src/artworks/dino.ts           자동 생성 (직접 수정 금지)
 ```
 
@@ -114,6 +116,9 @@ packages/tv-art/src/artworks/dino.ts           자동 생성 (직접 수정 금�
 - 새 도안 추가: `source/`에 PNG 추가 → `--debug`로 영역 분할 확인 → `seeds.json`의 시드 보정 → 재생성.
 - 결과 확인은 `--debug` 오버레이와 `make ui-smoke` 스크린샷으로 한다. 렌더링 확인 없이 완료하지 않는다.
 - 정글·바다 도안은 아직 이 파이프라인이 아닌 수작업 path이다 (후속 과제: 일러스트 PNG 준비 후 동일 적용).
+  스프라이트가 없는 도안의 월드 NPC는 영역 색으로 합성한다(`creatureSprite.npcBaseColor`).
+- **월드 부위 분할**: 영역 라벨로 머리·꼬리·다리(가까운/먼)·팔·날개·몸통을 정한다(`creatureSprite.partOf`).
+  라벨이 애매한 조각(점무늬·발톱)은 가장 가까운 부위를 따른다. 새 도안의 영역 이름은 이 규칙(`꼬리`, `다리`, `날개`, `머리`, `눈` 등)을 따르면 월드에서 부위별로 움직인다.
 
 ## 4. 색칠 진행도 판정 알고리즘 (TV 측 GameEngine)
 

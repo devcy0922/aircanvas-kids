@@ -233,6 +233,7 @@ export function CameraColoringGame({ themes, artworks, onExit, onTouchFallback }
     artworkId: artwork.id,
     themeId: theme.id,
     color,
+    regionColors: Object.fromEntries([...filledRegions].map((id) => [id, color])),
     filledRegionIds: [...filledRegions],
     paintStrokes: strokes.map((points) => ({ points, color, size: 2.4, brush: 'pen' as const })),
     routeSeed: artwork.id.split('').reduce((sum, character) => sum + character.charCodeAt(0), 0),

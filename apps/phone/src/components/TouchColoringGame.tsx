@@ -24,8 +24,11 @@ export type WorldCreation = {
   id: string;
   artworkId: string;
   themeId: string;
+  /** 대표 색(예전 저장 형식 호환) */
   color: string;
   paintStrokes: PaintStroke[];
+  /** 영역별로 칠한 색. 월드에서 캐릭터를 내가 칠한 그대로 보여 준다 */
+  regionColors?: Record<string, string>;
   filledRegionIds?: string[];
   routeSeed: number;
 };
@@ -165,6 +168,7 @@ export function TouchColoringGame({ themes, artworks, roomKey = 'LOCAL', onExit 
       themeId: theme.id,
       color: filledRegions[artwork.regions[0]?.id] || color,
       paintStrokes: strokes,
+      regionColors: { ...filledRegions },
       filledRegionIds: filledIds,
       routeSeed: Math.floor(Math.random() * 100),
     };

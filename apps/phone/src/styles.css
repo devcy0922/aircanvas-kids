@@ -703,13 +703,11 @@ h1 {
 }
 
 .touch-board-label {
-  display: flex;
-  justify-content: space-between;
   width: 100%;
-  margin-bottom: 9px;
-  color: #65747c;
-  font-size: 12px;
+  margin: 0 0 9px;
+  font-size: 13px;
   font-weight: 800;
+  text-align: center;
 }
 
 .touch-board {
@@ -756,24 +754,148 @@ h1 {
 
 .touch-world {
   min-height: 100%;
-  padding: 28px 16px calc(30px + env(safe-area-inset-bottom));
+  padding: 18px 16px calc(30px + env(safe-area-inset-bottom));
   background: linear-gradient(165deg, #eff7e9, #d8ecdc 58%, #c2dec7);
 }
 
 .touch-world--dino {
-  background: linear-gradient(165deg, #fff3e6, #fed7aa 55%, #fb923c);
+  background: linear-gradient(165deg, #fff6e3, #ffe2b0 55%, #fbbf72);
 }
 
 .touch-world--ocean {
   background: linear-gradient(165deg, #e2f5f5, #c5e6ec 55%, #9fc9db);
 }
 
-.touch-world--dino .touch-world__copy h1 {
+.world-head,
+.world-frame,
+.world-lead,
+.touch-world__room,
+.touch-world__actions {
+  width: min(100%, 620px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.world-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.world-head h1 {
+  margin: 4px 0 0;
+  color: #244a3b;
+  font-size: clamp(22px, 6.4vw, 30px);
+  line-height: 1.2;
+  letter-spacing: -0.05em;
+  word-break: keep-all;
+}
+
+.touch-world--dino .world-head h1 {
   color: #7c2d12;
 }
 
-.touch-world--dino .touch-world__copy > p:last-of-type {
+.touch-world--ocean .world-head h1 {
+  color: #0b5068;
+}
+
+.world-sound {
+  flex: none;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  font-size: 18px;
+}
+
+.world-frame {
+  position: relative;
+  margin-top: 14px;
+}
+
+.touch-world__scene {
+  display: block;
+  width: 100%;
+  aspect-ratio: 160 / 128;
+  height: auto;
+  overflow: hidden;
+  border: 6px solid rgba(255, 253, 247, 0.9);
+  border-radius: 24px;
+  box-shadow: 0 18px 38px rgba(36, 74, 59, 0.22);
+  touch-action: manipulation;
+  user-select: none;
+  cursor: pointer;
+}
+
+.touch-world--dino .touch-world__scene {
+  box-shadow: 0 18px 38px rgba(124, 45, 18, 0.26);
+}
+
+.touch-world--ocean .touch-world__scene {
+  box-shadow: 0 18px 38px rgba(11, 80, 104, 0.26);
+}
+
+.world-toast {
+  position: absolute;
+  left: 50%;
+  top: 14px;
+  max-width: calc(100% - 28px);
+  padding: 8px 16px;
+  border-radius: 999px;
+  color: #7c2d12;
+  background: rgba(255, 253, 247, 0.95);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  font-size: 14px;
+  font-weight: 900;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  animation: world-toast-in 2.8s ease both;
+  pointer-events: none;
+}
+
+@keyframes world-toast-in {
+  0% { opacity: 0; transform: translate(-50%, -10px) scale(0.9); }
+  12%, 82% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -6px) scale(0.96); }
+}
+
+.world-lead {
+  margin-top: 12px;
+  margin-bottom: 0;
+  color: #536f60;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.touch-world--dino .world-lead {
   color: #9a3412;
+}
+
+.touch-world--ocean .world-lead {
+  color: #356b7a;
+}
+
+.touch-world__room {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  color: #315743;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.touch-world__room strong {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 50%;
+  color: #fffdf7;
+  background: #c1663d;
+  font-size: 15px;
 }
 
 .touch-world--dino .touch-world__room {
@@ -784,60 +906,6 @@ h1 {
   background: #ea580c;
 }
 
-.touch-world--dino .touch-world__scene {
-  box-shadow: 0 18px 38px rgba(124, 45, 18, 0.28);
-}
-
-.touch-world__copy,
-.touch-world__actions {
-  width: min(100%, 620px);
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.touch-world__copy h1 {
-  margin: 5px 0 8px;
-  color: #244a3b;
-  font-size: clamp(26px, 7vw, 38px);
-  letter-spacing: -0.06em;
-}
-
-.touch-world__copy > p:last-child {
-  margin: 0;
-  color: #536f60;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.touch-world--ocean .touch-world__copy h1 {
-  color: #0b5068;
-}
-
-.touch-world--ocean .touch-world__copy > p:last-of-type {
-  color: #356b7a;
-}
-
-.touch-world__room {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 14px;
-  color: #315743;
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.touch-world__room strong {
-  display: grid;
-  width: 34px;
-  height: 34px;
-  place-items: center;
-  border-radius: 50%;
-  color: #fffdf7;
-  background: #c1663d;
-  font-size: 16px;
-}
-
 .touch-world--ocean .touch-world__room {
   color: #1e6278;
 }
@@ -846,263 +914,158 @@ h1 {
   background: #168ead;
 }
 
-.touch-world__scene {
-  display: block;
-  width: min(100%, 620px);
-  margin: 24px auto 0;
-  border: 8px solid rgba(255, 253, 247, 0.82);
-  border-radius: 27px;
-  box-shadow: 0 18px 38px rgba(36, 74, 59, 0.2);
+/* 월드 배경 움직임 — transform만 쓴다(필터·블렌드 없음). 캐릭터는 worldEngine이 직접 움직인다. */
+.w-cloud {
+  animation: w-drift var(--dur, 80s) linear infinite;
+  animation-delay: var(--delay, 0s);
 }
 
-.touch-world--ocean .touch-world__scene {
-  box-shadow: 0 18px 38px rgba(11, 80, 104, 0.24);
+.w-flock {
+  animation: w-drift 60s linear infinite;
+  animation-delay: -20s;
 }
 
-.world-creature {
-  animation-duration: var(--world-duration, 10s);
-  animation-delay: var(--world-delay, -3s);
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  transform-origin: 0 0;
+.w-flock--fish {
+  animation-duration: 45s;
 }
 
-.world-creature.is-reverse {
-  animation-direction: reverse;
-}
-
-.world-route-0 { animation-name: world-route-far; }
-.world-route-1 { animation-name: world-route-ridge; }
-.world-route-2 { animation-name: world-route-middle; }
-.world-route-3 { animation-name: world-route-near; }
-.world-route-4 { animation-name: world-route-front; }
-
-.world-creature__body {
-  animation: world-walk-bob 440ms cubic-bezier(.45, 0, .55, 1) infinite alternate;
+.w-flap {
+  animation: w-flap 0.7s ease-in-out infinite alternate;
   transform-box: fill-box;
-  transform-origin: center bottom;
-  filter: drop-shadow(0 2px 1px rgba(5, 28, 25, 0.22));
+  transform-origin: center;
 }
 
-.touch-world--ocean .world-creature__body,
-.behavior-swim,
-.behavior-glide,
-.behavior-hover {
-  animation: world-swim-bob 1.15s ease-in-out infinite alternate;
+.w-flap--b {
+  animation-delay: -0.3s;
 }
 
-.world-creature__part {
+.w-spin {
+  animation: w-spin 60s linear infinite;
+}
+
+.w-sway {
+  animation: w-sway 3.4s ease-in-out infinite alternate;
+  animation-delay: var(--delay, 0s);
   transform-box: fill-box;
+  transform-origin: 50% 100%;
 }
 
-.world-creature__part.part-limb,
-.world-creature__part.part-fin {
-  animation: world-limb-step 420ms ease-in-out infinite alternate;
-  transform-origin: center top;
-}
-
-.world-creature__part.part-limb:nth-of-type(even),
-.world-creature__part.part-fin:nth-of-type(even) {
-  animation-direction: alternate-reverse;
-}
-
-.world-creature__part.part-tail {
-  animation: world-tail-swing 620ms ease-in-out infinite alternate;
-  transform-origin: right center;
-}
-
-.world-creature__part.part-head {
-  transform-origin: center bottom;
-}
-
-.behavior-stomp .part-head { animation: world-roar 2.4s ease-in-out infinite; }
-.behavior-longneck .part-head { animation: world-neck-reach 3.2s ease-in-out infinite; }
-.behavior-armored .part-tail { animation-duration: 360ms; }
-.touch-world .world-creature__body.behavior-breach { animation: world-breach 2.8s ease-in-out infinite; }
-.touch-world .world-creature__body.behavior-pulse { animation: world-pulse 1.8s ease-in-out infinite; }
-.touch-world .world-creature__body.behavior-scuttle { animation: world-scuttle 520ms steps(2, jump-none) infinite alternate; }
-.behavior-glide .part-fin { animation-duration: 1.4s; }
-.touch-world .world-creature__body.behavior-hover { animation: world-hover 1.9s ease-in-out infinite alternate; }
-
-.touch-world--ocean .world-creature__part.part-tail,
-.touch-world--ocean .world-creature__part.part-fin {
-  animation-name: world-fin-wave;
-}
-
-.world-creature__shadow {
-  animation: world-shadow 440ms ease-in-out infinite alternate;
-}
-
-.touch-world--ocean .world-creature__shadow {
-  opacity: 0.1;
-}
-
-.world-creature__trail {
-  animation: world-trail 520ms ease-out infinite;
-}
-
-.world-birds {
-  animation: world-birds-fly 5s ease-in-out infinite alternate;
-}
-
-.world-bubbles circle {
-  animation: world-bubble-rise 2.8s ease-in infinite;
-}
-
-.world-bubbles circle:nth-child(even) {
-  animation-delay: 900ms;
-}
-
-.world-seagrass,
-.world-coral,
-.world-jelly {
-  animation: world-current-sway 1.8s ease-in-out infinite alternate;
+.w-tree-jungle {
+  animation: w-sway 5s ease-in-out infinite alternate;
   transform-box: fill-box;
-  transform-origin: center bottom;
+  transform-origin: 50% 100%;
 }
 
-@keyframes world-route-far {
-  0% { transform: translate(-32px, 7px) scale(.3); opacity: .28; }
-  18% { opacity: .72; }
-  52% { transform: translate(64px, 3px) scale(.33); opacity: .82; }
-  82% { opacity: .7; }
-  100% { transform: translate(166px, 9px) scale(.29); opacity: .18; }
+.w-lava {
+  animation: w-glow 1.8s ease-in-out infinite alternate;
 }
 
-@keyframes world-route-ridge {
-  0% { transform: translate(-38px, 20px) scale(.37); opacity: .25; }
-  30% { transform: translate(22px, 15px) scale(.4); opacity: .92; }
-  62% { transform: translate(91px, 22px) scale(.37); }
-  100% { transform: translate(168px, 16px) scale(.41); opacity: .2; }
+.w-smoke {
+  animation: w-smoke 6.4s ease-out infinite;
+  animation-delay: var(--delay, 0s);
+  transform-box: fill-box;
+  transform-origin: center;
 }
 
-@keyframes world-route-middle {
-  0% { transform: translate(-42px, 30px) scale(.4); opacity: .2; }
-  22% { opacity: 1; }
-  48% { transform: translate(58px, 24px) scale(.44); }
-  72% { transform: translate(108px, 32px) scale(.39); opacity: 1; }
-  100% { transform: translate(170px, 27px) scale(.42); opacity: .15; }
+.w-ember {
+  animation: w-ember 3s ease-out infinite;
+  animation-delay: var(--delay, 0s);
 }
 
-@keyframes world-route-near {
-  0% { transform: translate(-53px, 39px) scale(.5); opacity: .12; }
-  20% { opacity: 1; }
-  55% { transform: translate(70px, 34px) scale(.56); }
-  100% { transform: translate(174px, 43px) scale(.48); opacity: .08; }
+.w-shimmer {
+  animation: w-shimmer 3.2s ease-in-out infinite alternate;
+  animation-delay: var(--delay, 0s);
 }
 
-@keyframes world-route-front {
-  0% { transform: translate(-62px, 48px) scale(.59); opacity: .08; }
-  18% { opacity: 1; }
-  50% { transform: translate(64px, 39px) scale(.66); }
-  100% { transform: translate(177px, 45px) scale(.61); opacity: .06; }
+.w-mote {
+  animation: w-mote 6s ease-in-out infinite alternate;
+  animation-delay: var(--delay, 0s);
 }
 
-@keyframes world-walk-bob {
-  from { transform: translateY(0) rotate(-1deg); }
-  to { transform: translateY(-2px) rotate(1deg); }
+.w-bubble {
+  animation: w-bubble 5s ease-in infinite;
+  animation-delay: var(--delay, 0s);
 }
 
-@keyframes world-swim-bob {
-  from { transform: translateY(-7px) rotate(-2deg); }
-  to { transform: translateY(1px) rotate(2deg); }
+.w-rays {
+  animation: w-sway 7s ease-in-out infinite alternate;
+  transform-box: fill-box;
+  transform-origin: 50% 0;
 }
 
-@keyframes world-limb-step {
-  from { transform: rotate(-10deg) translateY(0); }
-  to { transform: rotate(11deg) translateY(-1px); }
+@keyframes w-drift {
+  from { transform: translateX(-70px); }
+  to { transform: translateX(230px); }
 }
 
-@keyframes world-fin-wave {
-  from { transform: rotate(-16deg) scaleY(.9); }
-  to { transform: rotate(16deg) scaleY(1.08); }
+@keyframes w-flap {
+  from { transform: scaleY(1); }
+  to { transform: scaleY(-0.7); }
 }
 
-@keyframes world-tail-swing {
-  from { transform: rotate(-7deg); }
-  to { transform: rotate(9deg); }
+@keyframes w-spin {
+  to { transform: rotate(360deg); }
 }
 
-@keyframes world-roar {
-  0%, 62%, 100% { transform: rotate(0) translateY(0); }
-  70% { transform: rotate(-7deg) translateY(-3px); }
-  82% { transform: rotate(4deg) translateY(-1px); }
+@keyframes w-sway {
+  from { transform: rotate(-3deg); }
+  to { transform: rotate(3.5deg); }
 }
 
-@keyframes world-neck-reach {
-  0%, 100% { transform: rotate(-2deg) translateY(1px); }
-  48% { transform: rotate(7deg) translateY(-4px); }
+@keyframes w-glow {
+  from { opacity: 0.65; }
+  to { opacity: 1; }
 }
 
-@keyframes world-breach {
-  0%, 100% { transform: translateY(3px) rotate(-2deg); }
-  48% { transform: translateY(-10px) rotate(8deg); }
+@keyframes w-smoke {
+  0% { transform: translate(0, 0) scale(0.5); opacity: 0.7; }
+  100% { transform: translate(7px, -26px) scale(2.1); opacity: 0; }
 }
 
-@keyframes world-pulse {
-  0%, 100% { transform: scale(.94, 1.04) translateY(2px); }
-  50% { transform: scale(1.06, .91) translateY(-4px); }
+@keyframes w-ember {
+  0% { transform: translate(0, 0); opacity: 1; }
+  100% { transform: translate(5px, -18px); opacity: 0; }
 }
 
-@keyframes world-scuttle {
-  from { transform: translateX(-3px) rotate(-2deg); }
-  to { transform: translateX(3px) rotate(2deg); }
+@keyframes w-shimmer {
+  from { transform: translateX(-2px); }
+  to { transform: translateX(3px); }
 }
 
-@keyframes world-hover {
-  from { transform: translateY(3px) rotate(-4deg); }
-  to { transform: translateY(-4px) rotate(4deg); }
+@keyframes w-mote {
+  from { transform: translate(0, 0); }
+  to { transform: translate(5px, -7px); }
 }
 
-@keyframes world-shadow {
-  from { transform: scaleX(0.82); opacity: 0.22; }
-  to { transform: scaleX(1); opacity: 0.34; }
-}
-
-@keyframes world-trail {
-  from { transform: translateX(5px) scale(0.7); opacity: 0.8; }
-  to { transform: translateX(-7px) scale(1.35); opacity: 0; }
-}
-
-@keyframes world-birds-fly {
-  from { transform: translate(-7px, 1px); }
-  to { transform: translate(8px, -4px); }
-}
-
-@keyframes world-bubble-rise {
-  from { transform: translateY(10px); opacity: 0; }
-  30% { opacity: 0.7; }
-  to { transform: translateY(-18px); opacity: 0; }
-}
-
-@keyframes world-current-sway {
-  from { transform: skewX(-3deg); }
-  to { transform: skewX(4deg); }
+@keyframes w-bubble {
+  0% { transform: translateY(8px); opacity: 0; }
+  25% { opacity: 0.8; }
+  100% { transform: translateY(-26px); opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .world-creature,
-  .world-creature__body,
-  .world-creature__part,
-  .world-creature__shadow,
-  .world-creature__trail,
-  .world-birds,
-  .world-bubbles circle,
-  .world-seagrass,
-  .world-coral,
-  .world-jelly {
-    animation: none !important;
-  }
-
-  .world-creature {
-    transform: translate(58px, 26px) scale(.45);
+  .w-cloud,
+  .w-flock,
+  .w-flap,
+  .w-spin,
+  .w-sway,
+  .w-tree-jungle,
+  .w-lava,
+  .w-smoke,
+  .w-ember,
+  .w-shimmer,
+  .w-mote,
+  .w-bubble,
+  .w-rays,
+  .world-toast {
+    animation: none;
   }
 }
 
 .touch-world__actions {
   display: grid;
   gap: 10px;
-  margin-top: 18px;
+  margin-top: 16px;
 }
 
 .touch-world__actions .big-btn {
@@ -1888,70 +1851,6 @@ h1 {
     transform: scale(1.03);
     box-shadow: 0 6px 20px rgba(247, 127, 0, 0.55);
   }
-}
-
-/* 생물 인터랙션 점프 및 회전 */
-.world-creature.is-reacting {
-  animation: creature-jump 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-}
-
-@keyframes creature-jump {
-  0% { transform: translateY(0) scale(1); }
-  25% { transform: translateY(0) scale(1.15, 0.85); }
-  50% { transform: translateY(-24px) scale(0.9, 1.15) rotate(6deg); }
-  75% { transform: translateY(-6px) scale(1.05, 0.95); }
-  100% { transform: translateY(0) scale(1); }
-}
-
-@keyframes float-up {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, 0) scale(0.4);
-  }
-  20% {
-    opacity: 1;
-    transform: translate(-50%, -16px) scale(1.2);
-  }
-  80% {
-    opacity: 1;
-    transform: translate(-50%, -36px) scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: translate(-50%, -52px) scale(0.7);
-  }
-}
-
-/* 화산 연기 뭉게뭉게 */
-.dino-smoke {
-  animation: dino-smoke-drift 4s ease-in-out infinite alternate;
-  transform-origin: 42px 28px;
-}
-
-@keyframes dino-smoke-drift {
-  0% { transform: translateY(0) scale(1); opacity: 0.35; }
-  100% { transform: translateY(-3px) scale(1.15) rotate(3deg); opacity: 0.55; }
-}
-
-/* 작은 익룡 활공 */
-.world-ptera-flight {
-  animation: ptera-flight 12s linear infinite;
-}
-
-@keyframes ptera-flight {
-  0% { transform: translate(50px, -5px) scale(0.8); }
-  50% { transform: translate(-30px, 4px) scale(0.9); }
-  100% { transform: translate(-120px, -2px) scale(0.75); }
-}
-
-/* 반딧불이 깜빡임 */
-.world-fireflies {
-  animation: firefly-blink 2s ease-in-out infinite alternate;
-}
-
-@keyframes firefly-blink {
-  0% { opacity: 0.2; transform: translateY(0); }
-  100% { opacity: 0.95; transform: translateY(-2px); }
 }
 
 /* ─────────────────────────────────────────────────────────────
