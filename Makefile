@@ -3,11 +3,12 @@ export HT_BIND ?= 0.0.0.0:8180
 
 PYTHON ?= python3
 
-.PHONY: help build check test content content-check web-debug ui-smoke agents-link dev-server dev-phone dev-phone-ssl dev-tv dev-content clean
+.PHONY: help build site check test content content-check web-debug ui-smoke site-smoke agents-link dev-server dev-phone dev-phone-ssl dev-tv dev-content clean
 
 help:
 	@echo "AirCanvas Kids Monorepo Commands:"
 	@echo "  make build          - Build all packages & apps (phone, tv, protocol, tv-art, server release)"
+	@echo "  make site           - 포털(/) + 게임(/play/) 사이트 루트 조립 (npm run build 선행)"
 	@echo "  make check          - Run npm workspace build and cargo check (Verification Gate)"
 	@echo "  make test           - Run smoke test & verification"
 	@echo "  make agents-link    - Symlink .agents, .cursor/rules, .github -> agents/ (Tooling setup)"
@@ -19,6 +20,7 @@ help:
 	@echo "  make web-debug      - Run web-bot Playwright flow (home -> play) with evidence"
 	@echo "  make content-check  - content-src YAML 검증 (파일을 쓰지 않음, python3 + numpy/opencv/pyyaml 필요)"
 	@echo "  make content        - content-src → 매니페스트·에셋 생성"
+	@echo "  make site-smoke     - 포털(/)·게임(/play/)·엄빠(/cafe/) 연결 스모크 (기본: 공개 URL, AIRCANVAS_SITE_URL로 변경)"
 	@echo "  make ui-smoke       - 색칠 화면 폰 크기 UI 스모크 (기본: 공개 URL, AIRCANVAS_PHONE_URL로 변경)"
 
 build:
@@ -26,6 +28,9 @@ build:
 	npm run build
 	@echo "[Build] Building Rust relay server release binary..."
 	cargo build --manifest-path server/Cargo.toml --release
+
+site:
+	@bash tools/build-site.sh
 
 check:
 	@echo "[Check] Running TypeScript workspace build..."
@@ -68,7 +73,7 @@ web-debug:
 		-v "$(CURDIR):/workspace" \
 		-e AIRCANVAS_DEBUG_ROOM=$(or $(AIRCANVAS_DEBUG_ROOM),WEBDBG) \
 		-e AIRCANVAS_TV_URL=http://$(or $(AIRCANVAS_DEBUG_HOST),192.168.0.10):7100/ \
-		-e AIRCANVAS_PHONE_URL=http://$(or $(AIRCANVAS_DEBUG_HOST),192.168.0.10):7101/ \
+		-e AIRCANVAS_PHONE_URL=http://$(or $(AIRCANVAS_DEBUG_HOST),192.168.0.10):7101/play/ \
 		-e AIRCANVAS_SERVER=http://$(or $(AIRCANVAS_DEBUG_HOST),192.168.0.10):8180 \
 		-e AIRCANVAS_CONTENT=http://$(or $(AIRCANVAS_DEBUG_HOST),192.168.0.10):8081 \
 		-e AIRCANVAS_EVIDENCE_ROOT=/workspace/logs/evidence \
@@ -84,9 +89,17 @@ ui-smoke:
 	@echo "[UI Smoke] 색칠 화면 스모크 (web-bot)..."
 	docker compose -f /srv/demo/web-bot/docker-compose.yml run --rm \
 		-v "$(CURDIR):/workspace" \
-		-e AIRCANVAS_PHONE_URL=$(or $(AIRCANVAS_PHONE_URL),https://kids.aircanvas.kr/) \
+		-e AIRCANVAS_PHONE_URL=$(or $(AIRCANVAS_PHONE_URL),https://kids.aircanvas.kr/play/) \
 		-e AIRCANVAS_EVIDENCE_ROOT=/workspace/logs/evidence \
 		web-bot python3 /workspace/tools/ui-smoke.py
+
+site-smoke:
+	@echo "[Site Smoke] 포털·게임·엄빠 연결 스모크 (web-bot)..."
+	docker compose -f /srv/demo/web-bot/docker-compose.yml run --rm \
+		-v "$(CURDIR):/workspace" \
+		-e AIRCANVAS_SITE_URL=$(or $(AIRCANVAS_SITE_URL),https://kids.aircanvas.kr/) \
+		-e AIRCANVAS_EVIDENCE_ROOT=/workspace/logs/evidence \
+		web-bot python3 /workspace/tools/site-smoke.py
 
 clean:
 	@echo "[Clean] Cleaning build artifacts..."

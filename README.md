@@ -1,4 +1,4 @@
-# AirCanvas Kids 🖐️📺 v0.7.0
+# AirCanvas Kids 🖐️📺 v0.8.0
 
 **스마트폰 카메라만으로 바로 시작하거나, 필요할 때 TV와 연결해
 공중 제스처 드로잉·색칠을 플레이하는 어린이용 게임.**
@@ -18,8 +18,19 @@
 다섯 원근 경로를 무작위로 고르며 공룡·물고기 종별에 맞는 움직임으로 탐험합니다.
 이 경로에는 카메라·TV·릴레이 연결이 필요하지 않습니다.
 
-> **방향(계획, 미구현):** `kids`는 게임 외에 서울형 키즈카페 "엄빠" 등 여러 콘텐츠를 담는 메인 페이지 + 모노레포로 재편될 예정입니다.
-> 이 문서는 현재 구현된 게임 기준이며, 계획은 [`docs/platform-plan.md`](docs/platform-plan.md)에 있습니다.
+## 사이트 구성 (v0.8)
+
+`kids.aircanvas.kr`은 아이·육아 관련 서비스를 담는 메인 페이지(포털)이고, 이 저장소의 공중 색칠 게임은 그중 하나입니다.
+
+| 경로 | 서비스 | 앱 |
+|---|---|---|
+| `/` | 포털(메인) — 서비스 목록 | `apps/portal` |
+| `/play/` | 색칠 놀이(게임, 폰 앱) | `apps/phone` |
+| `/tv/` | 게임 TV 화면(QR 진입) | `apps/tv` |
+| `/cafe/` | 엄빠 — 서울형 키즈카페 일정 비교(**데모 데이터**) | `apps/cafe` |
+
+예전 공유 링크·QR(`/?room=…&server=…`)은 포털이 `/play/`로 쿼리를 보존해 넘깁니다.
+새 서비스는 `apps/portal/services.json`에 항목을 추가해 포털에 올립니다(구조·절차: [`docs/platform-plan.md`](docs/platform-plan.md)).
 
 > **핵심 원칙**: **카메라 영상은 어디로도 전송되지 않습니다.** 카메라 로컬 모드에서는
 > 같은 기기에서 좌표를 처리하고, 연결 게임에서는 좌표 (초당 수 KB)만 보내 Display가 렌더링합니다.
@@ -119,14 +130,21 @@ npm run dev:tv
 # http://<PC_IP>:7100 접속 → TV 브라우저에서 열기
 ```
 
-**터미널 4: 폰 앱 (Vite)**
+**터미널 4: 폰 앱 (Vite, `/play/`)**
 ```bash
 npm run dev:phone
-# http://<PC_IP>:7101 접속 → 폰 브라우저에서 열기
+# http://<PC_IP>:7101/play/ 접속 → 폰 브라우저에서 열기
 ```
 
 > **중요**: 폰 카메라 권한은 HTTPS 또는 localhost에서만 허용됨.
 > 개발 시 크롬 `chrome://flags/#unsafely-treat-insecure-origin-as-secure` 에 `http://<PC_IP>:7101` 추가 필요.
+
+**선택: 포털(:7102)과 엄빠(:8124)**
+```bash
+npm run dev -w apps/portal     # http://<PC_IP>:7102  (게임 링크는 같은 호스트의 /play/ 를 가리키므로 개발 중에는 :7101/play/ 를 직접 연다)
+npm start -w apps/cafe         # http://<PC_IP>:8124  (Docker: docker compose -f apps/cafe/docker-compose.yml up -d --build)
+make site                      # 포털 + 게임을 사이트 루트(site/)로 조립 (npm run build 선행)
+```
 
 ### 3) 카메라 없이 먼저 확인하기
 
@@ -134,7 +152,7 @@ npm run dev:phone
 이 경로는 릴레이 서버나 카메라를 사용하지 않으므로 UI와 콘텐츠 패키지를 먼저 검증할 때 적합하다.
 
 ```text
-http://<PC_IP>:7101/
+http://<PC_IP>:7101/play/
   → 소개 홈
   → 카메라 없이 터치로 해보기
   → 공룡/정글/바다 테마 선택
@@ -147,7 +165,9 @@ http://<PC_IP>:7101/
 공개 배포에서는 다음 주소를 사용한다.
 
 ```text
-폰 소개/터치: https://kids.aircanvas.kr/
+포털: https://kids.aircanvas.kr/
+게임(소개/카메라/터치): https://kids.aircanvas.kr/play/
+엄빠: https://kids.aircanvas.kr/cafe/
 TV 대기 화면: https://kids.aircanvas.kr/tv/?room=WEB001
 ```
 
@@ -205,8 +225,8 @@ make ui-smoke   # 색칠 화면·월드(부화/색 보존/움직임) 폰 크기 
 | 앱 | 파라미터 | 설명 |
 |---|---|---|
 | TV (`:7100`) | `?server=http://IP:8180` | 릴레이 서버 주소 오버라이드 |
-| TV | `?phoneApp=http://IP:7101` | QR에 넣을 폰 앱 주소 오버라이드 |
-| 폰 (`:7101`) | `?server=http://IP:8180` | 릴레이 서버 주소 (QR로 자동 전달) |
+| TV | `?phoneApp=http://IP:7101/play` | QR에 넣을 폰 앱 주소 오버라이드 |
+| 폰 (`:7101/play/`) | `?server=http://IP:8180` | 릴레이 서버 주소 (QR로 자동 전달) |
 | 폰 | `?room=ABC123` | 방 코드 자동 입력 + 자동 입장 (QR로 자동 전달) |
 | 폰 | `?content=http://IP:8081` | 콘텐츠 서버 주소 오버라이드 |
 | TV/폰 | `?debug=1` | 카메라 없는 릴레이 디버그 패널/상태 표시 |
@@ -248,6 +268,7 @@ node tools/smoke-relay.mjs             # 서버 릴레이 자동 스모크 테�
 - [x] **테마별 입체 생태 월드** (5개 원근 경로, 무작위 등장, 종별 동작, 룸 작품 누적)
 - [x] **공개 HTTPS 웹 진입** (`kids.aircanvas.kr`) 및 오래된 사설 IP 파라미터 안전 처리
 - [x] **웹 디버그 검증 경로** (격리 Playwright로 UI/WS/커맨드 readback)
+- [x] **kids 플랫폼화**: 포털(`/`) + 게임(`/play/`) + 엄빠(`/cafe/`) 모노레포, 공용 디자인 토큰(`packages/ui`)
 - [ ] 폰↔TV 실기기 E2E 플레이 테스트 및 추적 안정성 튜닝 (M3 첫 항목)
 - [ ] 폰 카메라 HTTPS 접근 구성(basic-ssl 또는 Caddy 리버스 프록시)
 - [ ] 핀치 제스처 → TV 브러시 on/off 완전 연결

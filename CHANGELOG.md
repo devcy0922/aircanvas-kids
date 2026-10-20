@@ -1,5 +1,21 @@
 # 변경 기록
 
+## v0.8.0 — 2026-10-21
+
+- **kids를 "포털 + 서비스" 구조로 재편(모노레포)** — 메인 페이지를 새로 만들고, 게임은 `/play/`, 서울형 키즈카페 "엄빠"는 `/cafe/` 하위 서비스로 둠
+  - 원인: `kids`가 게임 하나가 아니라 아이·육아 콘텐츠 모음이 되므로 서비스 목록을 보여 주는 진입점이 필요했고, 별도 저장소의 엄빠를 같은 출처·같은 디자인으로 붙이려 함
+  - **포털**(`apps/portal`, 신규): "아이와 오늘 뭐 하지?" + 서비스 카드. 카드는 `apps/portal/services.json`의 항목으로 그려지므로 새 서비스는 코드 수정 없이 추가. 게임 소개 홈과 같은 숲 녹색·살구색 콘셉트이고, 아이용은 진한 카드·보호자용은 크림 카드로 톤을 가름. 장식은 이모지(공룡 5종 일러스트는 이용 허락 확인 전이라 쓰지 않음)
+  - **게임 경로 이동**: 폰 앱 `base`를 `/play/`로, 소개 홈에 "‹ kids 홈" 링크 추가. TV QR 기본 주소는 `…/play/?server=…&room=…`. 예전 링크·QR(`/?room=…&server=…`)은 포털 `index.html`이 `/play/`로 쿼리를 보존해 넘김. `/tv/`, `/manifest.json`, `/artworks/`, `/ws`는 경로 그대로
+  - **엄빠 이관**(`apps/cafe`): 구 `s-kids` 저장소를 `git subtree`로 **이력 보존** 병합 후 앱 루트로 재배치. 컨테이너 `kids-cafe`(:8124, 구 `s-kids` :8123과 공존). API 호출을 문서 위치에서 구한 `BASE`로 바꿔 `/cafe/` 아래에서도 동작(절대경로 `/api/…` 제거)
+  - **엄빠 재단장**: 공용 토큰으로 색 매핑(선택 상태 파란색 → 숲 녹색, 주요 버튼 살구색), 상단 "‹ AirCanvas Kids" 바로 포털 복귀. 서비스 이름 표기를 S-Kids → 엄빠로 정리
+  - **정직성 수정**: 엄빠 UI가 "실시간 일정 조회"라고 표시했지만 예약 현황은 시뮬레이션 수치임 → "일정 비교 서비스"로 바꾸고 데모 안내문(`.demo-notice`)과 포털 카드의 "데모 데이터" 배지를 추가
+  - **공용 디자인 토큰**(`packages/ui/tokens.css`) 신설. 정적 앱(엄빠)용 복사본은 `tools/sync-ui.mjs`로 만들고 `npm run build -w @ht/cafe`가 낡음을 검사
+  - 조립·검증 도구: `tools/build-site.sh`(`make site`: 포털 `/` + 게임 `/play/`), `tools/site-smoke.py`(`make site-smoke`: 포털→게임→포털, 예전 링크, 포털→엄빠→포털). `make ui-smoke`·`web-debug` 기본 주소를 `/play/`로 변경
+  - 문서: `docs/platform-plan.md`(결정·이행·서비스 추가법), `docs/architecture.md` §9(nginx 경로 다이어그램), `agents/rules.md` §1.1·§3·§7(배포 절차에 사이트 루트·엄빠 컨테이너), README
+  - 로컬 스킬 등록: `agents/skills/kids-platform`, `kids-cafe`, `kids-design`
+- 검증: `make check` 통과, 로컬 미리보기(nginx 라우팅 모사)에서 `make site-smoke` 전 항목 통과, `/play/`에서 `make ui-smoke` 통과(도안 5종·월드 7마리 이동·콘솔 오류 없음), TV QR을 해독해 `/play/?server=…&room=…` 확인. 공개 배포 결과는 아래 배포 기록 참고
+- 알려진 한계: `make web-debug`의 터치 구간은 v0.6.0 이전 UI 선택자를 쓰는 낡은 코드라 이번에도 돌리지 않음(연결 게임 경로는 TV QR 해독으로 대체 확인). 엄빠 데이터는 데모(시뮬레이션)이며 실제 예약 수집은 하지 않음
+
 ## v0.7.0 — 2026-10-21
 
 - **테마·작품·월드·행동을 YAML이 원본인 콘텐츠 주도 구조로 전환** — 하늘 같은 새 테마를 앱 코드 수정 없이 추가할 수 있게 함

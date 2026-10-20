@@ -1,31 +1,27 @@
-# S-Kids 데모 배포 (cy-server)
+# 엄빠(서울형 키즈카페) 데모 배포 (cy-server)
 #
-#   docker compose up -d          # 기동
-#   docker compose ps             # 상태 확인
-#   docker compose logs -f s-kids # 로그
-#   docker compose down           # 중단
+#   docker compose -f apps/cafe/docker-compose.yml up -d --build   # 기동
+#   docker compose -f apps/cafe/docker-compose.yml ps               # 상태 확인
+#   docker compose -f apps/cafe/docker-compose.yml logs -f kids-cafe
+#   docker compose -f apps/cafe/docker-compose.yml down             # 중단
 #
-# 컨테이너명: s-kids (네이밍 규약 유지)
-# 포트: 8123 (cy-server 8080-8099 대역 사용 포트 확인 후 8123 배정)
+# 컨테이너명: kids-cafe, 포트: 8124 (이관 전 s-kids 컨테이너는 8123 — 전환 완료 전까지 공존)
+# 공개 경로: https://kids.aircanvas.kr/cafe/  (엣지 nginx가 /cafe/ 접두를 떼고 이 포트로 프록시)
 services:
-  s-kids:
+  kids-cafe:
     build:
-      context: ./demo
+      context: .
       dockerfile: Dockerfile
-    container_name: s-kids
-    image: s-kids:demo
+    container_name: kids-cafe
+    image: kids-cafe:demo
     ports:
-      - "8123:8123"
+      - "8124:8124"
     environment:
-      - PORT=8123
+      - PORT=8124
       - TZ=Asia/Seoul
-    volumes:
-      - ./demo/public:/app/public:ro
-      - ./demo/data:/app/data:ro
-      - ./demo/server.js:/app/server.js:ro
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8123/healthz"]
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8124/healthz"]
       interval: 30s
       timeout: 5s
       retries: 3

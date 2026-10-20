@@ -12,6 +12,9 @@ export function PhoneWelcome({ onStart, onCameraStart, onTouchStart }: Props) {
       <div className="phone-welcome__orb phone-welcome__orb--top" />
       <div className="phone-welcome__orb phone-welcome__orb--bottom" />
       <div className="phone-welcome__dino" aria-hidden="true">🦖</div>
+      <a className="phone-welcome__home" href="/" data-testid="phone-home-link">
+        <span aria-hidden="true">‹</span> kids 홈
+      </a>
 
       <div className="phone-welcome__content">
         <p className="phone-welcome__eyebrow">손끝으로 시작되는 작은 모험</p>

@@ -1,0 +1,6 @@
+.git
+docs
+.edge
+.agents
+*.md
+node_modules

@@ -1,4 +1,4 @@
-# S-Kids 데모 (demo)
+# 엄빠(서울형 키즈카페) 데모
 
 Phase 1 MVP(시설·필터 검색) + Phase 2 구조(5분 캐시 · stale-while-revalidate · 수동 새로고침 cooldown/singleflight)를 **예약 수집 없이** 검증하는 데모 서비스입니다.
 
@@ -12,11 +12,13 @@ Phase 1 MVP(시설·필터 검색) + Phase 2 구조(5분 캐시 · stale-while-r
 ## 구조
 
 ```
-demo/
+apps/cafe/
 ├── server.js              # zero-dependency Node.js HTTP 서버 (API + 정적)
 ├── data/facilities.json   # 데모 시설 Registry
-├── public/index.html      # 모바일 퍼스트 UI
+├── public/index.html      # 모바일 퍼스트 UI (BASE 경로를 문서 위치에서 구함)
+├── public/kids-tokens.css # packages/ui/tokens.css 복사본(생성물, npm run sync-ui)
 ├── Dockerfile             # node:20-alpine
+├── docker-compose.yml     # kids-cafe 컨테이너 :8124
 └── .dockerignore
 ```
 
@@ -35,16 +37,18 @@ demo/
 ## 실행 (cy-server 기준)
 
 ```bash
-cd /srv/products/s-kids
-docker compose config        # 검증
-docker compose up -d --build # 기동 (컨테이너명: s-kids, 포트 8123)
-docker compose ps
-curl -s localhost:8123/healthz
+cd /srv/products/aircanvas-kids
+docker compose -f apps/cafe/docker-compose.yml config        # 검증
+docker compose -f apps/cafe/docker-compose.yml up -d --build # 기동 (컨테이너명: kids-cafe, 포트 8124)
+docker compose -f apps/cafe/docker-compose.yml ps
+curl -s localhost:8124/healthz
 ```
 
-브라우저: `http://192.168.0.10:8123/`
+브라우저: `http://192.168.0.10:8124/` (공개: `https://kids.aircanvas.kr/cafe/`, 엣지가 `/cafe/` 접두를 떼고 전달)
 
-## 엣지 도메인 (sk.moru.my)
+> 이관 전 `s-kids` 컨테이너(:8123, `sk.moru.my`)는 전환이 끝날 때까지 별개로 남아 있다. 이쪽 문서의 `sk.moru.my` 절은 그 구 배포에 대한 기록이다.
+
+## 엣지 도메인 (sk.moru.my, 이관 전 구 배포)
 
 cy-server `edge-nginx`를 통해 `https://sk.moru.my/`로 노출합니다.
 

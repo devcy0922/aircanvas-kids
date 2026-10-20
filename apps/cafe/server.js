@@ -14,7 +14,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const PORT = Number(process.env.PORT || 8123);
+const PORT = Number(process.env.PORT || 8124);
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
 const CACHE_TTL_MS = 5 * 60 * 1000;      // 기본 캐시 TTL 5분
@@ -290,7 +290,7 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && p === '/healthz') {
       return sendJson(res, 200, {
         status: 'ok',
-        service: 's-kids',
+        service: 'kids-cafe',
         mode: 'demo',
         time: nowIso(),
         note: '예약 현황은 데모 시뮬레이션 데이터입니다.',
@@ -395,6 +395,7 @@ const server = http.createServer(async (req, res) => {
           '.html': 'text/html; charset=utf-8',
           '.js': 'text/javascript; charset=utf-8',
           '.css': 'text/css; charset=utf-8',
+          '.svg': 'image/svg+xml',
           '.json': 'application/json; charset=utf-8',
         };
         res.writeHead(200, { 'Content-Type': types[ext] || 'application/octet-stream' });
@@ -410,5 +411,5 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`[s-kids] demo server listening on :${PORT}`);
+  console.log(`[kids-cafe] demo server listening on :${PORT}`);
 });

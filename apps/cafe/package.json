@@ -1,0 +1,11 @@
+{
+  "name": "@ht/cafe",
+  "version": "0.8.0",
+  "private": true,
+  "description": "엄빠 — 서울형 키즈카페 일정 비교(데모). 의존성 없는 Node 서버 + 정적 UI",
+  "scripts": {
+    "start": "node server.js",
+    "sync-ui": "node ../../tools/sync-ui.mjs",
+    "build": "node --check server.js && node ../../tools/sync-ui.mjs --check"
+  }
+}

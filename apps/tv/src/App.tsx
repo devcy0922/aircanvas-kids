@@ -35,8 +35,8 @@ const SERVER_BASE = (() => {
 
 const PHONE_APP_BASE = safeQueryBase(query.get('phoneApp')) ?? (
   location.hostname === 'localhost' || location.hostname === '127.0.0.1'
-    ? `${location.protocol}//${location.hostname}:7101`
-    : location.origin
+    ? `${location.protocol}//${location.hostname}:7101/play`
+    : `${location.origin}/play`
 );
 const PHONE_JOIN_URL = phoneJoinUrl(PHONE_APP_BASE, SERVER_BASE, ROOM_CODE);
 const DEBUG_MODE = query.get('debug') === '1';

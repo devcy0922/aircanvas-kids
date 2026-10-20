@@ -222,10 +222,34 @@ flowchart LR
 MVP(그리기+색칠+월드 투입) 이후 계획은 `docs/roadmap.md` 참조:
 모양 인식, 펜 물체 추적, 다인 동시 입장, 사운드, PWA 오프라인 등.
 
-> **플랫폼 확장(계획, 미구현):** `kids`를 메인 포털 + 게임 + 엄빠(서울형 키즈카페)로 재편하는 모노레포 구조·URL·이행 순서는
-> [`docs/platform-plan.md`](platform-plan.md)에 있다. 이 문서의 §1~§7은 **현재 구현된 게임**을 기준으로 한다.
+> **사이트 구성(v0.8):** 이 문서의 §1~§7은 게임(`/play/`) 기준이다. 포털·엄빠를 포함한 전체 구성은 아래 §9와 [`platform-plan.md`](platform-plan.md).
 
 ---
+
+## 9. 사이트 구성 (v0.8)
+
+`kids.aircanvas.kr` 하나의 출처 아래 경로로 서비스를 나눈다. 엣지 nginx(`edge-nginx`, 저장소 밖)가 경로를 각 산출물·컨테이너로 보낸다.
+
+```mermaid
+flowchart LR
+    B[브라우저] --> E[edge-nginx<br/>kids.aircanvas.kr]
+    E -->|/| P[포털 정적 파일<br/>apps/portal]
+    E -->|/play/| G[게임 폰 앱 정적 파일<br/>apps/phone]
+    E -->|/tv/| T[TV 앱 정적 파일<br/>apps/tv]
+    E -->|/manifest.json /artworks/| C[콘텐츠 서버 정적 파일<br/>content-server]
+    E -->|/ws /announce| R[Rust 릴레이 :8180<br/>server/]
+    E -->|/cafe/ 접두 제거| K[엄빠 Node 컨테이너 :8124<br/>apps/cafe]
+    P -. 카드 링크 .-> G
+    P -. 카드 링크 .-> K
+```
+
+- **정적 사이트 루트**: 포털과 게임은 `tools/build-site.sh`(= `make site`)가 `site/`(포털 `/`, 게임 `/play/`)로 조립하고, 이 `site/`를 nginx가 이미 마운트한
+  디렉터리로 동기화한다(배포: `agents/rules.md` §7-8). TV·콘텐츠 마운트는 그대로다.
+- **게임 호환**: 폰 앱 `base`는 `/play/`다. TV QR은 `…/play/?server=…&room=…`를 담는다. 예전 링크(`/?room=…`)는 포털 `index.html`의 인라인 스크립트가 `/play/`로 쿼리 보존 이동시킨다.
+- **엄빠**: 의존성 없는 Node 서버(+정적 UI)다. nginx가 `/cafe/`를 떼고 전달하므로 서버는 `/api/…`를 그대로 받고, UI는 문서 위치에서 `BASE`(`''` 또는 `/cafe`)를 구해 API를 호출한다.
+  예약 현황은 **시뮬레이션 데이터**이며 UI에 데모 안내를 노출한다.
+- **공용 디자인**: `packages/ui/tokens.css`가 색·글꼴·모서리 토큰의 원본이다. 정적 앱(엄빠)은 `npm run sync-ui -w @ht/cafe`로 복사해 쓰고, 복사본이 낡으면 빌드(`--check`)가 실패한다.
+- **서비스 추가**: `apps/portal/services.json`에 항목을 추가하면 포털 카드가 생긴다(필드는 `platform-plan.md` §8).
 
 ## Mermaid 시스템 다이어그램
 

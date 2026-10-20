@@ -38,3 +38,6 @@ logs/evidence/
 # Python
 __pycache__/
 .venv-art/
+
+# 조립된 공개 사이트 루트(tools/build-site.sh)
+/site/

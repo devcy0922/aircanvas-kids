@@ -22,7 +22,7 @@ from pathlib import Path
 
 from playwright.async_api import Page, async_playwright
 
-PHONE_BASE = os.environ.get("AIRCANVAS_PHONE_URL", "http://127.0.0.1:7101/")
+PHONE_BASE = os.environ.get("AIRCANVAS_PHONE_URL", "http://127.0.0.1:7101/play/")
 EVIDENCE = Path(os.environ.get("AIRCANVAS_EVIDENCE_ROOT", "/workspace/logs/evidence")) / "ui-smoke"
 VIEWPORTS = [(390, 844), (360, 740)]
 MIN_REGIONS = 12

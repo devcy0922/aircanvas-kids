@@ -18,17 +18,19 @@
 - 앱을 열자마자 카메라 권한을 요청하거나 게임을 시작하지 않는다. 소개 홈에서 사용자가
   카메라 로컬, TV 연결, 터치 중 경로를 명시적으로 선택해야 한다.
 
-## 1.1 제품 방향: kids = 여러 콘텐츠의 묶음 (계획, 미구현)
+## 1.1 사이트 구성: kids = 여러 서비스의 묶음 (v0.8.0)
 
-> 사용자 결정(2026-10-21). 상세·이행 순서·미결정은 [`docs/platform-plan.md`](../docs/platform-plan.md).
+> 사용자 결정(2026-10-21). 구조·URL·이행 기록은 [`docs/platform-plan.md`](../docs/platform-plan.md), 다이어그램은 `docs/architecture.md` §9.
 
-- `kids`는 어린이·육아 콘텐츠 모음이고, 이 저장소의 공중 색칠 게임은 그중 **게임** 기능이다. 별도 **메인 페이지(포털)**를 만들고
-  게임과 서울형 키즈카페 "엄빠"(`/srv/products/s-kids`)를 하위 페이지로 둔다. 저장소는 모노레포로 간다.
-- **현재 코드는 아직 이 구조가 아니다.** `docs/platform-plan.md`의 단계가 구현·검증되기 전에는 이 절을 구현 완료로 서술하지 않는다.
-- 단계 진행 중에도 위 §1~§4의 게임 규칙은 그대로 유효하다. 게임 코드(`apps/phone`·`apps/tv`·`packages/protocol`·`server/`)에 포털·엄빠 로직을 넣지 않고,
-  앱 사이 직접 import를 하지 않는다(공유는 `packages/`로).
-- 다음은 **실행 직전에 사용자 확인**을 받는다: 공개 게임 URL(`/`→`/play/`) 이동, 엣지 nginx(저장소 밖 공용 설정) 변경, `sk.moru.my` 전환·리다이렉트,
-  원격 저장소 이름 변경, 구 `s-kids` 저장소 아카이브. 이관 시 `s-kids` 이력은 보존하고 구 저장소·운영 컨테이너를 먼저 지우지 않는다.
+- `kids.aircanvas.kr`은 포털(`/`, `apps/portal`)이고 공중 색칠 게임은 `/play/`(`apps/phone`), TV는 `/tv/`, 서울형 키즈카페 "엄빠"는 `/cafe/`(`apps/cafe`)다.
+  저장소는 모노레포이며 새 서비스는 `apps/<이름>`으로 추가하고 `apps/portal/services.json`에 카드를 올린다.
+- 위 §1~§4의 게임 규칙은 `/play/` 서비스에 그대로 유효하다. 게임 코드(`apps/phone`·`apps/tv`·`packages/protocol`·`server/`)에 포털·엄빠 로직을 넣지 않고,
+  앱 사이 직접 import를 하지 않는다(공유는 `packages/`로. 공용 디자인 토큰은 `packages/ui/tokens.css`).
+- **엄빠의 예약 현황은 시뮬레이션 데이터**다. 실시간·실제 수치처럼 표시하지 않고 데모 안내(`.demo-notice`)와 포털 카드의 "데모 데이터" 표기를 유지한다.
+  실제 수집·재표시는 운영기관 허용을 확인하기 전에는 하지 않는다(`apps/cafe/docs/LEGAL_AND_ROBOTS.md`).
+- 다음은 **실행 직전에 사용자 확인**을 받는다: 엣지 nginx(저장소 밖 공용 설정) 변경, `sk.moru.my` 전환·리다이렉트, 원격 저장소 이름 변경, 구 `s-kids` 저장소 아카이브·삭제.
+  구 `s-kids` 저장소와 운영 컨테이너(`s-kids`, :8123)는 전환이 끝나기 전에 지우지 않는다.
+- 버전·태그는 저장소 전체가 하나의 semver(`vX.Y.Z`)를 쓴다. 앱별 독립 배포가 필요해지면 접두 태그로 전환하는 것을 먼저 사용자와 정한다.
 
 ## 2. 아키텍처 표준: Phone=Brain / TV=Thin Display
 
@@ -47,9 +49,9 @@
 
 ## 3. 환경과 URL 규칙
 
-- 로컬 개발 포트: TV `:7100`, Phone `:7101`, Content `:8081`, Relay `:8180`.
-- 공개 웹 기본 주소: `https://kids.aircanvas.kr/` (폰 소개/카메라 로컬/터치 모드),
-  `https://kids.aircanvas.kr/tv/?room=WEB001` (TV 대기 화면).
+- 로컬 개발 포트: TV `:7100`, Phone `:7101`(주소는 `/play/`), Portal `:7102`, Content `:8081`, Relay `:8180`, 엄빠 `:8124`.
+- 공개 웹 주소: `https://kids.aircanvas.kr/` (포털), `https://kids.aircanvas.kr/play/` (게임: 폰 소개/카메라 로컬/터치 모드),
+  `https://kids.aircanvas.kr/tv/?room=WEB001` (TV 대기 화면), `https://kids.aircanvas.kr/cafe/` (엄빠).
 - HTTPS 페이지에서 `server=http://192.168.x.x:8180` 같은 오래된 LAN QR 파라미터를
   사용하면 브라우저가 `ws://`를 Mixed Content로 차단할 수 있다. 운영 페이지는 같은 출처의
   `https://kids.aircanvas.kr/ws` → `wss://kids.aircanvas.kr/ws`를 사용한다.
@@ -119,7 +121,7 @@
 1. [ ] **설계/문서 선반영**: 구조·흐름·URL·프로토콜·콘텐츠 규격이 바뀌었으면 `docs/`와 `README.md`를 갱신했다.
 2. [ ] **검증 게이트**: `make check`(TypeScript 빌드 + cargo check)가 통과했다. 실패 출력은 숨기지 않는다.
 3. [ ] **버전 bump**: semver를 올렸다. 아래 위치가 모두 같은 값이다.
-   `package.json`, `package-lock.json`, `apps/*/package.json`, `packages/*/package.json`
+   `package.json`, `package-lock.json`, `apps/*/package.json`(portal·cafe 포함), `packages/*/package.json`(ui 포함)
    (`npm version X.Y.Z --no-git-tag-version --workspaces --include-workspace-root`),
    `packages/protocol/src/index.ts`의 `APP_VERSION`, `content-server/manifest.json`의 `version`, `README.md` 제목.
 4. [ ] **CHANGELOG**: `CHANGELOG.md`에 `## vX.Y.Z — YYYY-MM-DD` 항목을 추가했다(원인·변경·검증).
@@ -131,12 +133,15 @@
 8. [ ] **배포**: 빌드 산출물을 nginx가 읽는 경로로 동기화했다.
    - nginx(`edge-nginx`)는 `/srv/airCanvas/aircanvas-kids/{apps/phone/dist, apps/tv/dist, content-server}`를 마운트한다.
      이 경로는 `/srv/products/aircanvas-kids`와 **별개의 디렉터리**이므로 빌드만으로는 공개에 반영되지 않는다.
-   - `for p in apps/phone/dist apps/tv/dist content-server; do rsync -a --delete $p/ /srv/airCanvas/aircanvas-kids/$p/; done`
-     후 `diff -rq`로 빌드본과 배포본이 같은지 확인한다. 그 경로의 git 상태는 건드리지 않는다.
+   - **사이트 루트(포털 `/` + 게임 `/play/`)**: `npm run build && make site`로 `site/`를 조립해 `rsync -a --delete site/ /srv/airCanvas/aircanvas-kids/apps/phone/dist/`
+     (마운트 이름은 옛 `phone/dist`지만 지금은 **사이트 루트**다. 그곳에 게임만 직접 넣지 않는다). 그 외:
+     `for p in apps/tv/dist content-server; do rsync -a --delete $p/ /srv/airCanvas/aircanvas-kids/$p/; done`
+     후 `diff -rq`로 `site/`·`apps/tv/dist`·`content-server`가 배포본과 같은지 확인한다. 그 경로의 git 상태는 건드리지 않는다.
+   - **엄빠**(`apps/cafe`)를 바꿨으면 `docker compose -f apps/cafe/docker-compose.yml up -d --build`로 `kids-cafe`(:8124)를 다시 만들고 `/healthz`를 확인한다.
    - 릴레이(Rust) 코드를 바꿨을 때만 서버를 재빌드·재기동한다.
 9. [ ] **공개 URL readback**: `https://kids.aircanvas.kr/manifest.json`의 `version`이 방금 올린 버전이고,
    `index.html`이 가리키는 JS 번들이 새 빌드의 것임을 확인했다.
-10. [ ] **실제 브라우저 확인**: 화면이 바뀐 작업은 `make ui-smoke`(공개 URL)를 통과시키고 스크린샷을 직접 확인했다.
+10. [ ] **실제 브라우저 확인**: 화면이 바뀐 작업은 `make ui-smoke`(게임, 공개 URL `/play/`)를 통과시키고 스크린샷을 직접 확인했다. 포털·`/play/`·`/cafe/` 연결이나 URL이 바뀐 작업은 `make site-smoke`도 통과시킨다.
     연결 게임 경로를 건드렸다면 `make web-debug`도 통과시켰다.
 11. [ ] **보고**: 무엇을 했고 무엇을 검증했는지, 하지 못한 것(실기기 카메라/TV 등)을 구분해서 보고했다.
 

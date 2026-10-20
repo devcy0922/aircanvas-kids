@@ -282,10 +282,10 @@
     },
     {
       "id": "TASK-026",
-      "name": "kids 플랫폼화 계획: 메인 포털 + 게임(/play) + 엄빠(/cafe) 모노레포 재편 (단계 0: 계획 기록, 이후 단계는 미착수)",
-      "status": "planned",
-      "outputs": ["docs/platform-plan.md", "agents/rules.md", "docs/architecture.md", "docs/roadmap.md", "README.md"],
-      "verification": "문서만 변경(코드·배포 변화 없음). 단계 1~5는 미구현이며 구현 시 단계별로 검증을 기록한다."
+      "name": "kids 플랫폼화: 포털(/) + 게임(/play/) + 엄빠(/cafe/) 모노레포, 공용 디자인 토큰, 로컬 스킬 3종 (v0.8.0)",
+      "status": "done",
+      "outputs": ["apps/portal/", "apps/cafe/", "packages/ui/", "apps/phone/vite.config.ts", "apps/phone/src/components/PhoneWelcome.tsx", "apps/tv/src/App.tsx", "tools/build-site.sh", "tools/site-smoke.py", "tools/sync-ui.mjs", "tools/ui-smoke.py", "tools/web-debug.py", "Makefile", "docs/platform-plan.md", "docs/architecture.md", "agents/rules.md", "agents/skills/kids-platform/SKILL.md", "agents/skills/kids-cafe/SKILL.md", "agents/skills/kids-design/SKILL.md", "README.md", "CHANGELOG.md"],
+      "verification": "make check 통과, 로컬 nginx 모사 미리보기에서 make site-smoke 전 항목 통과, /play/ 에서 make ui-smoke 통과, TV QR 해독으로 /play/ 주소 확인. 공개 배포·readback 결과는 CHANGELOG v0.8.0 배포 기록 참고"
     }
   ]
 }

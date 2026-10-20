@@ -22,7 +22,7 @@ from web_bot.core.evidence import EvidenceRecorder, safe_url
 
 ROOM = os.environ.get("AIRCANVAS_DEBUG_ROOM", "WEBDBG")
 TV_BASE = os.environ.get("AIRCANVAS_TV_URL", "http://127.0.0.1:7100/")
-PHONE_BASE = os.environ.get("AIRCANVAS_PHONE_URL", "http://127.0.0.1:7101/")
+PHONE_BASE = os.environ.get("AIRCANVAS_PHONE_URL", "http://127.0.0.1:7101/play/")
 SERVER = os.environ.get("AIRCANVAS_SERVER", "http://127.0.0.1:8180")
 CONTENT = os.environ.get("AIRCANVAS_CONTENT", "http://127.0.0.1:8081")
 EVIDENCE_ROOT = Path(os.environ.get("AIRCANVAS_EVIDENCE_ROOT", "/workspace/logs/evidence"))
