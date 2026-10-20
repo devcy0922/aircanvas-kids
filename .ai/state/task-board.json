@@ -272,6 +272,13 @@
         "CHANGELOG.md"
       ],
       "verification": "make check 통과, make ui-smoke(월드: 부화·NPC 7마리·5종·색 3가지 보존·6마리 이동·터치 반응·가로 넘침 없음)와 3개 월드 연속 프레임 육안 확인"
+    },
+    {
+      "id": "TASK-025",
+      "name": "콘텐츠 주도 구조: content-src YAML 원본·build_content·ingest·generic 월드 장면·행동 프리셋, 클라우드 LLM 없이 새 테마·작품 추가 런북 (v0.7.0)",
+      "status": "done",
+      "outputs": ["content-src/", "tools/art/build_content.py", "tools/art/ingest.py", "apps/phone/src/lib/worldEngine.ts", "apps/phone/src/components/WorldScenes.tsx", "apps/phone/src/components/TouchJungleWorld.tsx", "apps/phone/src/components/PhoneControls.tsx", "apps/phone/src/components/CameraColoringGame.tsx", "apps/phone/src/styles.css", "apps/tv/src/engine/GameEngine.ts", "packages/protocol/src/index.ts", "packages/tv-art/src/", "content-server/manifest.json", "docs/architecture.md", "docs/content-pipeline.md", "agents/rules.md", "agents/skills/aircanvas-content/SKILL.md", "Makefile", "CHANGELOG.md"],
+      "verification": "build_content.py 재생성 결과가 이전 매니페스트와 영역·URL 동일(behavior만 추가), make check 통과, make ui-smoke 통과, 임시 skytest 테마를 YAML만으로 추가해 폰 크기 스크린샷 확인 후 제거, ingest.py를 배경 합성 JPEG로 시험(24부위 제안·빌드 성공)"
     }
   ]
 }

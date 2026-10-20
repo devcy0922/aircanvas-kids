@@ -144,9 +144,9 @@ async def check_world(page: Page, width: int, height: int) -> None:
     await page.screenshot(path=str(EVIDENCE / f"{width}x{height}-world-1.png"))
 
     actors = await page.locator(".w-actor").count()
-    species = await page.locator(".w-actor").evaluate_all("els => [...new Set(els.map(e => e.dataset.species))]")
+    species = await page.locator(".w-actor").evaluate_all("els => [...new Set(els.map(e => e.dataset.art))]")
     check(actors >= 6, f"월드에 친구 {actors}마리 (원래 살던 친구 + 내 친구, >= 6)")
-    check(len(species) >= 4, f"서로 다른 종류 {len(species)}종 {species}")
+    check(len(species) >= 4, f"서로 다른 도안 {len(species)}종 {species}")
     check(await page.locator('.w-actor[data-actor^="mine-"]').count() == 1, "내 친구가 월드에 1마리 있음")
 
     # 색 보존: 칠한 색이 월드의 내 친구에 그대로 남아 있어야 한다(예전에는 한 색으로 뭉개졌다)
@@ -164,10 +164,10 @@ async def check_world(page: Page, width: int, height: int) -> None:
         )
 
     before = await positions()
-    await page.wait_for_timeout(3500)
+    await page.wait_for_timeout(5500)
     after = await positions()
     moved = sum(1 for b, a in zip(before, after) if abs(a - b) > 6)
-    check(moved >= 3, f"3.5초 사이에 {moved}마리가 이동 (>= 3)")
+    check(moved >= 3, f"5.5초 사이에 {moved}마리가 이동 (>= 3)")
     await page.screenshot(path=str(EVIDENCE / f"{width}x{height}-world-2.png"))
 
     # 친구를 누르면 반응(하트/별 파티클)

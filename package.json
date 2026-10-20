@@ -1,7 +1,7 @@
 {
   "name": "aircanvas-kids",
   "private": true,
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "AirCanvas Kids - 스마트폰 카메라 손 추적 공중 그림/색칠 게임 (TV 렌더링)",
   "workspaces": [
     "apps/*",

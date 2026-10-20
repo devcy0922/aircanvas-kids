@@ -1,3 +1,4 @@
+import type { BehaviorPack, WorldPack } from '@ht/protocol';
 import { PART_ORDER } from './creatureSprite';
 import type { BakedCreature, PartName } from './creatureSprite';
 import { sound } from './sound';
@@ -11,44 +12,41 @@ import { sound } from './sound';
 export const SCENE_W = 160;
 export const SCENE_H = 128;
 
-export type WorldKind = 'dino' | 'jungle' | 'ocean';
-export type Species = 'trex' | 'brachio' | 'stego' | 'trike' | 'ptera' | 'lion' | 'elephant' | 'fish' | 'whale' | 'generic';
-type Habitat = 'ground' | 'sky' | 'water';
 type Mode = 'spawn' | 'cheer' | 'walk' | 'idle' | 'roar' | 'graze' | 'look' | 'wag' | 'charge' | 'pounce' | 'trumpet' | 'fly' | 'glide' | 'swoop' | 'swim' | 'breach';
 
-export function speciesOf(artworkId: string): Species {
-  const table: Species[] = ['trex', 'brachio', 'stego', 'trike', 'ptera', 'lion', 'elephant', 'fish', 'whale'];
-  return table.find((name) => artworkId.includes(name)) ?? 'generic';
-}
+/** 작품의 행동 값(매니페스트 artwork.behavior)이 없을 때의 기본 걷기 */
+const DEFAULT_CFG: BehaviorPack = {
+  habitat: 'ground', size: 1, speed: [7, 10], stepHz: 1.6, bob: 1.6, lean: 1.5, roll: 2, leg: 8, tail: 6, tailHz: 1, head: 2, wing: 0,
+  moves: [['walk', 0.7], ['look', 0.3]],
+};
 
-interface Cfg {
-  habitat: Habitat;
-  size: number;
-  speed: [number, number];
-  stepHz: number;
-  bob: number;
-  lean: number;
-  roll: number;
-  leg: number;
-  tail: number;
-  tailHz: number;
-  head: number;
-  wing: number;
+const KNOWN_MODES: ReadonlySet<string> = new Set(['walk', 'idle', 'roar', 'graze', 'look', 'wag', 'charge', 'pounce', 'trumpet', 'fly', 'glide', 'swoop', 'swim', 'breach']);
+
+interface Cfg extends Omit<BehaviorPack, 'moves'> {
   moves: Array<[Mode, number]>;
 }
 
-const CFG: Record<Species, Cfg> = {
-  trex: { habitat: 'ground', size: 1, speed: [9, 12], stepHz: 1.7, bob: 2.4, lean: 2, roll: 2.4, leg: 9, tail: 6, tailHz: 0.8, head: 2.5, wing: 0, moves: [['walk', 0.45], ['roar', 0.3], ['look', 0.25]] },
-  brachio: { habitat: 'ground', size: 1.05, speed: [4, 6], stepHz: 0.9, bob: 1.2, lean: 0.5, roll: 1.2, leg: 5, tail: 5, tailHz: 0.5, head: 4, wing: 0, moves: [['walk', 0.45], ['graze', 0.35], ['look', 0.2]] },
-  stego: { habitat: 'ground', size: 0.95, speed: [5, 7], stepHz: 1.3, bob: 1.4, lean: 0.8, roll: 4, leg: 7, tail: 12, tailHz: 1.6, head: 3, wing: 0, moves: [['walk', 0.5], ['wag', 0.3], ['graze', 0.2]] },
-  trike: { habitat: 'ground', size: 1, speed: [7, 9], stepHz: 1.7, bob: 1.8, lean: 1.5, roll: 2, leg: 8, tail: 5, tailHz: 1, head: 3, wing: 0, moves: [['walk', 0.35], ['charge', 0.35], ['graze', 0.3]] },
-  ptera: { habitat: 'sky', size: 0.9, speed: [16, 22], stepHz: 3.2, bob: 2.5, lean: 6, roll: 3, leg: 4, tail: 0, tailHz: 1, head: 3, wing: 26, moves: [['fly', 0.45], ['glide', 0.3], ['swoop', 0.25]] },
-  lion: { habitat: 'ground', size: 0.95, speed: [10, 14], stepHz: 2, bob: 1.4, lean: 2, roll: 1.8, leg: 12, tail: 12, tailHz: 1.2, head: 2, wing: 0, moves: [['walk', 0.45], ['pounce', 0.25], ['idle', 0.3]] },
-  elephant: { habitat: 'ground', size: 1.15, speed: [5, 7], stepHz: 1, bob: 1.4, lean: 0.8, roll: 1.5, leg: 6, tail: 6, tailHz: 0.7, head: 5, wing: 0, moves: [['walk', 0.5], ['trumpet', 0.25], ['idle', 0.25]] },
-  fish: { habitat: 'water', size: 0.8, speed: [12, 18], stepHz: 3, bob: 0, lean: 0, roll: 4, leg: 0, tail: 18, tailHz: 3, head: 0, wing: 0, moves: [['swim', 1]] },
-  whale: { habitat: 'water', size: 1.2, speed: [6, 9], stepHz: 1, bob: 0, lean: 0, roll: 2, leg: 0, tail: 10, tailHz: 1, head: 0, wing: 0, moves: [['swim', 0.6], ['breach', 0.25], ['idle', 0.15]] },
-  generic: { habitat: 'ground', size: 1, speed: [7, 10], stepHz: 1.6, bob: 1.6, lean: 1.5, roll: 2, leg: 8, tail: 6, tailHz: 1, head: 2, wing: 0, moves: [['walk', 0.7], ['look', 0.3]] },
-};
+/** 매니페스트 행동 값 → 엔진 설정. 모르는 행동 이름은 건너뛰고, 하나도 없으면 기본 걷기를 쓴다. */
+export function cfgOf(behavior?: BehaviorPack): Cfg {
+  const b = behavior ?? DEFAULT_CFG;
+  const moves = b.moves.filter(([m]) => KNOWN_MODES.has(m)) as Array<[Mode, number]>;
+  return { ...DEFAULT_CFG, ...b, moves: moves.length ? moves : (DEFAULT_CFG.moves as Array<[Mode, number]>) };
+}
+
+/** 나는 높이 범위(장면 y). 지정하지 않으면 위쪽 하늘(공룡 월드의 프테라처럼) */
+function altitudeOf(cfg: Cfg): [number, number] {
+  return cfg.altitude ?? [12, 38];
+}
+
+function skyLanes(cfg: Cfg): number[] {
+  const [lo, hi] = altitudeOf(cfg);
+  return Array.from({ length: 5 }, (_, i) => lo + ((hi - lo) * i) / 4);
+}
+
+/** 하늘을 나는 작품인가(월드에서 하늘 레이어에 놓는다) */
+export function isFlyer(behavior?: BehaviorPack) {
+  return (behavior?.habitat ?? 'ground') === 'sky';
+}
 
 const GROUND_FAR = 90;
 const GROUND_NEAR = 121;
@@ -69,7 +67,8 @@ function svgEl<K extends keyof SVGElementTagNameMap>(tag: K, attrs: Record<strin
 export interface ActorSpec {
   id: string;
   name: string;
-  species: Species;
+  /** 행동 값(없으면 기본 걷기) */
+  behavior?: BehaviorPack;
   baked: BakedCreature;
   /** 내가 칠한 친구(크게, 알에서 부화) */
   hero?: boolean;
@@ -104,7 +103,7 @@ interface Actor {
   phase: number;
   seed: number;
   react: number;
-  spawn?: { t: number; prop: SVGGElement; kind: WorldKind; burst: boolean };
+  spawn?: { t: number; prop: SVGGElement; burst: boolean };
   fxClock: number;
   /** 부화 직후 0→1로 커지는 팝 배율 */
   pop?: number;
@@ -132,7 +131,8 @@ export interface EngineOptions {
   sky: SVGGElement;
   fx: SVGGElement;
   svg: SVGSVGElement;
-  kind: WorldKind;
+  /** 테마의 월드 설정 (등장 연출·색) */
+  world: WorldPack;
   reducedMotion: boolean;
   onToast: (text: string) => void;
 }
@@ -169,13 +169,13 @@ export class WorldEngine {
   }
 
   addActor(spec: ActorSpec) {
-    const cfg = CFG[spec.species];
+    const cfg = cfgOf(spec.behavior);
     const { baked } = spec;
     const isGround = cfg.habitat === 'ground';
     const ax = (baked.bounds.x0 + baked.bounds.x1) / 2;
     const ay = isGround ? baked.bounds.y1 : (baked.bounds.y0 + baked.bounds.y1) / 2;
 
-    const root = svgEl('g', { class: 'w-actor', 'data-actor': spec.id, 'data-species': spec.species });
+    const root = svgEl('g', { class: 'w-actor', 'data-actor': spec.id, 'data-art': baked.artworkId });
     const shadow = svgEl('ellipse', { class: 'w-actor__shadow', fill: '#0b2a1a', opacity: isGround ? 0.22 : 0 });
     const bodyG = svgEl('g', { class: 'w-actor__body' });
     const parts: Actor['parts'] = {};
@@ -234,7 +234,7 @@ export class WorldEngine {
       actor.y = spec.at?.y ?? LANES[(slot * 2 + 1) % LANES.length];
     } else if (cfg.habitat === 'sky') {
       actor.x = spec.at?.x ?? spread(12, 148);
-      actor.y = spec.at?.y ?? rand(14, 36);
+      actor.y = spec.at?.y ?? rand(...altitudeOf(cfg));
     } else {
       actor.x = spec.at?.x ?? spread(20, 140);
       actor.y = spec.at?.y ?? rand(34, 92);
@@ -333,7 +333,7 @@ export class WorldEngine {
       }
       case 'fly':
       case 'glide': {
-        const spot = this.pickSpot(a, -10, 170, [12, 18, 24, 30, 38], 20);
+        const spot = this.pickSpot(a, -10, 170, skyLanes(cfg), 20);
         a.tx = spot.x;
         a.ty = spot.y;
         a.speed = rand(lo, hi) * (mode === 'glide' ? 0.75 : 1);
@@ -382,10 +382,10 @@ export class WorldEngine {
     }
     if (mode === 'roar') {
       sound.playPop(160);
-      this.emit('text', a.x, a.y - this.heightOf(a) - 4, { text: '크아앙!', vy: -8, life: 1.6, size: 7, bold: true });
+      this.emit('text', a.x, a.y - this.heightOf(a) - 4, { text: a.cfg.shout ?? '크아앙!', vy: -8, life: 1.6, size: 7, bold: true });
       this.shake = 0.45;
     }
-    if (mode === 'trumpet') this.emit('text', a.x, a.y - this.heightOf(a) - 2, { text: '뿌우~', vy: -8, life: 1.6, size: 6.5, bold: true });
+    if (mode === 'trumpet') this.emit('text', a.x, a.y - this.heightOf(a) - 2, { text: a.cfg.shout ?? '뿌우~', vy: -8, life: 1.6, size: 6.5, bold: true });
     if (mode === 'breach') {
       this.splash(a.x, a.y);
       sound.playPop(300);
@@ -424,38 +424,48 @@ export class WorldEngine {
   /* ───── 연출: 부화 ───── */
 
   private beginSpawn(a: Actor) {
-    const kind = this.opts.kind;
     const prop = svgEl('g', { class: 'w-spawn-prop' });
     const hero = a.cfg.habitat;
     if (hero === 'ground') {
       a.x = rand(50, 110);
       a.y = rand(104, 118);
     } else if (hero === 'sky') {
+      // 구름·별은 하늘에서 나타나고, 그 밖의 소품(알·덤불)은 땅에서 나타난다
+      const inSky = this.opts.world.spawn.prop === 'cloud' || this.opts.world.spawn.prop === 'star';
       a.x = rand(50, 110);
-      a.y = 100;
+      a.y = inSky ? rand(32, 50) : 100;
     } else {
       a.x = rand(50, 110);
       a.y = rand(60, 84);
     }
-    prop.innerHTML = this.propMarkup(kind);
+    prop.innerHTML = this.propMarkup(this.opts.world.spawn.prop);
     this.opts.fx.appendChild(prop);
     a.baseY = a.y;
-    a.spawn = { t: 0, prop, kind, burst: false };
+    a.spawn = { t: 0, prop, burst: false };
     a.mode = 'spawn';
     a.bodyG.style.opacity = '0';
     a.shadow.setAttribute('opacity', '0');
   }
 
-  private propMarkup(kind: WorldKind) {
-    if (kind === 'jungle') {
+  /** 내 친구가 나타나기 전 등장 소품. 새 소품은 여기에 SVG 한 덩어리(.w-prop-body 안)를 추가한다 */
+  private propMarkup(prop: WorldPack['spawn']['prop']) {
+    if (prop === 'bush') {
       return `<g class="w-prop-in"><ellipse cx="0" cy="0" rx="9" ry="3" fill="#18381f" opacity=".35"/>
         <g class="w-prop-body"><circle cx="-5" cy="-6" r="6" fill="#2f7a3f"/><circle cx="5" cy="-7" r="7" fill="#3a8c49"/><circle cx="0" cy="-12" r="6.5" fill="#46a056"/>
         <path d="M-6 -4 q2 -6 4 0 M3 -9 q3 -6 5 0" stroke="#256033" stroke-width="1" fill="none"/></g></g>`;
     }
-    if (kind === 'ocean') {
+    if (prop === 'bubble') {
       return `<g class="w-prop-in"><ellipse cx="0" cy="0" rx="3" ry="1" fill="#fff" opacity=".0"/>
         <g class="w-prop-body"><circle cx="0" cy="-9" r="9.5" fill="#e8fbff" fill-opacity=".35" stroke="#fff" stroke-width="1.1"/>
         <ellipse cx="-3.2" cy="-12.5" rx="2.6" ry="1.6" fill="#fff" opacity=".85" transform="rotate(-30 -3.2 -12.5)"/></g></g>`;
+    }
+    if (prop === 'cloud') {
+      return `<g class="w-prop-in"><g class="w-prop-body"><ellipse cx="0" cy="-9" rx="11" ry="5" fill="#fff"/><circle cx="-5" cy="-12" r="5" fill="#fff"/>
+        <circle cx="3" cy="-14" r="6" fill="#fff"/><circle cx="7" cy="-10" r="4" fill="#f3f9ff"/><ellipse cx="0" cy="-6" rx="10" ry="2.6" fill="#dcebf7" opacity=".8"/></g></g>`;
+    }
+    if (prop === 'star') {
+      return `<g class="w-prop-in"><g class="w-prop-body"><path d="M0 -19 L2.8 -12.3 L10 -11.7 L4.6 -7 L6.2 0 L0 -3.8 L-6.2 0 L-4.6 -7 L-10 -11.7 L-2.8 -12.3Z" fill="#ffe27a" stroke="#f3b83c" stroke-width=".8" stroke-linejoin="round"/>
+        <circle cx="-2" cy="-10" r="1.1" fill="#fff" opacity=".9"/></g></g>`;
     }
     return `<g class="w-prop-in"><ellipse cx="0" cy="0" rx="11" ry="3.2" fill="#6b4423"/>
       <path d="M-11 0 q3 -4 6 -1 M5 -1 q3 -3 6 1 M-4 1 q4 -3 8 0" stroke="#a87b3c" stroke-width="1" fill="none"/>
@@ -487,7 +497,7 @@ export class WorldEngine {
       s.burst = true;
       sound.playMagicSpawn();
       prop.remove();
-      this.burst(a.x, a.y - 8, s.kind);
+      this.burst(a.x, a.y - 8);
       a.bodyG.style.opacity = '1';
       a.shadow.setAttribute('opacity', a.cfg.habitat === 'ground' ? '0.22' : '0');
       this.opts.onToast(`짠! ${a.spec.name} 친구가 나타났어요!`);
@@ -503,7 +513,7 @@ export class WorldEngine {
         a.pop = undefined;
         this.enter(a, a.cfg.habitat === 'ground' ? 'cheer' : a.cfg.habitat === 'sky' ? 'fly' : 'swim');
         if (a.cfg.habitat === 'sky') {
-          a.ty = rand(14, 30);
+          a.ty = rand(...altitudeOf(a.cfg));
           a.tx = rand(10, 150);
           a.dir = a.tx >= a.x ? 1 : -1;
         }
@@ -511,12 +521,12 @@ export class WorldEngine {
     }
   }
 
-  private burst(x: number, y: number, kind: WorldKind) {
-    const colors = kind === 'ocean' ? ['#dffcfb', '#ffffff', '#9be7ff'] : kind === 'jungle' ? ['#6fcf6f', '#b9f08a', '#ffe27a'] : ['#fff4d6', '#ffe27a', '#ffffff'];
+  private burst(x: number, y: number) {
+    const { colors, shell } = this.opts.world.spawn;
     for (let i = 0; i < 18; i++) {
       const ang = rand(0, Math.PI * 2);
       const sp = rand(14, 34);
-      this.emit(i < 6 && kind === 'dino' ? 'shell' : 'spark', x, y, {
+      this.emit(i < 6 && shell ? 'shell' : 'spark', x, y, {
         vx: Math.cos(ang) * sp,
         vy: Math.sin(ang) * sp - 14,
         life: rand(0.7, 1.2),
@@ -659,7 +669,7 @@ export class WorldEngine {
         const k = Math.floor(a.phase / Math.PI);
         if (k !== a.fxClock) {
           a.fxClock = k;
-          if (a.mode === 'charge' || (a.spec.species === 'trex' && k % 2 === 0) || (a.spec.hero && k % 3 === 0)) {
+          if (a.mode === 'charge' || (a.cfg.dust && k % 2 === 0) || (a.spec.hero && k % 3 === 0)) {
             this.emit('dust', a.x - a.dir * 4, a.y - 1, { vx: -a.dir * rand(2, 6), vy: -rand(2, 6), life: 0.5, size: 0.9, color: '#d9c7a0' });
           }
         }
@@ -735,7 +745,7 @@ export class WorldEngine {
       }
       case 'graze': {
         const k = Math.sin(Math.PI * u) ** 0.6;
-        head = fw * (a.spec.species === 'brachio' ? 16 : 11) * k + Math.sin(t * 11) * 1.5 * k;
+        head = fw * (a.cfg.neck ?? 11) * k + Math.sin(t * 11) * 1.5 * k;
         break;
       }
       case 'look': {

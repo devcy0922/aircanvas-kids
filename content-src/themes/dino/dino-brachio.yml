@@ -1,0 +1,65 @@
+name: 브라키오사우루스
+order: 2
+status: ready
+behavior: brachio
+source: dino-brachio.png
+provenance: {origin: 기존 번들 일러스트(v0.5.0 이전부터 저장소에 포함), license: 미상 - 확인 필요}
+parts:
+- id: crest
+  label: 머리 볏
+  seeds: [[105, 25]]
+  radius: 16
+- id: head
+  label: 머리
+  seeds: [[100, 100], [140, 60], [110, 75], [155, 45], [160, 80]]
+- id: eye
+  label: 눈
+  seeds: [[127, 61], [121, 52], [132, 70]]
+  radius: 24
+- id: eye-far
+  label: 먼 쪽 눈
+  seeds: [[75, 57]]
+  radius: 14
+- id: chin
+  label: 턱
+  seeds: [[100, 120], [125, 120]]
+- id: neck
+  label: 목
+  seeds: [[165, 150], [165, 200]]
+- id: neck-front
+  label: 목 앞쪽
+  seeds: [[115, 165], [105, 225], [110, 280], [120, 340], [140, 395]]
+- id: body
+  label: 몸통
+  seeds: [[250, 330], [200, 300], [300, 330], [350, 340]]
+- id: spots
+  label: 점무늬
+  seeds: [[172, 67], [173, 90], [180, 112], [172, 147], [164, 182], [156, 240], [153, 261], [206, 272],
+    [235, 265], [267, 275], [227, 286], [202, 291], [280, 298], [255, 294], [312, 305], [245, 281], [
+      297, 303], [357, 350], [370, 361]]
+  radius: 11
+- id: belly
+  label: 배
+  seeds: [[265, 390], [285, 400]]
+- id: leg-rear-left
+  label: 뒷다리 왼쪽
+  seeds: [[110, 420], [110, 460]]
+- id: leg-front-near
+  label: 앞다리
+  seeds: [[195, 440], [200, 480]]
+- id: leg-mid-far
+  label: 먼 쪽 다리
+  seeds: [[252, 450]]
+- id: leg-rear-right
+  label: 뒷다리 오른쪽
+  seeds: [[325, 450], [330, 470]]
+- id: nails
+  label: 발톱
+  seeds: [[97, 481], [115, 484], [170, 492], [184, 494], [201, 497], [286, 484], [300, 486], [317, 487]]
+  radius: 11
+- id: tail
+  label: 꼬리
+  seeds: [[380, 368], [430, 345], [455, 320]]
+- id: tail-belly
+  label: 꼬리 아랫면
+  seeds: [[350, 395], [400, 405], [440, 385]]

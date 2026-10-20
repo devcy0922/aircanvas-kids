@@ -1,0 +1,14 @@
+label: 정글
+order: 2
+bgColor: '#f3f8ee'
+accentColor: '#2d6a4f'
+emoji: 🐒
+tagline: 초록 숲 모험
+world:
+  title: 신비한 정글
+  scene: jungle
+  lead: 덤불이 바스락거리더니 내 친구가 튀어나왔어요. 화면이나 친구를 눌러 보세요!
+  spawn:
+    prop: bush
+    colors: ['#6fcf6f', '#b9f08a', '#ffe27a']
+  tapEmojis: [🍌, 🍎, 🌿, 💖]

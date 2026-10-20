@@ -766,6 +766,28 @@ h1 {
   background: linear-gradient(165deg, #e2f5f5, #c5e6ec 55%, #9fc9db);
 }
 
+.touch-world--generic {
+  background: linear-gradient(165deg, color-mix(in srgb, var(--w-from, #bde3f7) 22%, #fff), color-mix(in srgb, var(--w-from, #bde3f7) 45%, #fff) 55%, color-mix(in srgb, var(--w-to, #dff0fa) 70%, #fff));
+}
+
+.touch-world--generic .touch-game__eyebrow,
+.touch-world--generic .world-head h1,
+.touch-world--generic .touch-world__room {
+  color: color-mix(in srgb, var(--w-ink, #3b5b7a) 80%, #000);
+}
+
+.touch-world--generic .world-lead {
+  color: color-mix(in srgb, var(--w-ink, #3b5b7a) 90%, #000);
+}
+
+.touch-world--generic .touch-world__scene {
+  box-shadow: 0 18px 38px color-mix(in srgb, var(--w-ink, #3b5b7a) 35%, transparent);
+}
+
+.touch-world--generic .touch-world__room strong {
+  background: var(--w-ink, #3b5b7a);
+}
+
 .world-head,
 .world-frame,
 .world-lead,
@@ -987,6 +1009,18 @@ h1 {
   animation-delay: var(--delay, 0s);
 }
 
+.w-twinkle {
+  animation: w-twinkle 2.6s ease-in-out infinite alternate;
+  animation-delay: var(--delay, 0s);
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+}
+
+.w-fall {
+  animation: w-fall 9s linear infinite;
+  animation-delay: var(--delay, 0s);
+}
+
 .w-rays {
   animation: w-sway 7s ease-in-out infinite alternate;
   transform-box: fill-box;
@@ -996,6 +1030,16 @@ h1 {
 @keyframes w-drift {
   from { transform: translateX(-70px); }
   to { transform: translateX(230px); }
+}
+
+@keyframes w-twinkle {
+  from { transform: scale(0.55); }
+  to { transform: scale(1.25); }
+}
+
+@keyframes w-fall {
+  from { transform: translate(0, 0) rotate(0deg); }
+  to { transform: translate(14px, 132px) rotate(200deg); }
 }
 
 @keyframes w-flap {
@@ -1056,6 +1100,8 @@ h1 {
   .w-shimmer,
   .w-mote,
   .w-bubble,
+  .w-twinkle,
+  .w-fall,
   .w-rays,
   .world-toast {
     animation: none;

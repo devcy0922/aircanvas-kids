@@ -1,5 +1,5 @@
 /** 제품 릴리스 버전 — Phone/TV UI와 워크스페이스 버전을 함께 관리한다. */
-export const APP_VERSION = '0.6.0';
+export const APP_VERSION = '0.7.0';
 export const APP_VERSION_LABEL = `v${APP_VERSION}`;
 
 /**
@@ -67,7 +67,8 @@ export interface ErrorMessage {
   message?: string;
 }
 
-export type ThemeId = 'dino' | 'jungle' | 'ocean';
+/** 테마 id. content-src/themes/<id>/ 폴더 이름이며 새 테마를 만들어도 코드 수정이 필요 없도록 문자열로 둔다 */
+export type ThemeId = string;
 
 /** 게임 페이즈 */
 export type GamePhase = 'lobby' | 'connecting' | 'calibrating' | 'playing' | 'gallery' | 'world' | 'error';
@@ -225,7 +226,51 @@ export interface ThemePack {
   label: string;
   bgColor: string;
   accentColor: string;
+  /** 테마 칩/버튼에 쓰는 이모지 (없으면 🎨) */
+  emoji?: string;
+  /** 테마 부제 */
+  tagline?: string;
+  /** 월드 장면·등장 연출 설정 (없으면 기본 장면) */
+  world?: WorldPack;
   artworks: ArtworkPack[];
+}
+
+/** 월드 장면 설정 — content-src/themes/<id>/theme.yml의 world */
+export interface WorldPack {
+  title: string;
+  lead: string;
+  /** 내장 장면(dino/jungle/ocean) 또는 palette로 그리는 generic */
+  scene: 'dino' | 'jungle' | 'ocean' | 'generic';
+  /** generic 장면 전용 색 */
+  palette?: { skyTop: string; skyBottom: string; groundTop: string; groundBottom: string; hill: string; sun?: string };
+  /** generic 장면 전용: 배경에 떠다니는 것 */
+  ambient?: 'none' | 'clouds' | 'stars' | 'bubbles' | 'petals';
+  /** 내 친구가 나타나는 연출 */
+  spawn: { prop: 'egg' | 'bush' | 'bubble' | 'cloud' | 'star'; colors: string[]; shell?: boolean };
+  /** 화면을 눌렀을 때 떠오르는 이모지 */
+  tapEmojis: string[];
+}
+
+/** 월드 캐릭터 행동 값 (프리셋이 빌드 때 펼쳐져 작품마다 들어 있다) — content-src/behaviors.yml */
+export interface BehaviorPack {
+  habitat: 'ground' | 'sky' | 'water';
+  size: number;
+  speed: [number, number];
+  stepHz: number;
+  bob: number;
+  lean: number;
+  roll: number;
+  leg: number;
+  tail: number;
+  tailHz: number;
+  head: number;
+  wing: number;
+  neck?: number;
+  /** 나는 높이 범위 [위, 아래] (장면 y, 0~128). 하늘 월드처럼 넓게 날 때 지정 */
+  altitude?: [number, number];
+  dust?: boolean;
+  shout?: string;
+  moves: Array<[string, number]>;
 }
 
 /** 아트워크 패키지 (폰이 다운로드하여 캐시) */
@@ -237,6 +282,7 @@ export interface ArtworkPack {
   thumbnailUrl: string; // 썸네일 이미지 URL
   imageUrl?: string; // 고품질 공룡/캐릭터 일러스트 도안 URL
   spriteUrl?: string; // 월드 NPC로 쓰는 컬러 스프라이트 URL (없으면 영역 색으로 합성)
+  behavior?: BehaviorPack; // 월드에서의 움직임 (없으면 기본 걷기)
 }
 
 /** 패키지용 리전 (메타데이터 포함) */

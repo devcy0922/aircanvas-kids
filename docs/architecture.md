@@ -59,7 +59,8 @@ AirCanvas Kids는 스마트폰 브라우저에서 바로 실행하는 **웹 터�
 | `content-server/` | Nginx + 정적 파일 | 게임 패키지 매니페스트, 고품질 PNG 에셋, SVG 썸네일 서빙 (HTTPS) |
 | `server/` | Rust + Axum + tokio-tungstenite | 방 코드 세션 매칭, 좌표/커맨드 릴레이, 헬스체크 |
 | `packages/protocol` | TypeScript | 폰/TV/서버/콘텐츠서버가 공유하는 메시지 스키마 단일 진실원 |
-| `packages/tv-art` | TypeScript | 아트워크 데이터. 공룡 5종은 `tools/art`가 일러스트에서 생성(자동 생성 파일), 정글·바다는 수작업 |
+| `packages/tv-art` | TypeScript | TV 타입과 테마 색(`themes.generated.ts`, `content-src`에서 자동 생성) |
+| `content-src/` | YAML + PNG | **콘텐츠 원본.** 테마·작품·월드 설정·행동 프리셋. `tools/art/build_content.py`가 매니페스트와 에셋을 생성 |
 | `content-server/` | Nginx + 정적 파일 | 게임 패키지 매니페스트/에셋 서빙 (HTTPS) |
 
 ## 3. 데이터 흐름 (프레임별)
@@ -183,10 +184,31 @@ TV 홈 화면이 폰 앱 URL에 `?server=<릴레이 주소>&room=<방코드>`를
 
 ## 6. 콘텐츠 파이프라인
 
-- 콘텐츠 서버(Nginx)가 `manifest.json` + 썸네일/데이터 에셋을 정적 파일로 서빙
-- 폰이 시작 시 매니페스트 버전 체크 → 변경 시 증분 다운로드 → IndexedDB 캐시
-- 신규 게임/테마 추가는 콘텐츠 서버에 파일 올리기만 하면 폰이 자동 수신, **TV 코드 수정 불필요**
-- 버전별 롤아웃, A/B 테스트, 강제 업데이트 가능
+콘텐츠(테마·작품·월드·행동)는 코드가 아니라 **`content-src/`의 YAML이 원본**이다. 새 테마를 추가해도 앱 코드를 고치지 않는다.
+
+```mermaid
+flowchart LR
+  subgraph SRC["content-src (원본, 사람/로컬 도구가 편집)"]
+    B[behaviors.yml<br/>행동 프리셋]
+    T[themes/&lt;id&gt;/theme.yml<br/>라벨·색·월드 장면·등장 연출]
+    A[themes/&lt;id&gt;/&lt;작품&gt;.yml + .png<br/>이름·행동·출처·부위 시드]
+  end
+  I[tools/art/ingest.py<br/>그림 후보 → draft] --> A
+  SRC --> V{build_content.py<br/>검증 --check}
+  V -->|통과| G[매니페스트 + 선화·썸네일·스프라이트<br/>+ themes.generated.ts]
+  G --> CS[content-server]
+  CS -->|manifest.json| P[폰 앱: 테마 칩·월드를 데이터로 구성]
+  G --> TV[tv-art THEME_META]
+```
+
+- 콘텐츠 서버(Nginx)가 `manifest.json` + 에셋을 정적 파일로 서빙한다(`manifest.json`은 **생성물**이므로 직접 고치지 않는다).
+- 폰이 시작 시 매니페스트 버전을 확인하고 달라졌을 때만 다시 받아 캐시한다 → 콘텐츠를 바꾸면 **버전을 올려야** 반영된다.
+- 테마 추가에 필요한 것: 테마 폴더(`theme.yml`)와 작품(`<id>.yml` + `<id>.png`). `world.scene: generic`이면 `palette`/`ambient`/`spawn`만으로
+  월드 장면이 그려지고, 작품의 `behavior`(행동 프리셋 또는 값)가 월드에서의 움직임을 정한다.
+- 코드가 필요한 경우는 "새로운 종류"를 만들 때뿐이다: 새 장면 그래픽(전용 SVG 장면), 새 등장 소품, 새 행동 모드(예: 점프 후 구르기).
+  이때도 이름을 `content-src`에서 고르게 하고 코드는 목록에 한 줄만 추가한다(`docs/content-pipeline.md` §9.5).
+- 그림 후보는 `tools/art/ingest.py`로 초안(draft)을 만들고, 출처·이용 허락(`provenance`)을 반드시 남긴다. draft는 매니페스트에 들어가지 않는다.
+- TV는 콘텐츠 서버가 아니라 폰이 보낸 아트워크만 그리며, 배경색만 `THEME_META`(자동 생성)를 쓴다.
 
 ## 7. 보안·프라이버시
 

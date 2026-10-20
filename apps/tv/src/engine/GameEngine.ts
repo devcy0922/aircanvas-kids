@@ -1,6 +1,6 @@
 import { Application, Container, Graphics, Sprite, Texture } from 'pixi.js';
 import type { Artwork } from '@ht/tv-art';
-import { THEME_META } from '@ht/tv-art';
+import { DEFAULT_THEME_META, THEME_META } from '@ht/tv-art';
 
 /** 아트워크 논리 좌표(0..100)를 렌더 픽셀로 변환하는 배율 */
 const PAINT_SCALE = 6;
@@ -139,7 +139,7 @@ export class GameEngine {
   // 씬 제어
   // ------------------------------------------------------------------
 
-  showBackdrop(theme: keyof typeof THEME_META) {
+  showBackdrop(theme: string) {
     if (!this.ready) return;
     this.galleryMode = false;
     this.worldMode = false;
@@ -148,10 +148,11 @@ export class GameEngine {
     const w = window.innerWidth;
     const h = window.innerHeight;
     const g = new Graphics();
-    g.rect(0, 0, w, h).fill(THEME_META[theme].bg);
+    const meta = THEME_META[theme] ?? DEFAULT_THEME_META;
+    g.rect(0, 0, w, h).fill(meta.bg);
 
     const deco = new Graphics();
-    const accent = THEME_META[theme].accent;
+    const accent = meta.accent;
     if (theme === 'ocean') {
       for (let i = 0; i < 24; i++) {
         deco
@@ -205,7 +206,7 @@ export class GameEngine {
     this.artHolder.addChild(this.baseSprite, this.paintSprite);
   }
 
-  showGallery(theme: keyof typeof THEME_META, arts: Artwork[]) {
+  showGallery(theme: string, arts: Artwork[]) {
     if (!this.ready) return;
     this.showBackdrop(theme);
     this.galleryMode = true;
@@ -235,7 +236,7 @@ export class GameEngine {
   }
 
   /** 현재 작품을 정글 월드의 이동 캐릭터로 전환한다. */
-  showWorld(_theme: keyof typeof THEME_META, art: Artwork) {
+  showWorld(_theme: string, art: Artwork) {
     if (!this.ready) return;
     this.currentArt = art;
     this.galleryMode = false;

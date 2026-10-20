@@ -133,9 +133,9 @@ export function PhoneControls({
                 onClick={() => onSelectTheme(t.id)}
                 style={{ '--theme-accent': t.accentColor } as CSSProperties}
               >
-                <span className="theme-emoji">{t.id === 'dino' ? '🦕' : t.id === 'jungle' ? '🐒' : '🐠'}</span>
+                <span className="theme-emoji">{t.emoji ?? '🎨'}</span>
                 <span>{t.label}</span>
-                <small>{t.id === 'dino' ? '쥬라기 탐험' : t.id === 'jungle' ? '초록 숲 모험' : '바닷속 산책'}</small>
+                <small>{t.tagline ?? ''}</small>
               </button>
             ))}
           </div>
@@ -165,7 +165,7 @@ export function PhoneControls({
       {!isLobby && !isWorld && currentTheme && (
         <section className="theme-info">
           <span className="theme-badge" style={{ background: currentTheme.accentColor }}>
-            {currentTheme.id === 'dino' ? '🦕' : currentTheme.id === 'jungle' ? '🐒' : '🐠'} {currentTheme.label}
+            {currentTheme.emoji ?? '🎨'} {currentTheme.label}
           </span>
         </section>
       )}

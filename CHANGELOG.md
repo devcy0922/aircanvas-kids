@@ -1,5 +1,22 @@
 # 변경 기록
 
+## v0.7.0 — 2026-10-21
+
+- **테마·작품·월드·행동을 YAML이 원본인 콘텐츠 주도 구조로 전환** — 하늘 같은 새 테마를 앱 코드 수정 없이 추가할 수 있게 함
+  - 원인: 테마 id별 분기(`'dino' ? 🦕 : 'jungle' ? 🐒 : 🐠`)가 앱·TV·월드 엔진·빌드 스크립트에 흩어져 있었고, 도안 빌드는 공룡 전용이었음
+  - `content-src/`(신규): `behaviors.yml`(행동 프리셋), `themes/<id>/theme.yml`(라벨·이모지·색·월드 장면/등장 연출), `themes/<id>/<작품>.yml`+`.png`(이름·행동·출처·부위 시드). 견본은 `themes/_template/`
+  - `tools/art/build_content.py`(구 `build_art.py`): 전 테마 빌드, `--check` 검증(오류를 한 번에 모아 보여 주고 오류가 있으면 아무것도 쓰지 않음), draft 제외, `--only`가 나머지는 기존 값 재사용. `manifest.json`, 에셋, `themes.generated.ts`를 생성. 기존 9개 작품의 영역·URL은 재생성 결과가 이전과 **바이트 단위로 동일**함을 확인(추가된 것은 `behavior`뿐)
+  - 프로토콜: `ThemeId`를 문자열로, `ThemePack.emoji/tagline/world`, `ArtworkPack.behavior`(프리셋이 빌드 때 펼쳐짐), `WorldPack`, `BehaviorPack` 추가
+  - 월드 엔진: 종 이름 표와 `speciesOf`(작품 id 문자열 검색) 제거, 행동은 작품의 `behavior` 값으로 구동. 등장 소품(`egg bush bubble cloud star`)·반짝이 색·먼지·고개 들기·울음 글자·나는 높이(`altitude`)를 데이터로 지정
+  - 새 `GenericScene`: `world.palette`/`ambient`/`spawn`만으로 하늘·우주 같은 장면을 그림(해·구름·별·꽃잎·기포). 색 페이지 배경도 CSS 변수로 테마색을 따름
+  - 폰 테마 칩·배지가 매니페스트의 이모지/부제를 사용, TV 배경색은 생성된 `THEME_META`(없는 테마는 기본색)
+  - 제거: `packages/tv-art/src/artworks/{dino,jungle,ocean}.ts`(앱이 쓰지 않던 중복 데이터), `tools/art/seeds.json`(→ 작품별 yml)
+- **그림 후보 초안 도구 `tools/art/ingest.py`**: 로컬에서 배경 제거 → 512×512 정렬 → 색 덩어리로 부위 시드 제안 → `status: draft`. 출처·이용 허락(`provenance`)이 필수이고 원본 지문(sha256)을 남김. 외부 서비스로 그림을 보내지 않음
+- **런북·스킬**: `docs/content-pipeline.md` §9(새 작품/새 테마/도안 교체/수집/코드가 필요한 경우/알려진 제약), `agents/skills/aircanvas-content`(로컬 런타임용), `agents/rules.md` §6.1(제작 주체: 클라우드 LLM 없이)
+- **`make content-check` / `make content`** 추가, `make ui-smoke`: 도안 종류는 `data-art`로 센다, 이동 검사 대기를 3.5초 → 5.5초로 늘려 경계값 실패를 줄임
+- 검증: 임시 `skytest` 테마(`world.scene: generic`, `spawn.prop: cloud`, `behavior: flyer`)를 YAML만으로 추가해 앱 코드 변경 없이 칩·월드·등장 연출·하늘 전체 비행이 동작함을 폰 크기 스크린샷으로 확인한 뒤 제거
+- 알려진 이슈: 공룡 5종 일러스트의 이용 허락이 저장소에 기록돼 있지 않아 `provenance.license`를 `미상 - 확인 필요`로 둠(빌드 경고)
+
 ## v0.6.0 — 2026-10-21
 
 - **월드 화면 전면 개편 (공룡·정글·바다)** — "잔상, 단출한 배경, 비슷한 움직임, 내 그림이 나타나는 느낌 부족" 피드백 반영

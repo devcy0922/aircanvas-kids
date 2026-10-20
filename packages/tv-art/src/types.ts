@@ -13,7 +13,7 @@ export interface Region {
   zIndex?: number;
 }
 
-export type Theme = 'dino' | 'jungle' | 'ocean';
+export type Theme = string;
 
 export interface Artwork {
   id: string;
@@ -23,9 +23,3 @@ export interface Artwork {
   regions: Region[];
   imageUrl?: string;
 }
-
-export const THEME_META: Record<Theme, { label: string; bg: string; accent: string }> = {
-  dino: { label: '공룡', bg: '#f6efe3', accent: '#c1663d' },
-  jungle: { label: '정글', bg: '#eef7e9', accent: '#3a5a40' },
-  ocean: { label: '바다', bg: '#e8f4fb', accent: '#457b9d' },
-};

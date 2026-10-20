@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import type { WorldPack } from '@ht/protocol';
 
 /**
  * 월드 배경(160x128). 캐릭터는 worldEngine이 이 위에 그린다.
@@ -375,6 +376,79 @@ export function OceanForeground() {
       <g className="w-sway" style={cssVars({ '--delay': '-1.1s' })}>
         <path d="M150 130 Q144 112 151 99 M155 130 Q162 112 157 100" stroke="#2f9a72" strokeWidth="3.4" />
       </g>
+    </g>
+  );
+}
+
+/* ───────────── 팔레트 장면: 코드 수정 없이 새 테마를 꾸미는 기본 장면 ───────────── */
+
+type Palette = NonNullable<WorldPack['palette']>;
+
+/** theme.yml의 world.palette·ambient만으로 그려지는 장면(하늘·우주·설원 같은 새 테마용) */
+export function GenericScene({ palette, ambient = 'none' }: { palette: Palette; ambient?: WorldPack['ambient'] }) {
+  return (
+    <g>
+      <defs>
+        <linearGradient id="wg-sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor={palette.skyTop} />
+          <stop offset="1" stopColor={palette.skyBottom} />
+        </linearGradient>
+        <linearGradient id="wg-ground" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor={palette.groundTop} />
+          <stop offset="1" stopColor={palette.groundBottom} />
+        </linearGradient>
+        <radialGradient id="wg-sun">
+          <stop stopColor={palette.sun ?? '#fffbd0'} stopOpacity="0.95" />
+          <stop offset="0.55" stopColor={palette.sun ?? '#ffe27a'} stopOpacity="0.4" />
+          <stop offset="1" stopColor={palette.sun ?? '#ffe27a'} stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <rect width="160" height="128" fill="url(#wg-sky)" />
+      {palette.sun && (
+        <g>
+          <circle cx="130" cy="24" r="26" fill="url(#wg-sun)" />
+          <g className="w-spin" style={cssVars({ transformOrigin: '130px 24px' })} stroke={palette.sun} strokeWidth="1.4" strokeLinecap="round" opacity="0.7">
+            {Array.from({ length: 10 }, (_, i) => (
+              <path key={i} d="M130 4 v-3" transform={`rotate(${i * 36} 130 24)`} />
+            ))}
+          </g>
+          <circle cx="130" cy="24" r="9" fill={palette.sun} />
+        </g>
+      )}
+      {ambient === 'stars' &&
+        [[14, 12, 0], [36, 28, -0.8], [58, 10, -1.6], [82, 30, -0.4], [104, 14, -2.1], [148, 40, -1.2], [24, 52, -1.9], [118, 50, -0.2], [70, 56, -2.6]].map(([x, y, d], i) => (
+          <path key={i} className="w-twinkle" d="M0 -2.6 L0.8 -0.8 L2.6 0 L0.8 0.8 L0 2.6 L-0.8 0.8 L-2.6 0 L-0.8 -0.8Z" fill="#fff9d6" transform={`translate(${x} ${y})`} style={cssVars({ '--delay': `${d}s` })} />
+        ))}
+      {(ambient === 'clouds' || ambient === 'none') && (
+        <>
+          <Cloud x={20} y={22} s={1.1} dur={110} delay={-30} />
+          <Cloud x={70} y={42} s={0.8} dur={90} delay={-70} />
+          <Cloud x={110} y={14} s={1} dur={130} delay={-10} />
+        </>
+      )}
+      {ambient === 'petals' &&
+        [[16, 4, 0], [44, 0, -2], [72, 6, -4], [100, 2, -1], [128, 8, -3], [150, 0, -5]].map(([x, y, d], i) => (
+          <ellipse key={i} className="w-fall" cx={x} cy={y} rx="1.6" ry="0.9" fill="#ffd1dc" style={cssVars({ '--delay': `${d}s` })} />
+        ))}
+      {ambient === 'bubbles' && (
+        <g fill="none" stroke="#ffffff" strokeWidth="0.6">
+          {[[22, 100, 0], [48, 92, -1], [78, 104, -2], [104, 96, -3], [132, 102, -1.5], [150, 90, -2.5]].map(([x, y, d], i) => (
+            <circle key={i} className="w-bubble" cx={x} cy={y} r={1 + (i % 3) * 0.6} style={cssVars({ '--delay': `${d}s` })} />
+          ))}
+        </g>
+      )}
+      <path d="M0 84 Q26 66 54 82 T112 80 T160 76 V128 H0Z" fill={palette.hill} opacity="0.55" />
+      <path d="M0 94 Q34 80 70 92 T160 88 V128 H0Z" fill={palette.hill} opacity="0.85" />
+      <path d="M0 100 Q40 92 80 100 T160 98 V128 H0Z" fill="url(#wg-ground)" />
+      <Tufts color={palette.groundBottom} spots={[[14, 108, 1], [44, 116, 1.1], [86, 110, 0.9], [118, 118, 1.2], [146, 109, 1]]} />
+    </g>
+  );
+}
+
+export function GenericForeground({ palette }: { palette: Palette }) {
+  return (
+    <g>
+      <Tufts color={palette.groundBottom} spots={[[10, 126, 1.6], [34, 128, 1.2], [128, 127, 1.5], [152, 126, 1.8]]} />
     </g>
   );
 }

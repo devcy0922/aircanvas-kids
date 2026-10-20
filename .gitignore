@@ -37,3 +37,4 @@ logs/evidence/
 
 # Python
 __pycache__/
+.venv-art/

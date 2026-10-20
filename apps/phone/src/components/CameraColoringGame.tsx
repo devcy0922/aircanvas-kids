@@ -332,7 +332,7 @@ export function CameraColoringGame({ themes, artworks, onExit, onTouchFallback }
               className={item.id === theme.id ? 'is-selected' : ''}
               onClick={() => setThemeId(item.id)}
             >
-              {item.id === 'dino' ? '🦕' : item.id === 'jungle' ? '🐒' : '🐠'} {item.label}
+              {item.emoji ?? '🎨'} {item.label}
             </button>
           ))}
         </div>

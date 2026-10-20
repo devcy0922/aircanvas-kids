@@ -1,4 +1,4 @@
-# AirCanvas Kids 🖐️📺 v0.6.0
+# AirCanvas Kids 🖐️📺 v0.7.0
 
 **스마트폰 카메라만으로 바로 시작하거나, 필요할 때 TV와 연결해
 공중 제스처 드로잉·색칠을 플레이하는 어린이용 게임.**
@@ -188,6 +188,7 @@ MediaPipe/WASM 또는 GPU 추론을 지원하는 장치부터 호환성 매트�
 ```bash
 # TV/폰/릴레이/콘텐츠 서버를 먼저 실행한 뒤
 make web-debug
+make content-check  # content-src(YAML) 검증. 새 테마·작품은 docs/content-pipeline.md §9 (코드 수정 없이 추가)
 make ui-smoke   # 색칠 화면·월드(부화/색 보존/움직임) 폰 크기 스모크 (공개 URL 기본, AIRCANVAS_PHONE_URL로 변경)
 ```
 
@@ -256,7 +257,7 @@ node tools/smoke-relay.mjs             # 서버 릴레이 자동 스모크 테�
 | [docs/architecture.md](docs/architecture.md) | 시스템 구성요소, 데이터 흐름, Mermaid 다이어그램 |
 | [docs/protocol.md](docs/protocol.md) | WebSocket/TVCommand/콘텐츠API 메시지 명세 |
 | [docs/calibration.md](docs/calibration.md) | 4코너 호모그래피 캘리브레이션 절차·품질 기준 |
-| [docs/content-pipeline.md](docs/content-pipeline.md) | 아트워크 패키지 규격과 색칠 진행도 알고리즘 |
+| [docs/content-pipeline.md](docs/content-pipeline.md) | YAML 원본(`content-src/`) 기반 테마·작품 추가 런북, 아트워크 패키지 규격, 색칠 진행도 알고리즘 |
 | [docs/roadmap.md](docs/roadmap.md) | M3~M5 계획 및 기술 부채 |
 | [agents/rules.md](agents/rules.md) | 프로젝트 작업 규칙 |
 

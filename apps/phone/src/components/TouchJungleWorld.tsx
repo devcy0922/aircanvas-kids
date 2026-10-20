@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { MouseEvent } from 'react';
-import type { ArtworkPack, ThemePack } from '@ht/protocol';
+import type { CSSProperties, MouseEvent } from 'react';
+import type { ArtworkPack, ThemePack, WorldPack } from '@ht/protocol';
 import type { WorldCreation } from './TouchColoringGame';
-import { DinoForeground, DinoScene, JungleForeground, JungleScene, OceanForeground, OceanScene } from './WorldScenes';
+import { DinoForeground, DinoScene, GenericForeground, GenericScene, JungleForeground, JungleScene, OceanForeground, OceanScene } from './WorldScenes';
 import { bakeCached, npcBaseColor } from '../lib/creatureSprite';
-import { SCENE_H, SCENE_W, WorldEngine, speciesOf } from '../lib/worldEngine';
-import type { ActorSpec, WorldKind } from '../lib/worldEngine';
+import { SCENE_H, SCENE_W, WorldEngine, isFlyer } from '../lib/worldEngine';
+import type { ActorSpec } from '../lib/worldEngine';
 import { sound } from '../lib/sound';
 
 interface Props {
@@ -37,19 +37,27 @@ function creationKey(creation: WorldCreation): string {
 
 const tick = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 
+/** 매니페스트에 world 설정이 없는 테마도 월드가 열리도록 하는 기본 장면 */
+const FALLBACK_WORLD: WorldPack = {
+  title: '우리 친구들의 월드',
+  lead: '내 친구가 나타났어요. 화면이나 친구를 눌러 보세요!',
+  scene: 'generic',
+  palette: { skyTop: '#8fd3f4', skyBottom: '#e7f6ff', groundTop: '#b9e3a1', groundBottom: '#78b36a', hill: '#9bd18a' },
+  ambient: 'clouds',
+  spawn: { prop: 'egg', colors: ['#fff4d6', '#ffe27a', '#ffffff'], shell: true },
+  tapEmojis: ['⭐', '✨', '💖', '🌟'],
+};
+
 /** 월드에 원래 살고 있는 친구들: 같은 테마 도안을 한 번씩, 모자라면 작게 한 번 더 */
 function npcSpecs(pool: ArtworkPack[]): Array<{ artwork: ArtworkPack; scale: number }> {
   if (pool.length === 0) return [];
-  const flyers = pool.filter((a) => speciesOf(a.id) === 'ptera');
-  const walkers = pool.filter((a) => speciesOf(a.id) !== 'ptera');
+  const flyers = pool.filter((a) => isFlyer(a.behavior));
+  const walkers = pool.filter((a) => !isFlyer(a.behavior));
   const list = walkers.map((artwork) => ({ artwork, scale: 0.92 }));
   for (let i = 0; list.length < 4 && walkers.length; i++) list.push({ artwork: walkers[i % walkers.length], scale: 0.75 });
   for (const artwork of flyers) list.push({ artwork, scale: 1 }, { artwork, scale: 0.8 });
+  for (let i = 0; list.length < 4; i++) list.push({ artwork: pool[i % pool.length], scale: 0.75 });
   return list;
-}
-
-function emojisFor(kind: WorldKind) {
-  return kind === 'dino' ? ['🥩', '🌿', '⭐', '✨'] : kind === 'ocean' ? ['🫧', '🐚', '🦐', '💖'] : ['🍌', '🍎', '🌿', '💖'];
 }
 
 /**
@@ -57,8 +65,8 @@ function emojisFor(kind: WorldKind) {
  * 원래 살던 친구들(NPC)이 제각각 움직이는 곳에, 내가 칠한 친구가 알(공룡)·덤불(정글)·물방울(바다)에서 나타난다.
  */
 export function TouchJungleWorld({ theme, artworks, creations, onBack, onNext, onReset }: Props) {
-  const kind: WorldKind = theme.id === 'dino' ? 'dino' : theme.id === 'ocean' ? 'ocean' : 'jungle';
-  const worldName = kind === 'dino' ? '선사시대 공룡 월드' : kind === 'ocean' ? '푸른 바다' : '신비한 정글';
+  const world = theme.world ?? FALLBACK_WORLD;
+  const worldName = world.title;
 
   const svgRef = useRef<SVGSVGElement>(null);
   const stageRef = useRef<SVGGElement>(null);
@@ -92,7 +100,7 @@ export function TouchJungleWorld({ theme, artworks, creations, onBack, onNext, o
       sky,
       ground,
       fx,
-      kind,
+      world,
       reducedMotion: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false,
       onToast: (text) => {
         setToast(text);
@@ -112,7 +120,7 @@ export function TouchJungleWorld({ theme, artworks, creations, onBack, onNext, o
             npcColor: artwork.spriteUrl ? undefined : npcBaseColor(artwork.id),
           });
           if (!alive) return;
-          engine.addActor({ id: `npc-${artwork.id}-${scale}`, name: artwork.name, species: speciesOf(artwork.id), baked, scale });
+          engine.addActor({ id: `npc-${artwork.id}-${scale}`, name: artwork.name, behavior: artwork.behavior, baked, scale });
         } catch (error) {
           console.warn('[world] NPC를 준비하지 못했어요', artwork.id, error);
         }
@@ -129,7 +137,7 @@ export function TouchJungleWorld({ theme, artworks, creations, onBack, onNext, o
           const baked = await bakeCached(`mine:${key}`, { artwork, regionColors: regionColorsOf(creation), strokes: creation.paintStrokes });
           if (!alive) return;
           const hero = creation === newest && !introduced.has(key);
-          const spec: ActorSpec = { id: `mine-${key}`, name: artwork.name, species: speciesOf(artwork.id), baked, hero, scale: hero ? 1 : 1.05 };
+          const spec: ActorSpec = { id: `mine-${key}`, name: artwork.name, behavior: artwork.behavior, baked, hero, scale: hero ? 1 : 1.05 };
           engine.addActor(spec);
           introduced.add(key);
         } catch (error) {
@@ -151,7 +159,7 @@ export function TouchJungleWorld({ theme, artworks, creations, onBack, onNext, o
 
   const handleSceneClick = (event: MouseEvent<SVGSVGElement>) => {
     sound.playPop();
-    engineRef.current?.sprinkle(event.clientX, event.clientY, emojisFor(kind));
+    engineRef.current?.sprinkle(event.clientX, event.clientY, world.tapEmojis);
   };
 
   const toggleSound = () => {
@@ -160,11 +168,13 @@ export function TouchJungleWorld({ theme, artworks, creations, onBack, onNext, o
     if (!muted) sound.playClick();
   };
 
-  const Scene = kind === 'dino' ? DinoScene : kind === 'ocean' ? OceanScene : JungleScene;
-  const Foreground = kind === 'dino' ? DinoForeground : kind === 'ocean' ? OceanForeground : JungleForeground;
+  // 내장 장면 3종이거나, palette로 그리는 기본 장면(새 테마는 코드 수정 없이 이쪽을 쓴다)
+  const palette = world.palette ?? FALLBACK_WORLD.palette!;
+  const scene = world.scene;
+  const pageVars = scene === 'generic' ? ({ '--w-from': palette.skyTop, '--w-to': palette.skyBottom, '--w-ink': theme.accentColor } as CSSProperties) : undefined;
 
   return (
-    <main className={`touch-world touch-world--${kind}`} data-testid="touch-world" data-world={kind}>
+    <main className={`touch-world touch-world--${scene}`} data-testid="touch-world" data-world={theme.id} style={pageVars}>
       <div className="world-head">
         <div>
           <p className="touch-game__eyebrow">{worldName}</p>
@@ -185,10 +195,10 @@ export function TouchJungleWorld({ theme, artworks, creations, onBack, onNext, o
           onClick={handleSceneClick}
         >
           <g ref={stageRef} className="world-stage">
-            <Scene />
+            {scene === 'dino' ? <DinoScene /> : scene === 'ocean' ? <OceanScene /> : scene === 'jungle' ? <JungleScene /> : <GenericScene palette={palette} ambient={world.ambient} />}
             <g ref={skyRef} className="world-layer world-layer--sky" />
             <g ref={groundRef} className="world-layer world-layer--ground" />
-            <Foreground />
+            {scene === 'dino' ? <DinoForeground /> : scene === 'ocean' ? <OceanForeground /> : scene === 'jungle' ? <JungleForeground /> : <GenericForeground palette={palette} />}
             <g ref={fxRef} className="world-layer world-layer--fx" pointerEvents="none" />
           </g>
         </svg>
@@ -199,9 +209,7 @@ export function TouchJungleWorld({ theme, artworks, creations, onBack, onNext, o
         )}
       </div>
 
-      <p className="world-lead">
-        {kind === 'dino' ? '원래 살던 공룡 친구들 사이로 내 친구가 알에서 깨어났어요. 화면이나 친구를 눌러 보세요!' : kind === 'ocean' ? '물방울이 톡 터지며 내 친구가 나타났어요. 화면이나 친구를 눌러 보세요!' : '덤불이 바스락거리더니 내 친구가 튀어나왔어요. 화면이나 친구를 눌러 보세요!'}
-      </p>
+      <p className="world-lead">{world.lead}</p>
 
       <div className="touch-world__room" aria-live="polite">
         <strong>{creations.length}</strong>
