@@ -246,6 +246,7 @@ export class TVCommandHandler {
       name: rt.name,
       viewBox: rt.viewBox,
       regions: rt.regions.map((r) => ({ d: r.path, label: r.label })),
+      imageUrl: rt.imageUrl,
     };
   }
 

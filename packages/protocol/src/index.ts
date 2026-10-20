@@ -143,6 +143,7 @@ export interface ArtworkRuntime {
   name: string;
   viewBox: string;
   regions: RegionRuntime[];
+  imageUrl?: string;
 }
 
 /** 런타임용 리전 (히트테스트/클립용 path만) */
@@ -234,6 +235,7 @@ export interface ArtworkPack {
   viewBox: string;
   regions: RegionPack[];
   thumbnailUrl: string; // 썸네일 이미지 URL
+  imageUrl?: string; // 고품질 공룡/캐릭터 일러스트 도안 URL
 }
 
 /** 패키지용 리전 (메타데이터 포함) */
@@ -309,6 +311,7 @@ export function toArtworkRuntime(art: ArtworkPack): ArtworkRuntime {
       label: r.label,
       path: r.path,
     })),
+    imageUrl: art.imageUrl,
   };
 }
 

@@ -18,26 +18,28 @@
           "name": "티라노사우루스",
           "viewBox": "0 0 100 100",
           "regions": [
-            { "id": "tail", "label": "꼬리", "path": "M40 56 C25 50 12 36 4 30 C10 48 24 64 42 66 Z", "zIndex": 1 },
-            { "id": "back-foot", "label": "먼발", "path": "M32 76 C30 82 28 90 27 92 C31 93 36 92 37 90 C36 84 37 78 37 76 Z", "zIndex": 2 },
-            { "id": "body", "label": "몸통", "path": "M28 68 C22 56 28 44 42 40 C56 36 70 42 74 54 C77 66 68 74 54 76 C40 78 32 74 28 68 Z", "zIndex": 3 },
-            { "id": "belly", "label": "배", "path": "M36 54 C44 48 58 48 66 56 C68 66 58 72 48 72 C40 71 34 64 36 54 Z", "zIndex": 4 },
-            { "id": "arm", "label": "귀여운 앞발", "path": "M58 52 C63 50 68 52 67 57 C65 60 61 59 58 55 Z", "zIndex": 5 },
-            { "id": "neck", "label": "목", "path": "M56 44 C56 34 60 28 68 26 L78 33 L70 50 Z", "zIndex": 6 },
-            { "id": "head", "label": "머리", "path": "M64 32 C62 20 72 14 84 15 C94 16 97 26 92 36 C84 42 72 42 64 32 Z", "zIndex": 7 },
-            { "id": "snout", "label": "주둥이", "path": "M76 22 C84 22 93 25 93 32 C92 38 83 40 74 40 L75 22 Z", "zIndex": 8 },
-            { "id": "jaw", "label": "아래턱", "path": "M66 37 L92 37 C90 46 82 49 71 47 L66 42 Z", "zIndex": 9 },
-            { "id": "teeth", "label": "날카로운 이빨", "path": "M72 37 L74 41 L76 37 L78 41 L80 37 L82 41 L84 37 L86 41 L88 37 Z", "zIndex": 10 },
-            { "id": "eye-white", "label": "흰자", "path": "M76 24 C79 21 84 22 83 27 C82 30 77 30 76 27 Z", "zIndex": 11 },
-            { "id": "eye-pupil", "label": "눈동자", "path": "M78 25 C80 25 81 26 80 28 C79 29 78 29 78 27 Z", "zIndex": 12 },
-            { "id": "nostril", "label": "콧구멍", "path": "M88 28 C90 28 90 30 88 30 C87 30 87 28 88 28 Z", "zIndex": 13 },
-            { "id": "thigh", "label": "허벅지", "path": "M46 62 C54 60 62 64 63 72 C64 80 56 84 50 82 C46 78 44 70 46 62 Z", "zIndex": 14 },
-            { "id": "leg", "label": "정강이", "path": "M50 80 L53 92 L60 92 L57 80 Z", "zIndex": 15 },
-            { "id": "foot-claws", "label": "발톱", "path": "M51 92 L54 96 L56 92 L59 96 L61 92 L62 94 L51 94 Z", "zIndex": 16 },
-            { "id": "crest", "label": "등 볏", "path": "M30 44 L33 36 L37 42 L41 34 L45 41 L50 35 L54 44 Z", "zIndex": 17 },
-            { "id": "spots", "label": "등 반점", "path": "M42 44 C45 42 48 44 47 47 C45 49 42 47 42 44 Z M52 44 C55 42 58 44 57 47 C55 49 52 47 52 44 Z", "zIndex": 18 }
+            { "id": "tail", "label": "꼬리", "path": "M38 56 C26 50 14 36 6 28 C9 46 22 62 38 64 Z", "zIndex": 1 },
+            { "id": "back-foot-far", "label": "먼 뒷발", "path": "M30 72 L30 85 L35 85 L35 72 Z", "zIndex": 2 },
+            { "id": "body", "label": "몸통", "path": "M28 66 C22 54 28 42 42 38 C56 34 68 40 72 52 C75 64 66 72 52 74 C38 76 30 72 28 66 Z", "zIndex": 3 },
+            { "id": "belly", "label": "가슴과 배", "path": "M34 54 C42 48 56 48 64 56 C66 64 58 70 46 70 C38 69 32 62 34 54 Z", "zIndex": 4 },
+            { "id": "neck", "label": "목", "path": "M52 44 C52 34 56 26 64 24 L74 30 L66 48 Z", "zIndex": 5 },
+            { "id": "head", "label": "머리통", "path": "M60 30 C58 18 68 12 80 12 C90 12 94 20 92 28 C86 34 76 34 68 32 L60 30 Z", "zIndex": 6 },
+            { "id": "snout", "label": "주둥이", "path": "M74 18 C82 18 90 20 90 26 C89 31 82 33 74 33 L74 18 Z", "zIndex": 7 },
+            { "id": "jaw", "label": "아래턱", "path": "M64 34 L89 34 C87 42 80 45 70 43 L64 38 Z", "zIndex": 8 },
+            { "id": "teeth", "label": "하얀 이빨", "path": "M68 33 L70 36 L72 33 L74 37 L76 33 L78 37 L80 33 L82 36 L84 33 L86 36 L87 33 Z", "zIndex": 9 },
+            { "id": "eye-white", "label": "눈 흰자", "path": "M74 19 C77 17 81 18 80 22 C79 25 75 25 74 22 Z", "zIndex": 10 },
+            { "id": "eye-pupil", "label": "눈동자", "path": "M76 20 C78 20 79 21 78 23 C77 24 76 23 76 20 Z", "zIndex": 11 },
+            { "id": "nostril", "label": "콧구멍", "path": "M86 23 C88 23 88 25 86 25 C85 25 85 23 86 23 Z", "zIndex": 12 },
+            { "id": "arm", "label": "앞발", "path": "M56 50 C61 48 66 50 65 55 C63 58 59 57 56 53 Z", "zIndex": 13 },
+            { "id": "arm-claws", "label": "앞발톱", "path": "M64 54 L67 53 L66 56 L68 56 L65 58 Z", "zIndex": 14 },
+            { "id": "thigh", "label": "근육질 허벅지", "path": "M44 60 C52 58 60 62 61 70 C62 78 54 82 48 80 C44 76 42 68 44 60 Z", "zIndex": 15 },
+            { "id": "leg", "label": "정강이", "path": "M48 78 L51 90 L58 90 L55 78 Z", "zIndex": 16 },
+            { "id": "foot-claws", "label": "발톱", "path": "M48 90 L51 95 L53 90 L56 95 L58 90 L60 93 L61 90 L48 90 Z", "zIndex": 17 },
+            { "id": "spikes", "label": "등 비늘 볏", "path": "M28 42 L31 34 L35 40 L39 32 L43 39 L48 33 L52 42 Z", "zIndex": 18 },
+            { "id": "stripes", "label": "호랑이 줄무늬", "path": "M40 42 Q45 47 42 53 L38 51 Q41 46 38 43 Z M50 41 Q54 46 51 52 L47 51 Q50 46 47 42 Z M70 19 Q74 23 72 27 L68 26 Q71 22 68 20 Z", "zIndex": 19 }
           ],
-          "thumbnailUrl": "/artworks/thumbnails/dino-trex.svg"
+          "thumbnailUrl": "/artworks/thumbnails/dino-trex.svg",
+          "imageUrl": "/artworks/images/dino-trex.png"
         },
         {
           "id": "dino-brachio",
@@ -60,7 +62,8 @@
             { "id": "front-foot", "label": "앞발굽", "path": "M53 93 L53 95 L63 95 L63 93 Z", "zIndex": 14 },
             { "id": "spots", "label": "등 무늬", "path": "M34 48 C37 45 42 47 41 51 C39 53 35 51 34 48 Z M46 48 C49 45 54 47 53 51 C51 53 47 51 46 48 Z M58 54 C61 51 66 53 65 57 C63 59 59 57 58 54 Z", "zIndex": 15 }
           ],
-          "thumbnailUrl": "/artworks/thumbnails/dino-brachio.svg"
+          "thumbnailUrl": "/artworks/thumbnails/dino-brachio.svg",
+          "imageUrl": "/artworks/images/dino-brachio.png"
         },
         {
           "id": "dino-stego",
@@ -84,7 +87,8 @@
             { "id": "front-leg-near", "label": "앞다리", "path": "M34 74 L32 93 L40 93 L41 74 Z", "zIndex": 15 },
             { "id": "back-leg-near", "label": "뒷다리", "path": "M58 74 L58 93 L66 93 L65 74 Z", "zIndex": 16 }
           ],
-          "thumbnailUrl": "/artworks/thumbnails/dino-stego.svg"
+          "thumbnailUrl": "/artworks/thumbnails/dino-stego.svg",
+          "imageUrl": "/artworks/images/dino-stego.png"
         },
         {
           "id": "dino-trike",
@@ -105,7 +109,8 @@
             { "id": "front-leg", "label": "앞다리", "path": "M42 74 L40 93 L48 93 L49 74 Z", "zIndex": 12 },
             { "id": "back-leg", "label": "뒷다리", "path": "M66 74 L66 93 L74 93 L73 74 Z", "zIndex": 13 }
           ],
-          "thumbnailUrl": "/artworks/thumbnails/dino-trike.svg"
+          "thumbnailUrl": "/artworks/thumbnails/dino-trike.svg",
+          "imageUrl": "/artworks/images/dino-trike.png"
         },
         {
           "id": "dino-ptera",
@@ -121,7 +126,8 @@
             { "id": "eye", "label": "눈", "path": "M50 35 C52 34 54 36 53 38 C51 39 49 37 50 35 Z", "zIndex": 7 },
             { "id": "feet", "label": "발톱", "path": "M49 66 L47 76 L51 76 L52 66 L53 76 L57 76 L55 66 Z", "zIndex": 8 }
           ],
-          "thumbnailUrl": "/artworks/thumbnails/dino-ptera.svg"
+          "thumbnailUrl": "/artworks/thumbnails/dino-ptera.svg",
+          "imageUrl": "/artworks/images/dino-ptera.png"
         }
       ]
     },

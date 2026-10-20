@@ -364,6 +364,18 @@ export function CameraColoringGame({ themes, artworks, onExit, onTouchFallback }
                 data-region-id={region.id}
               />
             ))}
+            {artwork.imageUrl && (
+              <image
+                href={artwork.imageUrl}
+                x="0"
+                y="0"
+                width="100"
+                height="100"
+                preserveAspectRatio="xMidYMid meet"
+                pointerEvents="none"
+                style={{ mixBlendMode: 'multiply' }}
+              />
+            )}
             {[...strokes, draft].filter((points) => points.length > 1).map((points, index) => (
               <polyline
                 key={`camera-stroke-${index}`}

@@ -229,8 +229,22 @@ export function TouchColoringBoard({
           ))}
         </g>
 
+        {/* 고품질 일러스트 / 라인아트 오버레이 */}
+        {artwork.imageUrl && (
+          <image
+            href={artwork.imageUrl}
+            x="0"
+            y="0"
+            width="100"
+            height="100"
+            preserveAspectRatio="xMidYMid meet"
+            pointerEvents="none"
+            style={{ mixBlendMode: 'multiply' }}
+          />
+        )}
+
         {/* 외곽선 라인아트 (최상단) */}
-        <g className="touch-board__outline" fill="none" stroke="#253835" strokeWidth="1.4" strokeLinejoin="round" pointerEvents="none">
+        <g className="touch-board__outline" fill="none" stroke="#1c2c28" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" pointerEvents="none">
           {artwork.regions.map((region) => (
             <path key={region.id} d={region.path} />
           ))}

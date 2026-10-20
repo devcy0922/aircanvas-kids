@@ -21,6 +21,7 @@ export interface Artwork {
   name: string;
   viewBox: string;
   regions: Region[];
+  imageUrl?: string;
 }
 
 export const THEME_META: Record<Theme, { label: string; bg: string; accent: string }> = {

@@ -565,6 +565,20 @@ export class GameEngine {
       ctx.lineWidth = 1.6;
       ctx.stroke(p);
     }
+    if (art.imageUrl) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        if (this.currentArt?.id === art.id) {
+          ctx.save();
+          ctx.globalCompositeOperation = 'multiply';
+          ctx.drawImage(img, 0, 0, CANVAS_SIZE, CANVAS_SIZE);
+          ctx.restore();
+          this.baseTex?.source.update();
+        }
+      };
+      img.src = art.imageUrl;
+    }
     this.baseTex?.source.update();
   }
 

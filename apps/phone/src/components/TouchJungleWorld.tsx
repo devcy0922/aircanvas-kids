@@ -263,6 +263,19 @@ function Creature({
             strokeLinejoin="round"
           />
         ))}
+        {artwork.imageUrl && (
+          <image
+            href={artwork.imageUrl}
+            x="0"
+            y="0"
+            width="100"
+            height="100"
+            preserveAspectRatio="xMidYMid meet"
+            pointerEvents="none"
+            style={{ mixBlendMode: 'multiply' }}
+            opacity="0.95"
+          />
+        )}
         <g clipPath={`url(#${clipId})`} pointerEvents="none">
           {creation.paintStrokes.map((stroke, index) => (
             <polyline

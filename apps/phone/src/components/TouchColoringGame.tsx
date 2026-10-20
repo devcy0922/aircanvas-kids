@@ -253,20 +253,19 @@ export function TouchColoringGame({ themes, artworks, roomKey = 'LOCAL', onExit 
           ))}
         </div>
 
-        {/* 그림 캐러셀 썸네일 */}
-        <div className="touch-artwork-strip" role="tablist" aria-label="그림 선택">
+        {/* 도안 선택 탭 */}
+        <div className="touch-art-list" role="tablist" aria-label="작품 선택">
           {themeArtworks.map((item) => (
             <button
               key={item.id}
               type="button"
-              className={`touch-artwork-pill ${item.id === artwork.id ? 'is-active' : ''}`}
+              className={item.id === artwork.id ? 'is-selected' : ''}
               onClick={() => {
                 sound.playClick();
                 setArtworkId(item.id);
               }}
             >
-              <img src={item.thumbnailUrl} alt="" className="touch-artwork-thumb" />
-              <span>{item.name}</span>
+              {item.name}
             </button>
           ))}
         </div>
