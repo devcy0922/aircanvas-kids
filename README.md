@@ -1,4 +1,4 @@
-# AirCanvas Kids 🖐️📺 v0.4.0
+# AirCanvas Kids 🖐️📺 v0.5.0
 
 **스마트폰 카메라만으로 바로 시작하거나, 필요할 때 TV와 연결해
 공중 제스처 드로잉·색칠을 플레이하는 어린이용 게임.**
@@ -188,6 +188,7 @@ MediaPipe/WASM 또는 GPU 추론을 지원하는 장치부터 호환성 매트�
 ```bash
 # TV/폰/릴레이/콘텐츠 서버를 먼저 실행한 뒤
 make web-debug
+make ui-smoke   # 색칠 화면 폰 크기 스모크 (공개 URL 기본, AIRCANVAS_PHONE_URL로 변경)
 ```
 
 검증 결과는 `logs/evidence/<runId>/`에 `manifest.json`, `events.jsonl`,

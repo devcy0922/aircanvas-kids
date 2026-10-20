@@ -53,13 +53,14 @@ export function TouchColoringGame({ themes, artworks, roomKey = 'LOCAL', onExit 
   const [artworkId, setArtworkId] = useState(themeArtworks[0]?.id ?? '');
   const artwork = themeArtworks.find((item) => item.id === artworkId) ?? themeArtworks[0];
 
-  const [mode, setMode] = useState<TouchMode>('brush');
+  const [mode, setMode] = useState<TouchMode>('fill');
   const [brush, setBrush] = useState<BrushKind>('round');
   const [brushSize, setBrushSize] = useState(7);
   const [zoom, setZoom] = useState(1);
   const [color, setColor] = useState<PaletteColor>(PALETTE[0]);
   const [strokes, setStrokes] = useState<PaintStroke[]>([]);
   const [filledRegions, setFilledRegions] = useState<Record<string, string>>({});
+  const [history, setHistory] = useState<({ type: 'stroke' } | { type: 'fill'; regionId: string; prevColor?: string })[]>([]);
   const [isExported, setIsExported] = useState(false);
   const [isAwakening, setIsAwakening] = useState(false);
   const [creations, setCreations] = useState<WorldCreation[]>(() => loadCreations(storageKey));
@@ -78,6 +79,7 @@ export function TouchColoringGame({ themes, artworks, roomKey = 'LOCAL', onExit 
     setArtworkId(themeArtworks[0]?.id ?? '');
     setStrokes([]);
     setFilledRegions({});
+    setHistory([]);
     setZoom(1);
     setIsExported(false);
     setIsAwakening(false);
@@ -86,6 +88,7 @@ export function TouchColoringGame({ themes, artworks, roomKey = 'LOCAL', onExit 
   useEffect(() => {
     setStrokes([]);
     setFilledRegions({});
+    setHistory([]);
     setZoom(1);
     setIsExported(false);
     setIsAwakening(false);
@@ -108,17 +111,46 @@ export function TouchColoringGame({ themes, artworks, roomKey = 'LOCAL', onExit 
       ? themeArtworks[(artworkIndex + 1) % themeArtworks.length]
       : undefined;
 
+  const handleStroke = (newStroke: PaintStroke) => {
+    setStrokes((prev) => [...prev, newStroke]);
+    setHistory((prev) => [...prev, { type: 'stroke' }]);
+  };
+
   const handleFillRegion = (regionId: string, regionColor: string) => {
+    const prevColor = filledRegions[regionId];
+    if (prevColor === regionColor) return;
     setFilledRegions((prev) => ({
       ...prev,
       [regionId]: regionColor,
     }));
+    setHistory((prev) => [...prev, { type: 'fill', regionId, prevColor }]);
+  };
+
+  const handleUndo = () => {
+    if (history.length === 0) return;
+    sound.playClick();
+    const last = history[history.length - 1];
+    setHistory((prev) => prev.slice(0, -1));
+    if (last.type === 'stroke') {
+      setStrokes((prev) => prev.slice(0, -1));
+    } else if (last.type === 'fill') {
+      setFilledRegions((prev) => {
+        const next = { ...prev };
+        if (last.prevColor) {
+          next[last.regionId] = last.prevColor;
+        } else {
+          delete next[last.regionId];
+        }
+        return next;
+      });
+    }
   };
 
   const handleClear = () => {
     sound.playClick();
     setStrokes([]);
     setFilledRegions({});
+    setHistory([]);
   };
 
   const handleWakeUp = () => {
@@ -316,7 +348,7 @@ export function TouchColoringGame({ themes, artworks, roomKey = 'LOCAL', onExit 
         zoom={zoom}
         strokes={strokes}
         filledRegions={filledRegions}
-        onStroke={(newStroke) => setStrokes((prev) => [...prev, newStroke])}
+        onStroke={handleStroke}
         onFillRegion={handleFillRegion}
       />
 
@@ -401,6 +433,15 @@ export function TouchColoringGame({ themes, artworks, roomKey = 'LOCAL', onExit 
 
         {/* 하단 주요 액션 버튼 */}
         <div className="touch-footer-actions">
+          <button
+            type="button"
+            className="btn-ghost"
+            onClick={handleUndo}
+            disabled={history.length === 0}
+            aria-label="한 단계 되돌리기"
+          >
+            ↩️ 되돌리기
+          </button>
           <button
             type="button"
             className="btn-ghost"

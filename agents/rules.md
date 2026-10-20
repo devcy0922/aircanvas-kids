@@ -63,10 +63,17 @@
   배포 작업은 빌드 성공과 별도로 정적 파일/원격 커밋/공개 URL readback을 확인한다.
 - 작업 완료 전 제품 버전을 semver로 올린다. `package.json`/`package-lock.json`/워크스페이스
   패키지 버전, UI에 표시되는 버전, `CHANGELOG.md`를 같은 버전으로 맞추고 `vMAJOR.MINOR.PATCH`
-  태그를 만든다. 이번 릴리스 기준선은 `v0.1.0`이며 후속 작업은 변경 종류에 맞춰 다음 버전으로 올린다.
+  태그를 만든다. 현재 릴리스 기준선은 `v0.5.0`이며 후속 작업은 변경 종류에 맞춰 다음 버전으로 올린다(기능=minor, 수정=patch).
 - 웹 디버깅은 `/srv/demo/web-bot`의 격리 Playwright 실행을 사용한다. 페이지 도착만으로
   성공 처리하지 않고 UI 상태, 콘솔 오류, 요청 실패, 실제 커맨드/터치 결과를 확인한다.
 - 기존 사용자의 dirty worktree 변경은 요청 범위와 겹치지 않으면 건드리지 않는다.
+- UI(TSX)에 새 `className`을 쓰면 같은 변경에서 CSS를 추가하고, 쓰지 않게 된 CSS 규칙은 제거한다.
+  전역 요소 선택자(`header`, `button` 등)가 새 화면을 깨지 않는지 확인한다. 마크업만 바꾸고 CSS를 빠뜨려
+  화면이 깨졌던 전례(v0.4.0)가 있다.
+- 색칠 도안(영역·선화·썸네일)은 `tools/art`로 일러스트에서 생성한다. 영역 path를 손으로 쓰거나
+  `dino.ts`를 직접 고치지 않는다. 자세한 절차는 `docs/content-pipeline.md` 3.1.
+- 화면을 바꾼 작업은 코드가 컴파일된다는 사실만으로 완료로 보지 않는다. `make ui-smoke`와
+  스크린샷을 직접 보고 판단한다.
 
 ## 6. 금지 사항
 
@@ -74,3 +81,34 @@
 - HTTPS 운영 URL에서 사설 IP `http://`를 사용하도록 문서화하지 않는다.
 - 검증 없이 배포 완료, 실기기 E2E 완료, 자동 재기동 보장을 주장하지 않는다.
 - `.env`, 인증서, 토큰 등 시크릿을 커밋하지 않는다.
+
+## 7. 작업 완료 체크리스트 (모든 작업은 이 순서로 끝낸다)
+
+변경이 있는 작업은 아래를 **모두** 마쳐야 완료다. 건너뛴 항목이 있으면 완료라고 하지 않고 이유를 보고한다.
+
+1. [ ] **설계/문서 선반영**: 구조·흐름·URL·프로토콜·콘텐츠 규격이 바뀌었으면 `docs/`와 `README.md`를 갱신했다.
+2. [ ] **검증 게이트**: `make check`(TypeScript 빌드 + cargo check)가 통과했다. 실패 출력은 숨기지 않는다.
+3. [ ] **버전 bump**: semver를 올렸다. 아래 위치가 모두 같은 값이다.
+   `package.json`, `package-lock.json`, `apps/*/package.json`, `packages/*/package.json`
+   (`npm version X.Y.Z --no-git-tag-version --workspaces --include-workspace-root`),
+   `packages/protocol/src/index.ts`의 `APP_VERSION`, `content-server/manifest.json`의 `version`, `README.md` 제목.
+4. [ ] **CHANGELOG**: `CHANGELOG.md`에 `## vX.Y.Z — YYYY-MM-DD` 항목을 추가했다(원인·변경·검증).
+5. [ ] **task-board**: `.ai/state/task-board.json`에 작업 항목과 `verification`을 기록했다.
+6. [ ] **커밋**: 요청 범위의 파일만 스테이징했다(`git add <경로>`, `git add -A` 금지). 무관한 dirty 변경,
+   `__pycache__`, `logs/evidence`, 시크릿은 제외했다. 메시지는 한국어 `type: 요약`.
+7. [ ] **main 푸시 + 태그**: `git push origin main` 후 `git tag -a vX.Y.Z -m "..."` → `git push origin vX.Y.Z`.
+   푸시 후 `git ls-remote origin main vX.Y.Z`로 원격 커밋이 로컬 HEAD와 같은지 확인했다.
+8. [ ] **배포**: 빌드 산출물을 nginx가 읽는 경로로 동기화했다.
+   - nginx(`edge-nginx`)는 `/srv/airCanvas/aircanvas-kids/{apps/phone/dist, apps/tv/dist, content-server}`를 마운트한다.
+     이 경로는 `/srv/products/aircanvas-kids`와 **별개의 디렉터리**이므로 빌드만으로는 공개에 반영되지 않는다.
+   - `for p in apps/phone/dist apps/tv/dist content-server; do rsync -a --delete $p/ /srv/airCanvas/aircanvas-kids/$p/; done`
+     후 `diff -rq`로 빌드본과 배포본이 같은지 확인한다. 그 경로의 git 상태는 건드리지 않는다.
+   - 릴레이(Rust) 코드를 바꿨을 때만 서버를 재빌드·재기동한다.
+9. [ ] **공개 URL readback**: `https://kids.aircanvas.kr/manifest.json`의 `version`이 방금 올린 버전이고,
+   `index.html`이 가리키는 JS 번들이 새 빌드의 것임을 확인했다.
+10. [ ] **실제 브라우저 확인**: 화면이 바뀐 작업은 `make ui-smoke`(공개 URL)를 통과시키고 스크린샷을 직접 확인했다.
+    연결 게임 경로를 건드렸다면 `make web-debug`도 통과시켰다.
+11. [ ] **보고**: 무엇을 했고 무엇을 검증했는지, 하지 못한 것(실기기 카메라/TV 등)을 구분해서 보고했다.
+
+> 이 체크리스트는 사용자 지시("커밋·푸시·태그·배포·즉시 확인을 계속 유지")에 따른 상시 규칙이다.
+> 원격 푸시와 공개 배포는 현재 사용자가 없는 상태에서 승인된 흐름이며, 사용자가 생기면 배포 전 확인 절차를 재검토한다.

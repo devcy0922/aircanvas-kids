@@ -1,7 +1,7 @@
 export GIT_SHA ?= $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 export HT_BIND ?= 0.0.0.0:8180
 
-.PHONY: help build check test web-debug agents-link dev-server dev-phone dev-phone-ssl dev-tv dev-content clean
+.PHONY: help build check test web-debug ui-smoke agents-link dev-server dev-phone dev-phone-ssl dev-tv dev-content clean
 
 help:
 	@echo "AirCanvas Kids Monorepo Commands:"
@@ -15,6 +15,7 @@ help:
 	@echo "  make dev-tv         - Run TV App dev server (:7100)"
 	@echo "  make dev-content    - Run CORS-enabled dev content server (:8081)"
 	@echo "  make web-debug      - Run web-bot Playwright flow (home -> play) with evidence"
+	@echo "  make ui-smoke       - 색칠 화면 폰 크기 UI 스모크 (기본: 공개 URL, AIRCANVAS_PHONE_URL로 변경)"
 
 build:
 	@echo "[Build] Building TypeScript packages and web apps..."
@@ -68,6 +69,14 @@ web-debug:
 		-e AIRCANVAS_CONTENT=http://$(or $(AIRCANVAS_DEBUG_HOST),192.168.0.10):8081 \
 		-e AIRCANVAS_EVIDENCE_ROOT=/workspace/logs/evidence \
 		web-bot python3 /workspace/tools/web-debug.py
+
+ui-smoke:
+	@echo "[UI Smoke] 색칠 화면 스모크 (web-bot)..."
+	docker compose -f /srv/demo/web-bot/docker-compose.yml run --rm \
+		-v "$(CURDIR):/workspace" \
+		-e AIRCANVAS_PHONE_URL=$(or $(AIRCANVAS_PHONE_URL),https://kids.aircanvas.kr/) \
+		-e AIRCANVAS_EVIDENCE_ROOT=/workspace/logs/evidence \
+		web-bot python3 /workspace/tools/ui-smoke.py
 
 clean:
 	@echo "[Clean] Cleaning build artifacts..."

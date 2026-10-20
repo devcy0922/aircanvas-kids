@@ -111,9 +111,9 @@ export function TouchColoringBoard({
 
   const handlePointerDown = (event: PointerEvent<SVGSVGElement>) => {
     if (event.pointerType === 'mouse' && event.button !== 0) return;
-    event.preventDefault();
 
     if (mode === 'brush') {
+      event.preventDefault();
       event.currentTarget.setPointerCapture(event.pointerId);
       activePointerIdRef.current = event.pointerId;
       const point = pointFromEvent(event);
@@ -142,8 +142,9 @@ export function TouchColoringBoard({
     }
   };
 
-  const handleRegionClick = (regionId: string, event: React.MouseEvent) => {
+  const handleRegionTrigger = (regionId: string, event: React.MouseEvent) => {
     if (mode === 'fill') {
+      event.preventDefault();
       event.stopPropagation();
       sound.playFill();
       onFillRegion(regionId, color);
@@ -205,9 +206,9 @@ export function TouchColoringBoard({
                 d={region.path}
                 fill={fillColor}
                 stroke={mode === 'fill' ? '#abbac2' : '#d2dbe0'}
-                strokeWidth={mode === 'fill' ? '0.8' : '0.5'}
+                strokeWidth={mode === 'fill' ? '0.3' : '0.2'}
                 className={`touch-region ${filledRegions[region.id] ? 'is-filled' : ''}`}
-                onClick={(e) => handleRegionClick(region.id, e)}
+                onClick={(e) => handleRegionTrigger(region.id, e)}
               />
             );
           })}
@@ -244,7 +245,7 @@ export function TouchColoringBoard({
         )}
 
         {/* 외곽선 라인아트 (최상단) */}
-        <g className="touch-board__outline" fill="none" stroke="#1c2c28" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" pointerEvents="none">
+        <g className="touch-board__outline" fill="none" stroke="#1c2c28" strokeWidth="0.45" strokeOpacity="0.6" strokeLinecap="round" strokeLinejoin="round" pointerEvents="none">
           {artwork.regions.map((region) => (
             <path key={region.id} d={region.path} />
           ))}

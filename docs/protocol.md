@@ -1,4 +1,4 @@
-# 통신 프로토콜 명세 v0.2
+# 통신 프로토콜 명세 v0.4
 
 단일 WebSocket 엔드포인트에서 JSON 텍스트 프레임으로 통신한다.
 스키마의 단일 진실원은 `packages/protocol/src/index.ts` 이며, 서버 Rust 구현은 이 문서와 동기화를 유지한다.
@@ -73,7 +73,7 @@ interface BaseMessage { type: string }
 { "type": "select-artwork", "theme": "ocean", "index": 3 }
 ```
 
-## 4. v0.2: Phone=Brain / TV=Thin Display 프로토콜
+## 4. v0.4: Phone=Brain / TV=Thin Display 프로토콜
 
 ### 4.1 TVCommand (폰 → TV 단방향, 서버 경유)
 
@@ -81,8 +81,8 @@ interface BaseMessage { type: string }
 
 ```ts
 type TVCommand =
-  | { type: 'load-scene'; scene: 'home' | 'calib' | 'play' | 'gallery'; payload: LoadScenePayload }
-  | { type: 'set-cursor'; x: number; y: number; visible: boolean; color?: string }
+  | { type: 'load-scene'; scene: 'home' | 'calib' | 'play' | 'gallery' | 'world'; payload: LoadScenePayload }
+  | { type: 'set-cursor'; x: number; y: number; visible: boolean; color?: string; painting?: boolean }
   /** 자유선 그리기: 점 배열로 경로 전송 */
   | { type: 'draw-stroke'; points: { x: number; y: number }[]; color: string }
   /** 영역 채우기: regionId로 식별 */
@@ -104,7 +104,8 @@ type LoadScenePayload =
   | { scene: 'home'; roomCode: string; tvName?: string }
   | { scene: 'calib'; theme: ThemeId; artworkName: string; corners: { x: number; y: number }[] }
   | { scene: 'play'; artwork: ArtworkRuntime; theme: ThemeId }
-  | { scene: 'gallery'; theme: ThemeId; completed: CompletedArtwork[] };
+  | { scene: 'gallery'; theme: ThemeId; completed: CompletedArtwork[] }
+  | { scene: 'world'; world: 'jungle'; theme: ThemeId; character: ArtworkRuntime; progress: number };
 ```
 
 #### `ArtworkRuntime` (TV 전송용 경량 아트워크)
@@ -114,6 +115,7 @@ interface ArtworkRuntime {
   name: string;
   viewBox: string;
   regions: RegionRuntime[];
+  imageUrl?: string;
 }
 
 interface RegionRuntime {

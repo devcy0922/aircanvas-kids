@@ -1,5 +1,5 @@
 /** 제품 릴리스 버전 — Phone/TV UI와 워크스페이스 버전을 함께 관리한다. */
-export const APP_VERSION = '0.4.0';
+export const APP_VERSION = '0.5.0';
 export const APP_VERSION_LABEL = `v${APP_VERSION}`;
 
 /**

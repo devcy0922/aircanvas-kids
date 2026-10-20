@@ -1,4 +1,4 @@
-# 콘텐츠 파이프라인 v0.2 — 패키지 기반 아트워크 관리
+# 콘텐츠 파이프라인 v0.5 — 패키지 기반 아트워크 및 일러스트 에셋 관리
 
 ## 1. 데이터 모델
 
@@ -9,6 +9,7 @@ interface ArtworkRuntime {
   name: string;
   viewBox: string;
   regions: RegionRuntime[];
+  imageUrl?: string; // 투명 외곽선 선화 PNG 경로
 }
 
 interface RegionRuntime {
@@ -25,7 +26,8 @@ interface ArtworkPack {
   name: string;
   viewBox: string;
   regions: RegionPack[];
-  thumbnailUrl: string; // 썸네일 이미지 URL
+  thumbnailUrl: string; // 썸네일 이미지 URL (PNG)
+  imageUrl?: string;    // 투명 외곽선 선화 PNG URL
 }
 
 interface RegionPack {
@@ -68,22 +70,50 @@ content-server/
 ├── manifest.json                 # 게임 패키지 매니페스트
 ├── nginx.conf                    # Nginx 설정
 ├── artworks/
-│   ├── thumbnails/               # 썸네일 이미지 (SVG)
-│   │   ├── dino-trex.svg
-│   │   ├── dino-brachio.svg
+│   ├── images/                   # 투명 배경 외곽선 선화 (PNG, tools/art가 생성)
+│   │   ├── dino-trex-line.png
+│   │   ├── dino-brachio-line.png
+│   │   ├── dino-trike-line.png
+│   │   ├── dino-stego-line.png
+│   │   └── dino-ptera-line.png
+│   ├── thumbnails/               # 256px 컬러 썸네일 (PNG, tools/art가 생성)
+│   │   ├── dino-trex.png
 │   │   └── ...
 │   └── data/                     # 아트워크 데이터 (선택적, 매니페스트에 포함됨)
 ```
 
-## 3. v0.2 콘텐츠 목록 (샘플 7종)
+## 3. v0.4 콘텐츠 목록 (주요 9종)
 
-| # | 공룡 (3) | # | 정글 (2) | # | 바다 (2) |
+| # | 공룡 (5) | # | 정글 (2) | # | 바다 (2) |
 |---|---|---|---|---|---|
 | 1 | 티라노사우루스 | 1 | 사자 | 1 | 열대어 |
 | 2 | 브라키오사우루스 | 2 | 코끼리 | 2 | 고래 |
 | 3 | 스테고사우루스 | | | | |
+| 4 | 트리케라톱스 | | | | |
+| 5 | 프테라노돈 | | | | |
 
-> **전체 30종(공룡/정글/바다 × 10)은 `packages/tv-art/src/artworks/*.ts` 에 정의되어 있으며, 콘텐츠 서버 매니페스트와 동기화되어야 함.**
+### 3.1 공룡 도안 생성 파이프라인 (`tools/art`)
+
+색칠 영역(region)을 손으로 쓰지 않는다. 영역·선화·썸네일이 **같은 일러스트에서 나오도록** 생성한다.
+손으로 쓴 path와 별도 PNG를 겹치면 서로 어긋나 그림이 망가진다(v0.4.0 문제).
+
+```
+tools/art/source/<id>.png   컬러 일러스트 원본 (512×512 RGBA, 서비스 대상 아님)
+tools/art/seeds.json        작품별 부위 시드 점(원본 픽셀 좌표) + 한국어 이름, 디테일은 radius로 번짐 제한
+        │  python3 tools/art/build_art.py [--only dino-trex] [--debug DIR]
+        ▼
+content-server/artworks/images/<id>-line.png   외곽선만 남긴 투명 선화 (모든 화면이 multiply로 얹음)
+content-server/artworks/thumbnails/<id>.png    컬러 썸네일
+content-server/manifest.json                   regions[].path, thumbnailUrl, imageUrl
+packages/tv-art/src/artworks/dino.ts           자동 생성 (직접 수정 금지)
+```
+
+- 의존성: `pip install numpy opencv-python-headless` (제작 시에만 필요, 런타임·빌드와 무관)
+- 분할: 시드 마커 워터셰드. 어두운 외곽선은 하나로 이어진 수로라 영역이 그 길로 번지므로 얇은 선 픽셀은
+  결과에서 버리고 가장 가까운 영역에 배정한다. 원본의 흰 눈·이빨은 투명 구멍이라 작은 구멍(<1500px)은 흰색으로 메운다.
+- 새 도안 추가: `source/`에 PNG 추가 → `--debug`로 영역 분할 확인 → `seeds.json`의 시드 보정 → 재생성.
+- 결과 확인은 `--debug` 오버레이와 `make ui-smoke` 스크린샷으로 한다. 렌더링 확인 없이 완료하지 않는다.
+- 정글·바다 도안은 아직 이 파이프라인이 아닌 수작업 path이다 (후속 과제: 일러스트 PNG 준비 후 동일 적용).
 
 ## 4. 색칠 진행도 판정 알고리즘 (TV 측 GameEngine)
 

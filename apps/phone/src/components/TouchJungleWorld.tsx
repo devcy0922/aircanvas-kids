@@ -219,7 +219,9 @@ function Creature({
     setTimeout(() => setIsJumping(false), 800);
 
     const rect = (e.currentTarget as SVGElement).getBoundingClientRect();
-    onPet(rect.left + rect.width / 2, rect.top);
+    const svgEl = (e.currentTarget as SVGElement).closest('svg');
+    const svgRect = svgEl ? svgEl.getBoundingClientRect() : { left: 0, top: 0 };
+    onPet(rect.left + rect.width / 2 - svgRect.left, rect.top - svgRect.top);
   };
 
   return (

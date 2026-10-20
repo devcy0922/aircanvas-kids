@@ -34,3 +34,6 @@ logs/evidence/
 .claude/
 .codex/
 .github/copilot-instructions.md
+
+# Python
+__pycache__/

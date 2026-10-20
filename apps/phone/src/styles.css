@@ -638,7 +638,8 @@ h1 {
 }
 
 .touch-game__header {
-  max-width: 620px;
+  display: block; /* 전역 header { display: flex } 무력화 */
+  width: min(100%, 620px);
   margin: 0 auto;
 }
 
@@ -655,47 +656,8 @@ h1 {
   font-weight: 900;
 }
 
-.touch-game__lead,
-.touch-status,
-.touch-section,
-.touch-tools,
-.touch-play-section {
-  width: min(100%, 620px);
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.touch-game__lead {
-  margin-top: 13px;
-  color: #53616b;
-  font-size: 14px;
-  line-height: 1.55;
-}
-
-.touch-section {
-  margin-top: 18px;
-}
-
-.touch-section__heading,
-.touch-progress-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 9px;
-  color: #65747c;
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.touch-section__heading strong,
-.touch-progress-row strong {
-  color: #244a3b;
-}
-
 .touch-theme-list,
-.touch-art-list,
-.touch-mode-list {
+.touch-art-list {
   display: flex;
   gap: 8px;
   overflow-x: auto;
@@ -704,14 +666,12 @@ h1 {
 }
 
 .touch-theme-list::-webkit-scrollbar,
-.touch-art-list::-webkit-scrollbar,
-.touch-mode-list::-webkit-scrollbar {
+.touch-art-list::-webkit-scrollbar {
   display: none;
 }
 
 .touch-theme-list button,
-.touch-art-list button,
-.touch-mode-list button {
+.touch-art-list button {
   flex: 0 0 auto;
   min-height: 42px;
   padding: 9px 13px;
@@ -724,8 +684,7 @@ h1 {
 }
 
 .touch-theme-list button.is-selected,
-.touch-art-list button.is-selected,
-.touch-mode-list button.is-selected {
+.touch-art-list button.is-selected {
   border-color: #244a3b;
   color: #fffdf7;
   background: #244a3b;
@@ -735,15 +694,6 @@ h1 {
   min-height: 38px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.62);
-}
-
-.touch-play-section {
-  margin-top: 14px;
-  padding: 14px;
-  border: 1px solid rgba(36, 74, 59, 0.1);
-  border-radius: 24px;
-  background: rgba(255, 253, 247, 0.78);
-  box-shadow: 0 14px 34px rgba(36, 74, 59, 0.1);
 }
 
 .touch-board-shell {
@@ -776,90 +726,6 @@ h1 {
 
 .touch-board--paint {
   cursor: crosshair;
-}
-
-.touch-brush-cursor {
-  filter: drop-shadow(0 1px 1px rgba(20, 40, 32, 0.25));
-}
-
-.touch-board-hint {
-  margin: 10px 0 0;
-  color: #7b878e;
-  font-size: 12px;
-  text-align: center;
-}
-
-.touch-export-row {
-  display: grid;
-  gap: 8px;
-  margin-top: 15px;
-  padding: 13px 14px;
-  border: 1px solid rgba(193, 102, 61, 0.2);
-  border-radius: 17px;
-  background: linear-gradient(135deg, rgba(255, 247, 231, 0.92), rgba(232, 246, 226, 0.9));
-}
-
-.touch-export-btn {
-  width: 100%;
-  margin: 0;
-  background: #c1663d;
-  box-shadow: 0 8px 18px rgba(193, 102, 61, 0.22);
-}
-
-.touch-export-row span {
-  color: #7c6d61;
-  font-size: 11px;
-  font-weight: 700;
-  text-align: center;
-}
-
-.brush-preview {
-  display: inline-block;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  background: currentColor;
-}
-
-.brush-preview--round {
-  width: 16px;
-  height: 16px;
-}
-
-.brush-preview--pen {
-  width: 6px;
-  height: 6px;
-  box-shadow: 0 0 0 2px rgba(83, 97, 107, 0.18);
-}
-
-.touch-mode-list button {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.touch-mode-list button:disabled {
-  opacity: 0.42;
-}
-
-.touch-brush-size {
-  display: grid;
-  grid-template-columns: auto 1fr 28px;
-  align-items: center;
-  gap: 12px;
-  margin-top: 11px;
-  color: #596a72;
-  font-size: 12px;
-  font-weight: 850;
-}
-
-.touch-brush-size input {
-  width: 100%;
-  accent-color: #244a3b;
-}
-
-.touch-brush-size strong {
-  color: #244a3b;
-  text-align: right;
 }
 
 .touch-zoom {
@@ -1568,42 +1434,6 @@ h1 {
   font-size: 13px;
 }
 
-.touch-tools {
-  margin-top: 15px;
-}
-
-.touch-mode-list button {
-  flex: 1;
-}
-
-.touch-palette {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 9px;
-  margin-top: 12px;
-}
-
-.touch-palette button {
-  aspect-ratio: 1;
-  min-width: 28px;
-  border: 3px solid rgba(255, 255, 255, 0.94);
-  border-radius: 50%;
-  box-shadow: 0 3px 9px rgba(30, 40, 60, 0.14);
-}
-
-.touch-palette button.is-selected {
-  outline: 3px solid #244a3b;
-  outline-offset: 2px;
-}
-
-.touch-status {
-  margin-top: 14px;
-  color: #53616b;
-  font-size: 13px;
-  font-weight: 800;
-  text-align: center;
-}
-
 .phone-welcome__orb,
 .phone-welcome__dino {
   position: absolute;
@@ -2020,10 +1850,19 @@ h1 {
 
 .touch-footer-actions {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   width: 100%;
   max-width: 460px;
   margin: 14px auto 0;
+  align-items: center;
+}
+
+.touch-footer-actions .btn-ghost {
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .wake-up-btn {
@@ -2113,4 +1952,158 @@ h1 {
 @keyframes firefly-blink {
   0% { opacity: 0.2; transform: translateY(0); }
   100% { opacity: 0.95; transform: translateY(-2px); }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   색칠 화면 — 현재 마크업(TouchColoringGame / TouchColoringBoard) 기준
+   TSX에 새 className을 쓰면 반드시 여기에 스타일을 함께 추가한다. (make ui-smoke로 확인)
+   ───────────────────────────────────────────────────────────── */
+
+.touch-game__title-wrap {
+  margin-top: 14px;
+}
+
+.touch-theme-nav,
+.touch-art-list {
+  margin-top: 12px;
+}
+
+.touch-theme-chip {
+  border-width: 2px;
+  border-style: solid;
+  border-radius: 999px;
+}
+
+.touch-progress-pill {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  min-width: 112px;
+  height: 32px;
+  padding: 0 12px;
+  overflow: hidden;
+  border: 1px solid rgba(36, 74, 59, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  color: #244a3b;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.touch-progress-pill__bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: linear-gradient(90deg, #a8dfb0, #5fc596);
+  opacity: 0.6;
+  transition: width 0.3s ease;
+}
+
+.touch-progress-pill span {
+  position: relative;
+}
+
+.touch-game__toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(100%, 460px);
+  margin: 14px auto 0;
+}
+
+.brush-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(36, 74, 59, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.brush-kind-group,
+.brush-size-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.brush-size-group {
+  margin-left: auto;
+}
+
+.btn-sub {
+  min-height: 34px;
+  padding: 6px 12px;
+  border: 1px solid rgba(36, 74, 59, 0.18);
+  border-radius: 999px;
+  background: #ffffff;
+  color: #53616b;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.btn-sub.is-active {
+  border-color: #244a3b;
+  background: #244a3b;
+  color: #fffdf7;
+}
+
+.size-dot {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 2px solid rgba(36, 74, 59, 0.16);
+  border-radius: 50%;
+  background: #ffffff;
+}
+
+.size-dot.is-active {
+  border-color: #244a3b;
+  box-shadow: 0 0 0 2px rgba(36, 74, 59, 0.14);
+}
+
+.brush-controls .touch-zoom {
+  flex: 1 1 100%;
+  margin-top: 0;
+}
+
+.palette-grid {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.palette-chip {
+  width: 100%;
+  aspect-ratio: 1;
+  min-width: 0;
+  padding: 0;
+  border: 3px solid rgba(255, 255, 255, 0.94);
+  border-radius: 50%;
+  box-shadow: 0 3px 9px rgba(30, 40, 60, 0.18);
+  transition: transform 0.15s ease;
+}
+
+.palette-chip.is-selected {
+  outline: 3px solid #244a3b;
+  outline-offset: 2px;
+  transform: scale(1.08);
+}
+
+.touch-footer-actions {
+  flex-wrap: wrap;
+}
+
+.touch-footer-actions .btn-ghost {
+  flex: 1 1 0;
+  flex-shrink: 1;
+}
+
+.touch-footer-actions .wake-up-btn {
+  flex: 1 1 100%;
+  order: 3;
+  padding: 15px 16px;
+  font-size: 17px;
 }
