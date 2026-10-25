@@ -69,7 +69,7 @@ dev-content:
 
 web-debug:
 	@echo "[Web Debug] Running camera-free browser flow via web-bot..."
-	docker compose -f /srv/demo/web-bot/docker-compose.yml run --rm \
+	docker compose -f /srv/company/llm/web-bot/docker-compose.yml run --rm \
 		-v "$(CURDIR):/workspace" \
 		-e AIRCANVAS_DEBUG_ROOM=$(or $(AIRCANVAS_DEBUG_ROOM),WEBDBG) \
 		-e AIRCANVAS_TV_URL=http://$(or $(AIRCANVAS_DEBUG_HOST),192.168.0.10):7100/ \
@@ -87,7 +87,7 @@ content:
 
 ui-smoke:
 	@echo "[UI Smoke] 색칠 화면 스모크 (web-bot)..."
-	docker compose -f /srv/demo/web-bot/docker-compose.yml run --rm \
+	docker compose -f /srv/company/llm/web-bot/docker-compose.yml run --rm \
 		-v "$(CURDIR):/workspace" \
 		-e AIRCANVAS_PHONE_URL=$(or $(AIRCANVAS_PHONE_URL),https://kids.aircanvas.kr/play/) \
 		-e AIRCANVAS_EVIDENCE_ROOT=/workspace/logs/evidence \
@@ -95,7 +95,7 @@ ui-smoke:
 
 site-smoke:
 	@echo "[Site Smoke] 포털·게임·엄빠 연결 스모크 (web-bot)..."
-	docker compose -f /srv/demo/web-bot/docker-compose.yml run --rm \
+	docker compose -f /srv/company/llm/web-bot/docker-compose.yml run --rm \
 		-v "$(CURDIR):/workspace" \
 		-e AIRCANVAS_SITE_URL=$(or $(AIRCANVAS_SITE_URL),https://kids.aircanvas.kr/) \
 		-e AIRCANVAS_EVIDENCE_ROOT=/workspace/logs/evidence \
@@ -104,3 +104,7 @@ site-smoke:
 clean:
 	@echo "[Clean] Cleaning build artifacts..."
 	rm -rf apps/phone/dist apps/tv/dist packages/protocol/dist packages/tv-art/dist server/target
+
+.PHONY: deploy-cafe
+deploy-cafe:
+	docker compose -p cafe -f apps/cafe/docker-compose.yml up -d --build

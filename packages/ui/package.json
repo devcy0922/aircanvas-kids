@@ -1,6 +1,6 @@
 {
   "name": "@ht/ui",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "private": true,
   "description": "kids 공용 디자인 토큰(CSS 변수)",
   "exports": {

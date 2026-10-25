@@ -1,12 +1,16 @@
 # 엄빠(서울형 키즈카페) 데모 이미지
 FROM node:20-alpine
 
+ARG GIT_SHA=unknown
+LABEL org.opencontainers.image.revision=$GIT_SHA
+ENV GIT_SHA=$GIT_SHA
 ENV NODE_ENV=production
 WORKDIR /app
 
 COPY data/ ./data/
 COPY public/ ./public/
 COPY server.js ./server.js
+COPY package.json ./package.json
 
 ENV PORT=8124
 EXPOSE 8124

@@ -78,7 +78,7 @@
 - 작업 완료 전 제품 버전을 semver로 올린다. `package.json`/`package-lock.json`/워크스페이스
   패키지 버전, UI에 표시되는 버전, `CHANGELOG.md`를 같은 버전으로 맞추고 `vMAJOR.MINOR.PATCH`
   태그를 만든다. 현재 릴리스 기준선은 `v0.7.0`이며 후속 작업은 변경 종류에 맞춰 다음 버전으로 올린다(기능=minor, 수정=patch).
-- 웹 디버깅은 `/srv/demo/web-bot`의 격리 Playwright 실행을 사용한다. 페이지 도착만으로
+- 웹 디버깅은 `/srv/company/llm/web-bot`의 격리 Playwright 실행을 사용한다. 페이지 도착만으로
   성공 처리하지 않고 UI 상태, 콘솔 오류, 요청 실패, 실제 커맨드/터치 결과를 확인한다.
 - 기존 사용자의 dirty worktree 변경은 요청 범위와 겹치지 않으면 건드리지 않는다.
 - UI(TSX)에 새 `className`을 쓰면 같은 변경에서 CSS를 추가하고, 쓰지 않게 된 CSS 규칙은 제거한다.
@@ -131,12 +131,9 @@
 7. [ ] **main 푸시 + 태그**: `git push origin main` 후 `git tag -a vX.Y.Z -m "..."` → `git push origin vX.Y.Z`.
    푸시 후 `git ls-remote origin main vX.Y.Z`로 원격 커밋이 로컬 HEAD와 같은지 확인했다.
 8. [ ] **배포**: 빌드 산출물을 nginx가 읽는 경로로 동기화했다.
-   - nginx(`edge-nginx`)는 `/srv/airCanvas/aircanvas-kids/{apps/phone/dist, apps/tv/dist, content-server}`를 마운트한다.
-     이 경로는 `/srv/products/aircanvas-kids`와 **별개의 디렉터리**이므로 빌드만으로는 공개에 반영되지 않는다.
-   - **사이트 루트(포털 `/` + 게임 `/play/`)**: `npm run build && make site`로 `site/`를 조립해 `rsync -a --delete site/ /srv/airCanvas/aircanvas-kids/apps/phone/dist/`
-     (마운트 이름은 옛 `phone/dist`지만 지금은 **사이트 루트**다. 그곳에 게임만 직접 넣지 않는다). 그 외:
-     `for p in apps/tv/dist content-server; do rsync -a --delete $p/ /srv/airCanvas/aircanvas-kids/$p/; done`
-     후 `diff -rq`로 `site/`·`apps/tv/dist`·`content-server`가 배포본과 같은지 확인한다. 그 경로의 git 상태는 건드리지 않는다.
+   - nginx(`edge-nginx`)는 canonical 원본 `/srv/company/prd/kids/aircanvas-kids`의 `site/`·`apps/tv/dist`·`content-server`를 직접 마운트한다.
+   - **사이트 루트(포털 `/` + 게임 `/play/`)**는 `npm run build && make site`로 조립한다. 구형 배포 clone으로 rsync하지 않는다.
+   - bind source 변경은 Edge 소유 레포의 predeploy 검증 뒤 해당 Nginx만 재생성하고 공개 URL을 readback한다. 기존 clone은 복구/미병합 작업 보존본으로만 유지한다.
    - **엄빠**(`apps/cafe`)를 바꿨으면 `docker compose -f apps/cafe/docker-compose.yml up -d --build`로 `kids-cafe`(:8124)를 다시 만들고 `/healthz`를 확인한다.
    - 릴레이(Rust) 코드를 바꿨을 때만 서버를 재빌드·재기동한다.
 9. [ ] **공개 URL readback**: `https://kids.aircanvas.kr/manifest.json`의 `version`이 방금 올린 버전이고,

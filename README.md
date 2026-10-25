@@ -1,4 +1,4 @@
-# AirCanvas Kids 🖐️📺 v0.8.0
+# AirCanvas Kids 🖐️📺 v0.8.1
 
 **스마트폰 카메라만으로 바로 시작하거나, 필요할 때 TV와 연결해
 공중 제스처 드로잉·색칠을 플레이하는 어린이용 게임.**
@@ -301,3 +301,7 @@ node tools/smoke-relay.mjs             # 서버 릴레이 자동 스모크 테�
 ## 라이선스
 
 사내/개인 포트폴리오 용도 (TBD)
+
+### 회사 배포 원본
+
+운영 원본은 `/srv/company/prd/kids/aircanvas-kids`다. `make site`의 site/와 TV dist, content-server를 Edge가 직접 마운트한다. 이전 airCanvas clone은 보존용이며 최신 배포본으로 rsync하지 않는다.

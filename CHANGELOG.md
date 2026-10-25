@@ -1,3 +1,11 @@
+## v0.8.1 — 2026-10-26
+
+- 회사 키즈 제품팀 canonical 소스에서 포털·게임·TV·콘텐츠를 직접 배포하도록 경로를 통합한다.
+- 엄빠 Compose, relay systemd와 web-bot 검증 경로를 새 소유 팀 경로로 맞춘다.
+- 구형 clone의 텍스트 코드와 미추적 에셋은 별도 보존하고 최신 앱에 자동 병합하지 않는다. 그림·도안·프로토콜 변경은 없다.
+- 엄빠 이미지의 package 버전과 Git SHA를 healthz에 추가해 배포본을 식별한다.
+- 실제 check/build/content-check 및 공개 UI/site smoke 결과는 배포 보고에 기록한다.
+
 # 변경 기록
 
 ## v0.8.0 — 2026-10-21

@@ -7,7 +7,9 @@
       "id": "TASK-001",
       "name": "프로젝트 로컬 규칙 수립",
       "status": "done",
-      "outputs": ["agents/rules.md"]
+      "outputs": [
+        "agents/rules.md"
+      ]
     },
     {
       "id": "TASK-002",
@@ -26,35 +28,48 @@
       "id": "TASK-003",
       "name": "Rust(Axum) 릴레이 서버 구현",
       "status": "done",
-      "outputs": ["server/src/main.rs", "server/Cargo.toml"],
+      "outputs": [
+        "server/src/main.rs",
+        "server/Cargo.toml"
+      ],
       "verification": "cargo check/build 통과, /health 200, 스모크 테스트 통과"
     },
     {
       "id": "TASK-004",
       "name": "공유 패키지(@ht/protocol, @ht/tv-art) 작성",
       "status": "done",
-      "outputs": ["packages/protocol", "packages/tv-art"],
+      "outputs": [
+        "packages/protocol",
+        "packages/tv-art"
+      ],
       "verification": "tsc 타입검사 통과"
     },
     {
       "id": "TASK-005",
       "name": "TV 클라이언트 구현 (React+PixiJS, 30종 컨텐츠)",
       "status": "done",
-      "outputs": ["apps/tv"],
+      "outputs": [
+        "apps/tv"
+      ],
       "verification": "vite build 통과"
     },
     {
       "id": "TASK-006",
       "name": "폰 클라이언트 구현 (MediaPipe 손추적 + 호모그래피 캘리브레이션)",
       "status": "done",
-      "outputs": ["apps/phone"],
+      "outputs": [
+        "apps/phone"
+      ],
       "verification": "vite build 통과"
     },
     {
       "id": "TASK-007",
       "name": "도구(가짜 폰 시뮬레이터, 릴레이 스모크) 작성",
       "status": "done",
-      "outputs": ["tools/fake-phone-sim.mjs", "tools/smoke-relay.mjs"]
+      "outputs": [
+        "tools/fake-phone-sim.mjs",
+        "tools/smoke-relay.mjs"
+      ]
     },
     {
       "id": "TASK-011",
@@ -100,7 +115,11 @@
       "id": "TASK-014",
       "name": "문서 v0.2 전면 갱신 (architecture/protocol/calibration/content-pipeline/roadmap/README/rules)",
       "status": "done",
-      "outputs": ["docs/", "README.md", "agents/rules.md"],
+      "outputs": [
+        "docs/",
+        "README.md",
+        "agents/rules.md"
+      ],
       "verification": "문서-코드 일치 검토 완료"
     },
     {
@@ -124,7 +143,10 @@
       "id": "TASK-015",
       "name": "fill-region 프로토콜 보완: 좌표 기반 region 판정(fill-at) 지원",
       "status": "done",
-      "outputs": ["apps/tv/src/engine/TVCommandHandler.ts", "packages/protocol/src/index.ts"],
+      "outputs": [
+        "apps/tv/src/engine/TVCommandHandler.ts",
+        "packages/protocol/src/index.ts"
+      ],
       "verification": "TVCommandHandler.handleFillAt 구현 및 protocol TS 컴파일 통과"
     },
     {
@@ -277,15 +299,68 @@
       "id": "TASK-025",
       "name": "콘텐츠 주도 구조: content-src YAML 원본·build_content·ingest·generic 월드 장면·행동 프리셋, 클라우드 LLM 없이 새 테마·작품 추가 런북 (v0.7.0)",
       "status": "done",
-      "outputs": ["content-src/", "tools/art/build_content.py", "tools/art/ingest.py", "apps/phone/src/lib/worldEngine.ts", "apps/phone/src/components/WorldScenes.tsx", "apps/phone/src/components/TouchJungleWorld.tsx", "apps/phone/src/components/PhoneControls.tsx", "apps/phone/src/components/CameraColoringGame.tsx", "apps/phone/src/styles.css", "apps/tv/src/engine/GameEngine.ts", "packages/protocol/src/index.ts", "packages/tv-art/src/", "content-server/manifest.json", "docs/architecture.md", "docs/content-pipeline.md", "agents/rules.md", "agents/skills/aircanvas-content/SKILL.md", "Makefile", "CHANGELOG.md"],
+      "outputs": [
+        "content-src/",
+        "tools/art/build_content.py",
+        "tools/art/ingest.py",
+        "apps/phone/src/lib/worldEngine.ts",
+        "apps/phone/src/components/WorldScenes.tsx",
+        "apps/phone/src/components/TouchJungleWorld.tsx",
+        "apps/phone/src/components/PhoneControls.tsx",
+        "apps/phone/src/components/CameraColoringGame.tsx",
+        "apps/phone/src/styles.css",
+        "apps/tv/src/engine/GameEngine.ts",
+        "packages/protocol/src/index.ts",
+        "packages/tv-art/src/",
+        "content-server/manifest.json",
+        "docs/architecture.md",
+        "docs/content-pipeline.md",
+        "agents/rules.md",
+        "agents/skills/aircanvas-content/SKILL.md",
+        "Makefile",
+        "CHANGELOG.md"
+      ],
       "verification": "build_content.py 재생성 결과가 이전 매니페스트와 영역·URL 동일(behavior만 추가), make check 통과, make ui-smoke 통과, 임시 skytest 테마를 YAML만으로 추가해 폰 크기 스크린샷 확인 후 제거, ingest.py를 배경 합성 JPEG로 시험(24부위 제안·빌드 성공)"
     },
     {
       "id": "TASK-026",
       "name": "kids 플랫폼화: 포털(/) + 게임(/play/) + 엄빠(/cafe/) 모노레포, 공용 디자인 토큰, 로컬 스킬 3종 (v0.8.0)",
       "status": "done",
-      "outputs": ["apps/portal/", "apps/cafe/", "packages/ui/", "apps/phone/vite.config.ts", "apps/phone/src/components/PhoneWelcome.tsx", "apps/tv/src/App.tsx", "tools/build-site.sh", "tools/site-smoke.py", "tools/sync-ui.mjs", "tools/ui-smoke.py", "tools/web-debug.py", "Makefile", "docs/platform-plan.md", "docs/architecture.md", "agents/rules.md", "agents/skills/kids-platform/SKILL.md", "agents/skills/kids-cafe/SKILL.md", "agents/skills/kids-design/SKILL.md", "README.md", "CHANGELOG.md"],
+      "outputs": [
+        "apps/portal/",
+        "apps/cafe/",
+        "packages/ui/",
+        "apps/phone/vite.config.ts",
+        "apps/phone/src/components/PhoneWelcome.tsx",
+        "apps/tv/src/App.tsx",
+        "tools/build-site.sh",
+        "tools/site-smoke.py",
+        "tools/sync-ui.mjs",
+        "tools/ui-smoke.py",
+        "tools/web-debug.py",
+        "Makefile",
+        "docs/platform-plan.md",
+        "docs/architecture.md",
+        "agents/rules.md",
+        "agents/skills/kids-platform/SKILL.md",
+        "agents/skills/kids-cafe/SKILL.md",
+        "agents/skills/kids-design/SKILL.md",
+        "README.md",
+        "CHANGELOG.md"
+      ],
       "verification": "make check 통과, 로컬 nginx 모사 미리보기에서 make site-smoke 전 항목 통과, /play/ 에서 make ui-smoke 통과, TV QR 해독으로 /play/ 주소 확인. 공개 배포·readback 결과는 CHANGELOG v0.8.0 배포 기록 참고"
+    },
+    {
+      "id": "TASK-COMPANY-MIGRATION-20261026",
+      "title": "회사 키즈 제품팀 원본과 배포 경로 통합",
+      "status": "in_progress",
+      "verification": [
+        "make check",
+        "make content-check",
+        "make ui-smoke",
+        "make site-smoke",
+        "공개 버전·번들 및 relay/cafe readback"
+      ]
     }
   ]
 }

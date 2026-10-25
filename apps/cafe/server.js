@@ -14,6 +14,8 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
+const APP_VERSION = require('./package.json').version;
+const BUILD_SHA = process.env.GIT_SHA || 'unknown';
 const PORT = Number(process.env.PORT || 8124);
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
@@ -291,6 +293,8 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, {
         status: 'ok',
         service: 'kids-cafe',
+        version: APP_VERSION,
+        git_sha: BUILD_SHA,
         mode: 'demo',
         time: nowIso(),
         note: '예약 현황은 데모 시뮬레이션 데이터입니다.',

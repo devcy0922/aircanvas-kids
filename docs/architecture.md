@@ -357,3 +357,11 @@ sequenceDiagram
         Server->>TV: load-scene: gallery
     end
 ```
+
+## 0.8.1 회사 제품팀 배포 원본 통합
+
+활성 소스와 정적 산출물 원본은 `/srv/company/prd/kids/aircanvas-kids`로 통일한다. Edge는 `site/`를 공개 루트, `apps/tv/dist`를 TV, `content-server`를 콘텐츠로 직접 마운트한다. 기존 `/srv/airCanvas/aircanvas-kids` clone은 `aircanvas-kids-dup` 보존본이며 배포 대상으로 쓰지 않는다. 포털/게임/엄빠 URL, 카메라·WebSocket 프로토콜과 그림/도안은 변경하지 않는다. relay user unit과 cafe Compose도 canonical 소스 경로로 전환한다.
+
+릴레이 실행 파일은 `cargo metadata --manifest-path server/Cargo.toml --no-deps`의 target_directory 기준 `release/aircanvas-relay`를 확인하고 user unit에 설치한다. `/health`는 JSON이 아니라 `ok, rooms=N` 텍스트 계약이다. release 바이너리가 없는 기존 unit은 재시작 전에 빌드/실행 권한을 확인한다.
+
+엄빠 이미지에는 package.json 버전과 build GIT_SHA를 포함하고 /healthz에 version/git_sha를 추가해 실제 이미지 식별을 readback한다. 예약/데모 데이터 계약은 유지한다.
