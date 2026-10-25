@@ -1,0 +1,11 @@
+name: observability-ops
+version: 1.1.0
+description: "cy-server 관측성 스택(Grafana, Loki, Promtail, Prometheus, node-exporter, cAdvisor) 운영 스킬. 로그 수집 파이프라인(Promtail→Loki), 메트릭 스크레이핑(Prometheus), 대시보드 관리(Grafana), 알림 설정, OIDC SSO 연동, 보존 정책 및 스토리지 용량 관리를 담당한다."
+tags:
+  - grafana
+  - loki
+  - prometheus
+  - promtail
+  - observability
+  - ai-service-infra
+owner: ai-service-infra

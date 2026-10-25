@@ -1,0 +1,11 @@
+name: docker-maintenance-ops
+version: 1.0.0
+description: "Docker 주간 정기 유지보수 및 디스크 캐시 자동 회수 운영 스킬. BuildKit 캐시와 고아 이미지를 7일 필터(until=168h)로 안전하게 회수하고 Dagu 스케줄러 및 ops-notifier와 연동한다."
+tags:
+  - docker
+  - maintenance
+  - disk-cleanup
+  - dagu
+  - ops-notifier
+  - ai-service-infra
+owner: ai-service-infra

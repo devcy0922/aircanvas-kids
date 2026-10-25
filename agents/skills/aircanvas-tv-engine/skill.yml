@@ -1,0 +1,13 @@
+name: aircanvas-tv-engine
+version: 1.0.0
+description: ">-"
+source:
+  repository: local
+  path: agents/skills/aircanvas-tv-engine
+  ref: main
+dependencies: []
+compatibility:
+  codex: true
+  gemini: true
+  claude: true
+  runtime: true

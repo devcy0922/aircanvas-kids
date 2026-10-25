@@ -1,0 +1,13 @@
+name: aircanvas-architecture
+version: 1.0.0
+description: ">-"
+source:
+  repository: local
+  path: agents/skills/aircanvas-architecture
+  ref: main
+dependencies: []
+compatibility:
+  codex: true
+  gemini: true
+  claude: true
+  runtime: true

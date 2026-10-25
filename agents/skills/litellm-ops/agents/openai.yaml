@@ -1,0 +1,4 @@
+interface:
+  display_name: "LiteLLM 프록시 운영"
+  short_description: "모델 슬롯과 Provider 구성 운영"
+  default_prompt: "Use $litellm-ops to LiteLLM 모델 슬롯, Provider 연결, fallback 및 관측 연동을 검토하고 변경한다."

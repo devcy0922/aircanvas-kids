@@ -1,0 +1,9 @@
+name: litellm-ops
+version: 1.1.4
+description: "중앙 LiteLLM 프록시(govail-litellm) 운영 스킬. govail 논리 모델 슬롯(worker, fast, thinker, batch, classify), 노드별 provider 포트 블록, provider 연결(vLLM, llama.cpp 등), readiness, fallback, Langfuse, Prometheus를 다룬다."
+tags:
+  - litellm
+  - llm-proxy
+  - ai-service-infra
+  - observability
+owner: ai-service-infra

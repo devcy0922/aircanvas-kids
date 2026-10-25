@@ -1,0 +1,12 @@
+name: nginx
+version: 1.0.2
+description: Platform Edge Nginx 리버스 프록시, 도메인 라우팅, SSL/Certbot, 설정 문법 검증 및 무중단 Graceful Reload 운영 스킬
+source:
+  repository: local
+  path: agents/skills/nginx
+  ref: main
+dependencies: []
+compatibility:
+  opencode: true
+  codex: true
+  runtime: true

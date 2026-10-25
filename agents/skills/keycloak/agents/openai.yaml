@@ -1,0 +1,4 @@
+interface:
+  display_name: "Keycloak OIDC/SSO"
+  short_description: "Operate Keycloak OIDC authentication and realms"
+  default_prompt: "Use $keycloak to configure Keycloak realms and OIDC authentication."

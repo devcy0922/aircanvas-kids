@@ -1,17 +1,19 @@
 ---
 name: aircanvas-architecture
 description: >-
-  AirCanvas Kids v0.2 아키텍처 원칙, Phone(Brain) - TV(Thin Display) 역할 분리 모델, 패키지 구성 및 런타임 데이터 흐름 가이드.
+  AirCanvas Kids v0.4 아키텍처 원칙, 웹 우선 채색 및 입체 생태 월드, Phone(Brain) - TV(Thin Display) 역할 분리 모델, 패키지 구성 및 런타임 데이터 흐름 가이드.
 ---
 
-# AirCanvas Kids 아키텍처 가이드 (v0.2)
+# AirCanvas Kids 아키텍처 가이드 (v0.4)
 
-AirCanvas Kids는 **Phone=Brain / TV=Thin Display** 모델을 기반으로 동작하는 인터랙티브 에어 드로잉 & 컬러링 패밀리 게임 시스템입니다.
+AirCanvas Kids는 **웹 우선 완성도(Web-First)** 및 **Phone=Brain / TV=Thin Display** 모델을 기반으로 동작하는 인터랙티브 에어 드로잉 & 컬러링 패밀리 게임 시스템입니다.
 
 ## 1. 핵심 아키텍처 원칙
 
-1. **Phone = Game Brain (지능 및 상태 관리)**
-   - 게임 상태 머신(`gameStateMachine.ts`): 로비(Lobby) → 연결(Connecting) → 캘리브레이션(Calibrating) → 플레이(Playing) → 갤러리(Gallery) 전이 관리.
+1. **Web-First & Phone = Game Brain (지능 및 상태 관리)**
+   - 게임 상태 머신(`gameStateMachine.ts`): 로비(Lobby) → 연결(Connecting) → 캘리브레이션(Calibrating) → 플레이(Playing) → 갤러리(Gallery) → 월드(World) 전이 관리.
+   - 웹 터치 모드: 듀얼 브러시(칸 채우기/자유 붓), 고화질 디즈니 스타일 투명 PNG 일러스트 + SVG multiply 블렌딩, Web Audio API 무지연 효과음.
+   - 3대 생태 월드(공룡/정글/바다): 물리 터치 상호작용(먹이/하트 드롭, 점프 반응) 및 룸 단위 작품 누적.
    - MediaPipe Tasks Vision WASM을 통한 온디바이스 손 추적 및 핀치(Pinch) 제스처 인식.
    - 4-코너 호모그래피(Homography) 좌표 변환 및 One-Euro Filter 지터 보정.
    - 콘텐츠 서버에서 게임 패키지 매니페스트(`manifest.json`) 다운로드 및 IndexedDB/localStorage 캐싱.
@@ -20,7 +22,7 @@ AirCanvas Kids는 **Phone=Brain / TV=Thin Display** 모델을 기반으로 동�
 2. **TV = Thin Display (씬 렌더러)**
    - 순수 렌더러 역할: 내부 상태 머신을 갖지 않는 Stateless 구조.
    - React + PixiJS 기반 씬 렌더링 엔진(`GameEngine.ts`).
-   - 수신된 `TVCommand`(`load-scene`, `set-cursor`, `draw-stroke`, `fill-region`, `play-effect`, `set-progress`)를 즉시 그래픽스로 변환 실행.
+   - 수신된 `TVCommand`(`load-scene`, `set-cursor`, `draw-stroke`, `fill-region`, `fill-at`, `play-effect`, `set-progress`)를 즉시 그래픽스로 변환 실행.
    - 콘텐츠 확장에 따른 TV 클라이언트 코드 수정 불필요(콘텐츠 독립성).
 
 3. **Server = Relay Hub (경량 세션 중계)**

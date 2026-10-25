@@ -1,0 +1,7 @@
+name: platform-path-guard
+version: 1.2.0
+description: /srv 4대 도메인 계층 구조 및 NAS/KODAK 스토리지 경로 정합성 보장과 레거시 경로 가드 스킬
+compatibility:
+  opencode: true
+  codex: true
+  runtime: true

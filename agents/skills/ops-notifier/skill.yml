@@ -1,0 +1,7 @@
+name: ops-notifier
+version: 1.1.0
+description: "사내 비동기 작업 및 파이프라인(engine-cli, engine-process, ycy-mvp, CI/CD 등) 및 AI 에이전트들의 TaskEvent 수신, 텔레그램(Telegram) 단일 메시지 실시간 갱신·알림 및 이메일(Email / Resend 트랜잭션 메일) 발송·관제, 통합 MCP 도구(ops-notifier-hub) 연동 가이드. Trigger on '텔레그램 알림', '이메일 발송', 'ops-notifier', 'TaskEvent', 'send_email', '메일 알림', '작업 알림 발송'."
+compatibility:
+  opencode: true
+  codex: true
+  runtime: true

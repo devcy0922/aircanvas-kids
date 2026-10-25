@@ -1,0 +1,4 @@
+interface:
+  display_name: "GoVail Gateway"
+  short_description: "Build and verify Gateway boundaries"
+  default_prompt: "Use $govail-gateway to implement Gateway changes within its security boundary."

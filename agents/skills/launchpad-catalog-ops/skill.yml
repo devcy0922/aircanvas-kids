@@ -1,0 +1,7 @@
+name: launchpad-catalog-ops
+version: 1.0.0
+description: GoVail 대시보드와 SSO 전환 화면의 /srv 프로젝트 인벤토리 및 Nginx 라우트 카탈로그 운영 스킬
+compatibility:
+  opencode: true
+  codex: true
+  runtime: true

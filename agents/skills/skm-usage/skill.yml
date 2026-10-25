@@ -1,0 +1,13 @@
+name: skm-usage
+version: 1.8.1
+description: Skills Market의 skm CLI 설치, 탭 완성, 스킬 설치/업데이트, .skmrc 구성, 외부 스킬 2단계 import, Agents SSOT 동기화 및 트러블슈팅을 안내하는 운영 가이드
+source:
+  repository: local
+  path: internal/skm-usage
+  ref: main
+dependencies: []
+compatibility:
+  codex: true
+  gemini: true
+  claude: true
+  cursor: true

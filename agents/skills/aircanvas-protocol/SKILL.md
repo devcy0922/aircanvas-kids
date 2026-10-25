@@ -4,7 +4,7 @@ description: >-
   AirCanvas Kids WebSocket 프로토콜, TVCommand 명세(fill-at 포함), 정규화 좌표계 규약, 디스커버리(/announce), 도메인 독립성 및 타입 동기화 가이드.
 ---
 
-# AirCanvas Kids 프로토콜 가이드 (v0.2)
+# AirCanvas Kids 프로토콜 가이드 (v0.4)
 
 AirCanvas Kids의 모든 실시간 데이터 교환은 WebSocket 단일 엔드포인트(`ws(s)://<host>/ws`) 상의 JSON 텍스트 프레임으로 이루어집니다.
 
@@ -31,7 +31,7 @@ AirCanvas Kids의 모든 실시간 데이터 교환은 WebSocket 단일 엔드�
 
 ---
 
-## 2. v0.2 `TVCommand` 명세 (Phone → TV)
+## 2. v0.4 `TVCommand` 명세 (Phone → TV)
 
 `packages/protocol/src/index.ts`가 단일 진실원(SSOT)입니다.
 
@@ -39,7 +39,7 @@ AirCanvas Kids의 모든 실시간 데이터 교환은 WebSocket 단일 엔드�
 ```ts
 {
   type: 'load-scene',
-  scene: 'home' | 'calib' | 'play' | 'gallery',
+  scene: 'home' | 'calib' | 'play' | 'gallery' | 'world',
   payload: LoadScenePayload
 }
 ```
@@ -51,7 +51,8 @@ AirCanvas Kids의 모든 실시간 데이터 교환은 WebSocket 단일 엔드�
   x: number, // 0.0 ~ 1.0 (TV 정규화 좌표)
   y: number, // 0.0 ~ 1.0 (TV 정규화 좌표)
   visible: boolean,
-  color?: string
+  color?: string,
+  painting?: boolean
 }
 ```
 

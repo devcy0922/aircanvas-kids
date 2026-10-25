@@ -1,0 +1,10 @@
+name: govail-gateway
+version: 1.3.0
+description: Use when working on apps/gateway — Rust/Axum OpenAI-compatible proxy,
+  auth, API keys, DLP redaction, rate limit, SSE streaming, audit logs, LiteLLM/vLLM
+  upstream, model slots (fast/thinking/auto), route_target llm|runtime, console static
+  serving, /engine-api runtime relay, or gateway tests/Makefile targets.
+compatibility:
+  opencode: true
+  codex: true
+  runtime: true

@@ -1,0 +1,7 @@
+name: runtime-version-ops
+version: 1.0.0
+description: BuildRuntime 테이블 단일 레지스트리 기반 컨테이너 및 프로세스 배포 버전 등록 운영 스킬
+compatibility:
+  opencode: true
+  codex: true
+  runtime: true
