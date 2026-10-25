@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import type { CSSProperties } from 'react';
 import type { ArtworkPack, ThemePack, GamePhase } from '@ht/protocol';
-import { APP_VERSION_LABEL, PALETTE } from '@ht/protocol';
+import { PALETTE } from '@ht/protocol';
 
 type Mode = 'fill' | 'free';
 
@@ -23,7 +22,6 @@ interface Props {
   sendFill: (x: number, y: number, color: string) => void;
   artworks: ArtworkPack[];
   onSelectTheme: (themeId: string) => void;
-  onStartTheme: () => void;
   onSelectArtwork: (artworkId: string) => void;
   currentTheme: ThemePack | undefined;
   themes: ThemePack[];
@@ -31,8 +29,6 @@ interface Props {
   gamePhase: GamePhase;
   onUndo: () => void;
   onNextArt: () => void;
-  onSkipArtwork: () => void;
-  onExport: () => void;
   onGoHome: () => void;
   progress: number;
   tvConnected: boolean;
@@ -53,7 +49,6 @@ export function PhoneControls({
   sendFill,
   artworks,
   onSelectTheme,
-  onStartTheme,
   onSelectArtwork,
   currentTheme,
   themes,
@@ -61,8 +56,6 @@ export function PhoneControls({
   gamePhase,
   onUndo,
   onNextArt,
-  onSkipArtwork,
-  onExport,
   onGoHome,
   progress,
   tvConnected,
@@ -75,12 +68,11 @@ export function PhoneControls({
   const [paintOn, setPaintOn] = useState(false);
 
   // Discover screen mode
-  const isDiscover = !joined && !!roomInput;
+  const isDiscover = !!roomInput;
 
   const isLobby = gamePhase === 'lobby';
   const isPlaying = gamePhase === 'playing';
   const isGallery = gamePhase === 'gallery';
-  const isWorld = gamePhase === 'world';
 
   return (
     <div className="phone-root">
@@ -116,61 +108,27 @@ export function PhoneControls({
 
       {isLobby && (
         <section className="lobby-section">
-          <div className="lobby-heading">
-            <div>
-              <p className="section-kicker">두 번째 장면</p>
-              <h2 className="lobby-title">어느 세계로 갈까요?</h2>
-            </div>
-            <span className="lobby-step">02 / 03</span>
-          </div>
+          <h2 className="section-title">테마 선택</h2>
           <div className="theme-grid">
             {themes.map((t) => (
-              <button
-                key={t.id}
-                disabled={!joined}
-                className={currentTheme?.id === t.id ? 'selected' : ''}
-                data-testid={`theme-${t.id}`}
-                onClick={() => onSelectTheme(t.id)}
-                style={{ '--theme-accent': t.accentColor } as CSSProperties}
-              >
-                <span className="theme-emoji">{t.emoji ?? '🎨'}</span>
-                <span>{t.label}</span>
-                <small>{t.tagline ?? ''}</small>
+              <button key={t.id} disabled={!joined} onClick={() => onSelectTheme(t.id)} style={{ borderColor: t.accentColor }}>
+                <span className="theme-emoji">{t.id === 'dino' ? '🦕' : t.id === 'jungle' ? '🐒' : '🐠'}</span>
+                {t.label}
               </button>
             ))}
-          </div>
-          <div className={`theme-choice ${currentTheme ? 'has-selection' : ''}`}>
-            {currentTheme ? (
-              <>
-                <div>
-                  <span className="theme-choice__label">선택한 세계</span>
-                  <strong>{currentTheme.label}에서 첫 작품을 준비해요</strong>
-                </div>
-                <button
-                  className="big-btn theme-start-btn"
-                  data-testid="theme-start"
-                  disabled={!joined || artworks.length === 0}
-                  onClick={onStartTheme}
-                >
-                  이 테마로 시작 <span aria-hidden="true">→</span>
-                </button>
-              </>
-            ) : (
-              <p>테마 카드를 고르면 시작 버튼이 나타나요.</p>
-            )}
           </div>
         </section>
       )}
 
-      {!isLobby && !isWorld && currentTheme && (
+      {!isLobby && currentTheme && (
         <section className="theme-info">
           <span className="theme-badge" style={{ background: currentTheme.accentColor }}>
-            {currentTheme.emoji ?? '🎨'} {currentTheme.label}
+            {currentTheme.id === 'dino' ? '🦕' : currentTheme.id === 'jungle' ? '🐒' : '🐠'} {currentTheme.label}
           </span>
         </section>
       )}
 
-      {!isLobby && !isWorld && (
+      {!isLobby && (
         <section>
           <h2 className="section-title">작품 고르기</h2>
           <div className="arts">
@@ -249,33 +207,13 @@ export function PhoneControls({
             <button className="btn-ghost" onClick={onUndo} disabled={!joined}>
               ↩ 실행취소
             </button>
-            <button className="btn-ghost" data-testid="skip-artwork" onClick={onSkipArtwork} disabled={!joined}>
-              다음으로 (건너뛰기)
-            </button>
           </section>
         </>
       )}
 
       {isGallery && (
         <section className="gallery-actions">
-          <p className="gallery-text">
-            {progress >= 0.85 ? '작품이 갤러리에 저장되었습니다!' : '여기까지 만든 모습 그대로 다음 장면으로 갈 수 있어요.'}
-          </p>
-          <button className="big-btn export-btn" data-testid="export-world" onClick={onExport}>
-            내 캐릭터 정글로 내보내기
-          </button>
-          <button className="big-btn" onClick={onNextArt}>
-            다음 작품 색칠하기
-          </button>
-          <button className="btn-ghost" onClick={onGoHome}>
-            처음으로
-          </button>
-        </section>
-      )}
-
-      {isWorld && (
-        <section className="gallery-actions world-actions">
-          <p className="gallery-text">내 캐릭터가 실제 정글을 돌아다니고 있어요!</p>
+          <p className="gallery-text">작품이 갤러리에 저장되었습니다!</p>
           <button className="big-btn" onClick={onNextArt}>
             다음 작품 색칠하기
           </button>
@@ -290,7 +228,6 @@ export function PhoneControls({
           손: {livePoint ? `(${livePoint.x.toFixed(2)}, ${livePoint.y.toFixed(2)})` : '감지 없음'} · {fps ?? 0}fps
         </span>
         {tvConnected && <button className="btn-ghost small" onClick={onDisconnect}>TV 연결 해제</button>}
-        <span className="version-label">{APP_VERSION_LABEL}</span>
       </footer>
     </div>
   );

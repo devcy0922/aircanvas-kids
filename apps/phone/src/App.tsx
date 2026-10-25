@@ -9,56 +9,26 @@ import { loadCalibration, saveCalibration, clearCalibration } from './lib/calibr
 import { PackageManager } from './lib/packageManager';
 import { TVDiscovery, DiscoveredTV } from './lib/tvDiscovery';
 import { GameStateMachine } from './lib/gameStateMachine';
-import type { GameState } from './lib/gameStateMachine';
 import { TVCommandSender } from './lib/tvCommandSender';
 import { PhoneControls } from './components/PhoneControls';
 import { CalibViewfinder, CALIB_TARGETS } from './components/CalibViewfinder';
-import { PhoneWelcome } from './components/PhoneWelcome';
-import { WebDebugPanel } from './components/WebDebugPanel';
-import { TouchColoringGame } from './components/TouchColoringGame';
-import { CameraColoringGame } from './components/CameraColoringGame';
-
-const query = new URLSearchParams(location.search);
-
-function safeQueryBase(value: string | null): string | null {
-  if (!value) return null;
-  try {
-    const parsed = new URL(value, location.origin);
-    // 예전 LAN QR 주소가 HTTPS 운영 페이지에서 ws://로 내려가지 않도록 한다.
-    if (location.protocol === 'https:' && parsed.protocol !== 'https:') return null;
-    return value;
-  } catch {
-    return null;
-  }
-}
 
 const SERVER_BASE = (() => {
-  const explicit = safeQueryBase(query.get('server'));
-  if (explicit) return explicit;
-  if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-    return `${location.protocol}//${location.hostname}:8180`;
-  }
-  // 운영 도메인은 Nginx가 /ws, /announce를 같은 출처로 중계한다.
-  return location.origin;
+  const q = new URLSearchParams(location.search);
+  const configured = import.meta.env.VITE_RELAY_BASE?.trim();
+  return q.get('server') ?? configured ?? `${location.protocol}//${location.hostname}:7180`;
 })();
 
 const CONTENT_SERVER_BASE = (() => {
-  const explicit = safeQueryBase(query.get('content'));
-  if (explicit) return explicit;
-  if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-    return `${location.protocol}//${location.hostname}:8081`;
-  }
-  // 운영 도메인은 /manifest.json과 /artworks를 같은 출처로 서빙한다.
-  return location.origin;
+  const q = new URLSearchParams(location.search);
+  const configured = import.meta.env.VITE_CONTENT_BASE?.trim();
+  return q.get('content') ?? configured ?? `${location.protocol}//${location.hostname}:7181`;
 })();
 
-const DEBUG_MODE = query.get('debug') === '1';
-
-type Screen = 'loading' | 'intro' | 'camera' | 'touch' | 'discover' | 'lobby' | 'calib' | 'play' | 'gallery' | 'world' | 'error';
+type Screen = 'loading' | 'discover' | 'lobby' | 'calib' | 'play' | 'gallery' | 'error';
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('loading');
-  const [gameState, setGameState] = useState<GameState | null>(null);
   const [discoveredTVs, setDiscoveredTVs] = useState<DiscoveredTV[]>([]);
   const [wsStatus, setWsStatus] = useState<'idle' | 'connecting' | 'open' | 'closed' | 'error'>('idle');
   const [packageLoadProgress, setPackageLoadProgress] = useState(0);
@@ -90,7 +60,6 @@ export default function App() {
   const [color, setColor] = useState<string>(PALETTE[0]);
 
   const autoConnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const journeyStartedRef = useRef(false);
   const wsStatusRef = useRef(wsStatus);
   wsStatusRef.current = wsStatus;
   const onTVSelectRef = useRef<((tv: DiscoveredTV) => void) | null>(null);
@@ -100,15 +69,11 @@ export default function App() {
     // 패키지 매니저
     packageManagerRef.current = new PackageManager({
       onProgress: (_stage, pct) => setPackageLoadProgress(pct),
-      onError: (err) => {
-        setErrorMessage(err);
-        setScreen('error');
-      },
+      onError: (err) => setErrorMessage(err),
       onReady: (pkg) => {
         gameStateRef.current?.setPackage(pkg);
-        // QR로 자동 연결 중이어도 소개 화면을 먼저 보여준다.
-        // 사용자가 시작하기를 눌러야 테마 선택으로 넘어간다.
-        setScreen('intro');
+        setScreen('discover');
+        tvDiscoveryRef.current?.start();
       },
     });
 
@@ -140,12 +105,7 @@ export default function App() {
     // 게임 상태 머신
     gameStateRef.current = new GameStateMachine({
       onStateChange: (state) => {
-        setGameState({ ...state });
-        if (state.phase === 'lobby' && !journeyStartedRef.current) {
-          setScreen('intro');
-        } else {
-          setScreen(mapPhaseToScreen(state.phase));
-        }
+        setScreen(mapPhaseToScreen(state.phase));
         if (state.phase === 'calibrating') {
           setCalibStep(state.calibrationStep);
           setCalibError(state.calibrationError);
@@ -210,17 +170,6 @@ export default function App() {
     setScreen('discover');
   }, []);
 
-  // 소개 홈에서 명시적으로 시작한 뒤에만 TV 탐색/테마 선택을 허용한다.
-  const onStartJourney = useCallback(() => {
-    journeyStartedRef.current = true;
-    if (wsStatusRef.current === 'open') {
-      setScreen('lobby');
-      return;
-    }
-    setScreen('discover');
-    tvDiscoveryRef.current?.start();
-  }, []);
-
   // 테마 선택
   const onSelectTheme = useCallback((themeId: string) => {
     gameStateRef.current?.selectTheme(themeId);
@@ -260,39 +209,10 @@ export default function App() {
     gameStateRef.current?.redoCalibration();
   }, []);
 
-  const onDebugAutoCalibrate = useCallback(() => {
-    if (!DEBUG_MODE) return;
-    calibPairsRef.current = [];
-    CALIB_TARGETS.forEach((target) => onCalibSample(target));
-  }, [onCalibSample]);
-
-  const onDebugPoint = useCallback(() => {
-    if (!DEBUG_MODE) return;
-    const point = { x: 0.5, y: 0.5 };
-    setLivePoint(point);
-    gameStateRef.current?.onTrackedPoint(point.x, point.y, false, color);
-  }, [color]);
-
-  const onDebugFill = useCallback(() => {
-    if (!DEBUG_MODE) return;
-    gameStateRef.current?.onFillAt(0.5, 0.5, color);
-  }, [color]);
-
-  const onDebugStroke = useCallback(() => {
-    if (!DEBUG_MODE) return;
-    gameStateRef.current?.onStrokePoints([
-      { x: 0.3, y: 0.5 },
-      { x: 0.4, y: 0.44 },
-      { x: 0.5, y: 0.5 },
-      { x: 0.6, y: 0.56 },
-      { x: 0.7, y: 0.5 },
-    ], color);
-  }, [color]);
-
   // 카메라 + MediaPipe 추적 루프
   useEffect(() => {
     const state = gameStateRef.current?.getState();
-    if (state?.phase !== 'playing' || DEBUG_MODE) return;
+    if (state?.phase !== 'playing') return;
 
     let stream: MediaStream | null = null;
     let cancelled = false;
@@ -313,14 +233,7 @@ export default function App() {
       const res = lm.detectForVideo(v, now);
       const hand = res.landmarks?.[0] ? toTrackedHand(res.landmarks[0]) : null;
       const H = homographyRef.current;
-      if (!hand || !H) {
-        if (lastPointRef.current) {
-          gameStateRef.current?.onTrackingLost();
-          lastPointRef.current = null;
-          setLivePoint(null);
-        }
-        return;
-      }
+      if (!hand || !H) return;
 
       const raw = applyHomography(H, hand.indexTip.x, hand.indexTip.y);
       const sm = filterRef.current.filter(raw.x, raw.y, now);
@@ -329,7 +242,7 @@ export default function App() {
       setLivePoint({ x: clamped.x, y: clamped.y });
 
       // 게임 상태 머신에 포인트 전달
-      gameStateRef.current?.onTrackedPoint(clamped.x, clamped.y, hand.pinch, color, mode);
+      gameStateRef.current?.onTrackedPoint(clamped.x, clamped.y, hand.pinch, color);
 
       frames++;
       if (now - fpsTimer > 1000) {
@@ -342,7 +255,7 @@ export default function App() {
     (async () => {
       try {
         stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
+          video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
           audio: false,
         });
         if (cancelled) return;
@@ -367,7 +280,7 @@ export default function App() {
       cancelAnimationFrame(rafRef.current);
       stream?.getTracks().forEach((t) => t.stop());
     };
-  }, [color, mode]);
+  }, [color]);
 
   // 진행도 업데이트 수신 (TV에서 오는 메시지 처리 필요 - 현재는 폴링 또는 별도 WS 채널 필요)
   // TODO: TV에서 progress 이벤트 수신하도록 WS 리스너 추가
@@ -384,6 +297,7 @@ export default function App() {
           setWsStatus(status);
           if (status === 'open') {
             gameStateRef.current?.onTVConnected(qrRoom);
+            setScreen('lobby');
           }
         },
         onError: (err) => setErrorMessage(err),
@@ -394,12 +308,12 @@ export default function App() {
   }, []);
 
   // 현재 게임 상태에서 파생된 데이터
+  const gameState = gameStateRef.current?.getState();
   const pkg = packageManagerRef.current?.getCachedPackage();
   const themes = pkg?.themes ?? [];
   const currentTheme = themes.find((t) => t.id === gameState?.selectedTheme);
   const artworks = currentTheme?.artworks ?? [];
   const selectedArtwork = gameState?.selectedArtwork;
-  const allArtworks = pkg ? Array.from(pkg.artworksCache.values()) : [];
 
   // 렌더링
   if (screen === 'loading') {
@@ -422,48 +336,6 @@ export default function App() {
           <button onClick={() => window.location.reload()}>새로고침</button>
         </div>
       </div>
-    );
-  }
-
-  if (screen === 'intro') {
-    return (
-      <PhoneWelcome
-        onStart={onStartJourney}
-        onCameraStart={() => {
-          tvDiscoveryRef.current?.stop();
-          tvCommandSenderRef.current?.disconnect();
-          tvCommandSenderRef.current = null;
-          setWsStatus('idle');
-          setScreen('camera');
-        }}
-        onTouchStart={() => {
-          tvDiscoveryRef.current?.stop();
-          tvCommandSenderRef.current?.disconnect();
-          setScreen('touch');
-        }}
-      />
-    );
-  }
-
-  if (screen === 'touch') {
-    return (
-      <TouchColoringGame
-        themes={themes}
-        artworks={allArtworks}
-        roomKey={new URLSearchParams(location.search).get('room') ?? 'LOCAL'}
-        onExit={() => setScreen('intro')}
-      />
-    );
-  }
-
-  if (screen === 'camera') {
-    return (
-      <CameraColoringGame
-        themes={themes}
-        artworks={allArtworks}
-        onExit={() => setScreen('intro')}
-        onTouchFallback={() => setScreen('touch')}
-      />
     );
   }
 
@@ -534,15 +406,6 @@ export default function App() {
         {selectedArtwork && (
           <p className="muted">선택된 작품: {selectedArtwork.name} ({currentTheme?.label})</p>
         )}
-        {DEBUG_MODE && (
-          <WebDebugPanel
-            phase="calib"
-            onAutoCalibrate={onDebugAutoCalibrate}
-            onPoint={onDebugPoint}
-            onFill={onDebugFill}
-            onStroke={onDebugStroke}
-          />
-        )}
       </div>
     );
   }
@@ -581,7 +444,6 @@ export default function App() {
         sendFill={(x, y, c) => gameStateRef.current?.onFillAt(x, y, c)}
         artworks={artworks}
         onSelectTheme={onSelectTheme}
-        onStartTheme={() => gameStateRef.current?.startTheme()}
         onSelectArtwork={(artworkId) => onSelectArtwork(artworkId)}
         currentTheme={currentTheme}
         themes={themes}
@@ -589,22 +451,11 @@ export default function App() {
         gamePhase={gameState?.phase ?? 'lobby'}
         onUndo={() => gameStateRef.current?.onUndo()}
         onNextArt={() => gameStateRef.current?.nextArtwork()}
-        onSkipArtwork={() => gameStateRef.current?.skipArtwork()}
-        onExport={() => gameStateRef.current?.exportToWorld()}
         onGoHome={() => gameStateRef.current?.goHome()}
         progress={gameState?.progress ?? 0}
         tvConnected={wsStatus === 'open'}
         onDisconnect={onTVDisconnect}
       />
-      {DEBUG_MODE && screen === 'play' && (
-        <WebDebugPanel
-          phase="play"
-          onAutoCalibrate={onDebugAutoCalibrate}
-          onPoint={onDebugPoint}
-          onFill={onDebugFill}
-          onStroke={onDebugStroke}
-        />
-      )}
       {screen === 'play' && (
         <button className="link-btn" onClick={redoCalib}>
           캘리브레이션 다시 하기
@@ -621,7 +472,6 @@ function mapPhaseToScreen(phase: GamePhase): Screen {
     case 'calibrating': return 'calib';
     case 'playing': return 'play';
     case 'gallery': return 'gallery';
-    case 'world': return 'world';
     case 'error': return 'error';
     default: return 'lobby';
   }

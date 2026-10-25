@@ -2,8 +2,6 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
-  // 포털(/)이 루트를 쓰므로 게임은 /play/ 아래에서 서빙한다. 콘텐츠(/manifest.json, /artworks)·릴레이(/ws)는 루트 경로 그대로다.
-  base: '/play/',
   plugins: [react()],
   server: {
     host: true,

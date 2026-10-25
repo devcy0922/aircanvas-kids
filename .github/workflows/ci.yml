@@ -1,0 +1,38 @@
+name: AirCanvas Kids CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Rust 설정
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: 의존성 설치
+        run: npm ci
+
+      - name: TypeScript 워크스페이스 빌드
+        run: npm run build
+
+      - name: 릴레이 Rust 검사
+        run: cargo check --locked --manifest-path server/Cargo.toml
+
+      - name: M1 베타 Compose 문법 검사
+        run: docker compose -f docker-compose.m1-beta.yml config --quiet

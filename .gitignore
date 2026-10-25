@@ -17,7 +17,6 @@ Thumbs.db
 
 # Logs
 *.log
-logs/evidence/
 
 # Editor
 .idea/
@@ -28,16 +27,7 @@ logs/evidence/
 .agents
 .cursor/
 .github/
-
-
-# Generated agent projection directories (SSOT: agents/)
-.claude/
-.codex/
-.github/copilot-instructions.md
-
-# Python
-__pycache__/
-.venv-art/
-
-# 조립된 공개 사이트 루트(tools/build-site.sh)
-/site/
+!.github/
+.github/*
+!.github/workflows/
+!.github/workflows/ci.yml

@@ -11,7 +11,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use axum::extract::ws::{Message, WebSocket, WebSocketUpgrade};
 use axum::extract::{ConnectInfo, Query, State};
 use axum::http::{header, StatusCode};
-use axum::response::IntoResponse;
+use axum::response::{IntoResponse, Json};
 use axum::routing::get;
 use axum::Router;
 use futures_util::{SinkExt, StreamExt};
@@ -106,7 +106,7 @@ async fn main() {
         .route("/announce", get(announce_handler))
         .with_state(rooms);
 
-    let addr = std::env::var("HT_BIND").unwrap_or_else(|_| "0.0.0.0:8180".into());
+    let addr = std::env::var("HT_BIND").unwrap_or_else(|_| "0.0.0.0:7180".into());
     let listener = tokio::net::TcpListener::bind(&addr).await.expect("bind 실패");
     tracing::info!("AirCanvas 릴레이 서버 시작: http://{addr}");
     axum::serve(listener, app.into_make_service_with_connect_info::<SocketAddr>()).await.expect("서버 오류");
@@ -117,7 +117,17 @@ async fn health_handler(State(rooms): State<Rooms>) -> impl IntoResponse {
     (
         StatusCode::OK,
         [(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")],
-        format!("ok, rooms={count}"),
+        Json(serde_json::json!({
+            "status": "ok",
+            "service": "aircanvas-relay",
+            "version": std::env::var("AIRCANVAS_VERSION")
+                .unwrap_or_else(|_| env!("CARGO_PKG_VERSION").to_string()),
+            "git_sha": std::env::var("GIT_SHA")
+                .or_else(|_| std::env::var("GITHUB_SHA"))
+                .map(|sha| sha.chars().take(7).collect::<String>())
+                .unwrap_or_else(|_| "unknown".to_string()),
+            "rooms": count,
+        })),
     )
 }
 
@@ -128,13 +138,16 @@ async fn announce_handler(
     let hostname = headers
         .get(header::HOST)
         .and_then(|v| v.to_str().ok())
-        .unwrap_or("localhost:8180");
-
-    let proto = headers
+        .unwrap_or("localhost:7180");
+    let forwarded_proto = headers
         .get("x-forwarded-proto")
         .and_then(|v| v.to_str().ok())
         .unwrap_or("http");
-    let ws_proto = if proto == "https" { "wss" } else { "ws" };
+    let (ws_scheme, http_scheme) = if forwarded_proto.eq_ignore_ascii_case("https") {
+        ("wss", "https")
+    } else {
+        ("ws", "http")
+    };
 
     let map = rooms.lock().await;
     let mut announcements = Vec::new();
@@ -146,8 +159,8 @@ async fn announce_handler(
                 room_code: room_code.clone(),
                 tv_name: tv.display_name.clone(),
                 tv_id: format!("tv-{}", room_code),
-                ws_url: format!("{}://{}/ws?role=phone&room={}", ws_proto, hostname, room_code),
-                http_url: format!("{}://{}", proto, hostname),
+                ws_url: format!("{}://{}/ws?role=phone&room={}", ws_scheme, hostname, room_code),
+                http_url: format!("{}://{}", http_scheme, hostname),
                 capabilities: TvCapabilities {
                     max_resolution: Resolution { width: 1920, height: 1080 },
                     supports_web_gl2: true,

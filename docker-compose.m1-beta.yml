@@ -1,0 +1,44 @@
+name: aircanvas-kids-beta
+
+services:
+  relay:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      args:
+        AIRCANVAS_VERSION: "${AIRCANVAS_VERSION:-0.1.0}"
+        GIT_SHA: "${GIT_SHA:-unknown}"
+    environment:
+      AIRCANVAS_VERSION: "${AIRCANVAS_VERSION:-0.1.0}"
+      GIT_SHA: "${GIT_SHA:-unknown}"
+      HT_BIND: 0.0.0.0:7180
+    ports:
+      - "${AIRCANVAS_RELAY_PORT:-7180}:7180"
+    restart: unless-stopped
+
+  phone:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+      args:
+        APP: phone
+        APP_VERSION: "${AIRCANVAS_VERSION:-0.1.0}"
+        GIT_SHA: "${GIT_SHA:-unknown}"
+        VITE_RELAY_BASE: "${AIRCANVAS_RELAY_BASE:-https://beta-play.aircanvas.kr}"
+        VITE_CONTENT_BASE: "${AIRCANVAS_CONTENT_BASE:-https://beta.aircanvas.kr/content}"
+    ports:
+      - "${AIRCANVAS_PHONE_PORT:-7101}:80"
+    restart: unless-stopped
+
+  tv:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+      args:
+        APP: tv
+        APP_VERSION: "${AIRCANVAS_VERSION:-0.1.0}"
+        GIT_SHA: "${GIT_SHA:-unknown}"
+        VITE_RELAY_BASE: "${AIRCANVAS_RELAY_BASE:-https://beta-play.aircanvas.kr}"
+    ports:
+      - "${AIRCANVAS_TV_PORT:-7100}:80"
+    restart: unless-stopped

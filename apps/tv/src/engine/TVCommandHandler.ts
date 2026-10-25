@@ -1,17 +1,10 @@
 import { GameEngine } from './GameEngine';
 import type { TVCommand, ArtworkRuntime, CompletedArtwork, ThemeId, LoadScenePayload } from '@ht/protocol';
 
-// React StrictMode 개발 재실행에서 같은 canvas에 Pixi 초기화가 겹치지 않게
-// 직렬화한다. 첫 번째 핸들러가 cleanup된 경우에도 app.init 완료 후 정리하고
-// 다음 핸들러가 시작되므로 WebGL context/shader 충돌을 피할 수 있다.
-let engineStartLock: Promise<void> = Promise.resolve();
-
 export interface TVCommandHandlerCallbacks {
   onProgress?: (percent: number, artworkName?: string) => void;
   onComplete?: (artworkName: string) => void;
   onError?: (error: string) => void;
-  onSceneChange?: (scene: Extract<TVCommand, { type: 'load-scene' }>['scene']) => void;
-  onArtworkLoaded?: (artworkId: string) => void;
 }
 
 export class TVCommandHandler {
@@ -20,9 +13,6 @@ export class TVCommandHandler {
   private currentArtwork: ArtworkRuntime | null = null;
   private currentTheme: ThemeId = 'dino';
   private completedArtworks: CompletedArtwork[] = [];
-  private engineReady = false;
-  private pendingCommands: TVCommand[] = [];
-  private destroyed = false;
 
   constructor(canvas: HTMLCanvasElement | null, callbacks: TVCommandHandlerCallbacks = {}) {
     this.callbacks = callbacks;
@@ -44,34 +34,11 @@ export class TVCommandHandler {
   }
 
   async start() {
-    const previousStart = engineStartLock;
-    let release!: () => void;
-    engineStartLock = new Promise<void>((resolve) => {
-      release = resolve;
-    });
-
-    await previousStart;
-    try {
-      if (this.destroyed) return;
-      await this.engine.start();
-      if (this.destroyed) {
-        this.engine.destroy();
-        return;
-      }
-      this.engineReady = true;
-      const pending = this.pendingCommands;
-      this.pendingCommands = [];
-      for (const cmd of pending) this.handleCommand(cmd);
-    } finally {
-      release();
-    }
+    await this.engine.start();
   }
 
   destroy() {
-    this.destroyed = true;
     this.engine.destroy();
-    this.engineReady = false;
-    this.pendingCommands = [];
   }
 
   resize() {
@@ -80,13 +47,6 @@ export class TVCommandHandler {
 
   /** TVCommand 디스패치 진입점 */
   handleCommand(cmd: TVCommand) {
-    // Pixi 초기화가 끝나기 전에 도착한 씬/입력 커맨드를 버리면 폰은
-    // play 상태인데 TV는 검은 캔버스에 남는다. 초기화 완료 후 같은 순서로
-    // 재생해 Phone=Brain / TV=Thin Display 계약을 보존한다.
-    if (!this.engineReady) {
-      this.pendingCommands.push(cmd);
-      return;
-    }
     try {
       switch (cmd.type) {
         case 'load-scene':
@@ -142,11 +102,7 @@ export class TVCommandHandler {
       case 'gallery':
         this.handleLoadGallery(payload as LoadScenePayload & { scene: 'gallery' });
         break;
-      case 'world':
-        this.handleLoadWorld(payload as LoadScenePayload & { scene: 'world' });
-        break;
     }
-    this.callbacks.onSceneChange?.(scene);
   }
 
   private handleLoadHome(_payload: LoadScenePayload & { scene: 'home' }) {
@@ -163,7 +119,6 @@ export class TVCommandHandler {
     this.currentArtwork = payload.artwork;
     this.currentTheme = payload.theme;
     this.engine.loadArtwork(this.adaptArtworkRuntime(payload.artwork));
-    this.callbacks.onArtworkLoaded?.(payload.artwork.id);
   }
 
   private handleLoadGallery(payload: LoadScenePayload & { scene: 'gallery' }) {
@@ -172,18 +127,10 @@ export class TVCommandHandler {
     this.engine.showGallery(payload.theme, payload.completed.map((c) => this.adaptCompletedToArtwork(c)));
   }
 
-  private handleLoadWorld(payload: LoadScenePayload & { scene: 'world' }) {
-    this.currentTheme = payload.theme;
-    this.currentArtwork = payload.character;
-    this.engine.showWorld(payload.world, this.adaptArtworkRuntime(payload.character));
-  }
-
   private handleSetCursor(cmd: Extract<TVCommand, { type: 'set-cursor' }>) {
     this.engine.setCursorVisible(cmd.visible);
     if (cmd.visible) {
-      this.engine.onPoint(cmd.x, cmd.y, cmd.painting ?? false, cmd.color);
-    } else {
-      this.engine.endPaint();
+      this.engine.onPoint(cmd.x, cmd.y, false, cmd.color);
     }
   }
 
@@ -246,7 +193,6 @@ export class TVCommandHandler {
       name: rt.name,
       viewBox: rt.viewBox,
       regions: rt.regions.map((r) => ({ d: r.path, label: r.label })),
-      imageUrl: rt.imageUrl,
     };
   }
 

@@ -143,8 +143,9 @@ export class TVDiscovery {
     // TV의 /announce 엔드포인트 호출 (HTTP)
     // CORS 문제로 fetch 실패 가능 → no-cors 모드 시도 후 웹소켓으로 폴백
     const urls = [
-      `http://${ip}:8180/announce`,
+      `http://${ip}:7180/announce`,
       `http://${ip}:7100/announce`,
+      `http://${ip}:8080/announce`,
       `http://${ip}:3000/announce`,
       `http://${ip}:5173/announce`,
     ];
@@ -194,8 +195,8 @@ GET /announce
   "roomCode": "ABC123",
   "tvName": "Living Room TV",
   "tvId": "tv-abc123",
-  "wsUrl": "ws://192.0.2.1:8180/ws?role=tv&room=ABC123",
-  "httpUrl": "http://192.0.2.1:8180",
+  "wsUrl": "ws://192.168.0.10:8080/ws?role=tv&room=ABC123",
+  "httpUrl": "http://192.168.0.10:8080",
   "capabilities": {
     "maxResolution": { "width": 1920, "height": 1080 },
     "supportsWebGL2": true,

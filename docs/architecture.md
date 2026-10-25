@@ -1,49 +1,43 @@
-# AirCanvas Kids — 시스템 아키텍처 v0.4
+# AirCanvas Kids — 시스템 아키텍처 v0.2
 
 ## 1. 개요
 
-AirCanvas Kids는 스마트폰 브라우저에서 바로 실행하는 **웹 터치 색칠 플레이** 및 **카메라 로컬 플레이**를 기본으로
-하고, 필요할 때 스마트 TV·모니터·태블릿 같은 외부 Display로 확장하는 인터랙티브 공중 제스처
-드로잉·색칠 게임이다.
+AirCanvas Kids는 **스마트폰 카메라 1대 + 스마트 TV 1대 + Wi-Fi LAN** 만으로 동작하는
+공중 제스처 드로잉/색칠 게임이다.
 
-### 핵심 원칙
-- **웹 우선 완성도:** 카메라나 TV 연결이 없는 환경에서도 폰/태블릿/PC 웹 브라우저에서 완결된 채색과 생태 월드 인터랙션을 제공한다.
-- **카메라 영상은 어디로도 전송되지 않는다.** 카메라 장치에서 손 좌표만 추출한다.
-- **카메라 로컬 모드:** 좌표를 같은 폰 브라우저의 로컬 렌더러에 적용하며 서버·TV를 사용하지 않는다.
-- **연결 모드:** 로컬 좌표를 외부 Display로 보낼 때만 서버 릴레이와 TVCommand를 사용한다.
-- **터치 모드:** 카메라 없는 웹 경로는 폰에서 고화질 일러스트와 SVG를 직접 렌더링하며 카메라·릴레이·TV를 사용하지 않는다.
+### 핵심 원칙 (변경 없음)
+- **카메라 영상은 어디로도 전송되지 않는다.** 폰에서 좌표만 추출 → 서버 릴레이 → TV 렌더링
 - 네트워크 부하 극히 낮음(초당 수 KB), 지연은 LAN 기준 수십 ms 이내
 
-### 아키텍처: Phone = Brain, TV = Thin Display
+### 아키텍처 진화: Phone = Brain, TV = Thin Display
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  콘텐츠 서버 (Nginx + 정적 파일)                                   │
 │  - 게임/테마 패키지 버전관리 (manifest.json + 에셋 CDN)            │
-│  - 고해상도 투명 PNG 일러스트 & SVG 썸네일 제공                   │
 │  - 폰이 주기적 폴링으로 업데이트 체크                               │
 └────────────────────────────┬──────────────────────────────────────┘
                              │ HTTPS (인터넷)
                              ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│  모바일/카메라 장치 (Controller / Brain / Web Player)             │
-│  - [웹 터치 모드] 듀얼 브러시(칸 채우기/자유 붓), 레이어 블렌딩     │
-│  - [생태 월드] 3대 테마(공룡/정글/바다) 입체 월드 & 물리 터치 반응 │
-│  - [오디오] Web Audio API 무지연 효과음 (물방울/점프/팡파르)       │
-│  - 패키지 캐시 (IndexedDB / localStorage)                         │
-│  - 게임 상태 머신 (로비/캘리브/플레이/갤러리/월드)                 │
-│  - 손 추적 + 호모그래피 + One-Euro 필터 (카메라 모드)             │
-│  - TV 탐색 (mDNS/HTTP 브로드캐스트) & 렌더 커맨드 전송 (WS 연결 시)│
+│  폰 (브레인)                                                      │
+│  - 패키지 캐시 (IndexedDB)                                        │
+│  - 게임 상태 머신 (로비/캘리브/플레이/갤러리)                      │
+│  - 손 추적 + 호모그래피 + One-Euro 필터                           │
+│  - TV 탐색 (mDNS/HTTP 브로드캐스트)                               │
+│  - TV로 렌더 커맨드 전송 (WS)                                     │
 └────────────────────────────┬──────────────────────────────────────┘
-                             │ 선택적 로컬 WS (초저지연, ~30Hz)
+                             │ 로컬 WS (초저지연, ~30Hz)
                              ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│  외부 Display (TV / 모니터 / 태블릿)                              │
-│  - PixiJS 렌더 엔진만 보유 (Stateless)                           │
+│  TV (씬 렌더러)                                                  │
+│  - PixiJS 렌더 엔진만 보유                                        │
 │  - 폰에서 오는 커맨드 실행:                                       │
-│    loadScene(home | calib | play | gallery | world)              │
-│    drawStroke(points, color), fillAt(x, y, color)                │
-│    playEffect(burst | pulse), setProgress(percent)               │
+│    loadScene(sceneId, payload)                                   │
+│    drawStroke(points, color)                                     │
+│    fillRegion(regionId, color)                                   │
+│    playEffect(effectType, params)                                │
+│  - 상태 없음 (Stateless)                                         │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -51,106 +45,28 @@ AirCanvas Kids는 스마트폰 브라우저에서 바로 실행하는 **웹 터�
 
 | 구성요소 | 기술 | 책임 |
 |---|---|---|
-| `apps/phone` | React + Vite + MediaPipe + Web Audio | 웹 터치 색칠 엔진, 3대 생태 월드(Dino/Jungle/Ocean: 부위 레이어 캐릭터 + 행동 엔진), 효과음 시스템, 카메라 손 랜드마크 추적, 캘리브레이션, 상태 머신, 패키지 관리, TV 커맨드 송신 |
-| `apps/tv` | React + Vite + PixiJS 8 | 렌더 커맨드 수신/실행, GameEngine을 통한 그리기/색칠/이펙트/월드 씬 렌더링 |
-| `server/` | Rust + Axum + tokio-tungstenite | 방 코드 세션 매칭, 좌표/커맨드 릴레이, /announce 디스커버리, 헬스체크 |
-| `packages/protocol` | TypeScript | 폰/TV/서버/콘텐츠서버가 공유하는 메시지 스키마 단일 진실원 (@ht/protocol v0.4.0) |
-| `packages/tv-art` | TypeScript | 공룡 5종, 정글 2종, 바다 2종 등 고품질 도안 벡터 및 30종 기본 데이터 |
-| `content-server/` | Nginx + 정적 파일 | 게임 패키지 매니페스트, 고품질 PNG 에셋, SVG 썸네일 서빙 (HTTPS) |
+| `apps/phone` | React + Vite + MediaPipe Tasks Vision | 카메라 제어, 손 랜드마크 추적, 캘리브레이션, 게임 상태 머신, 패키지 관리, TV 탐색, 렌더 커맨드 송신 |
+| `apps/tv` | React + Vite + PixiJS 8 | 렌더 커맨드 수신/실행, GameEngine을 통한 그리기/색칠/이펙트 렌더링 |
 | `server/` | Rust + Axum + tokio-tungstenite | 방 코드 세션 매칭, 좌표/커맨드 릴레이, 헬스체크 |
 | `packages/protocol` | TypeScript | 폰/TV/서버/콘텐츠서버가 공유하는 메시지 스키마 단일 진실원 |
-| `packages/tv-art` | TypeScript | TV 타입과 테마 색(`themes.generated.ts`, `content-src`에서 자동 생성) |
-| `content-src/` | YAML + PNG | **콘텐츠 원본.** 테마·작품·월드 설정·행동 프리셋. `tools/art/build_content.py`가 매니페스트와 에셋을 생성 |
+| `packages/tv-art` | TypeScript | 아트워크 30종 데이터 (공룡·정글·바다 × 10) |
 | `content-server/` | Nginx + 정적 파일 | 게임 패키지 매니페스트/에셋 서빙 (HTTPS) |
 
 ## 3. 데이터 흐름 (프레임별)
 
 1. **초기화**: 폰 앱 실행 → 콘텐츠 서버에서 `manifest.json` 다운로드 → IndexedDB 캐시
-2. **진입 선택**: 소개 홈에서 `이 기기에서 카메라로 해보기`, `TV에 연결하기`, `카메라 없이 터치로 해보기` 중 하나를 선택
-3. **카메라 로컬 경로**: 카메라 장치에서 손 랜드마크 → 정규화 → 로컬 SVG 렌더러에 적용 → 폰 화면에 진행 상태 표시
-4. **터치 경로**: 패키지의 SVG region을 폰에서 직접 렌더링 → 칸 채우기/자유 그리기 → 로컬 진행 상태 표시
-5. **TV 탐색**: 연결 경로에서 폰이 LAN 브로드캐스트/mDNS로 외부 Display 자동 발견 → 사용자가 선택
-6. **연결**: 선택된 Display의 WS URL로 접속 → 서버 릴레이로 Controller↔Display 세션 성립
-7. **로비**: Controller가 `load-scene: home` 전송 → Display 홈 화면 표시 (방 코드 QR 표시)
-8. **게임 시작**: Controller에서 테마 선택 → `이 테마로 시작` → `load-scene: calib` + 페이로드 전송
-9. **캘리브레이션**: 외부 Display 화면의 4코너 마커를 카메라로 측정 → 호모그래피 H 계산 → 저장
-10. **플레이**: Controller가 `load-scene: play` + 아트워크 데이터 전송 → 외부 Display 렌더링 시작
-11. **추적**: 카메라 30fps → MediaPipe 손 랜드마크 → 검지 끝 → 정규화 → 필요 시 H 적용 → One-Euro 필터
-12. **커맨드 전송**: 외부 Display 모드에서만 `set-cursor`, `draw-stroke`, `fill-region`을 릴레이로 전송
-13. **렌더**: Display는 커서 표시 + `draw-stroke`로 경로 연결, `fill-region`으로 영역 채움
-14. **판정**: 로컬 또는 Display 렌더러가 진행도 집계 → 85% 도달 시 완성 연출
-15. **연출**: 완성 그림이 파티클 버스트와 함께 해당 테마 월드(갤러리 씬)에 배치됨
-
-### 3.1 사용자 진입 흐름
-
-게임은 TV 브라우저를 열자마자 플레이를 시작하지 않는다. 첫 화면은 제품 소개와
-세션 연결을 위한 **홈(Home)** 이며, 폰에서 사용자가 명시적으로 시작을 승인한 뒤에만
-테마 선택과 캘리브레이션으로 진행한다.
-
-```text
-TV: 연결 대기 → 소개 홈(방 코드/QR) ─────────────────────────────┐
-                                                                  │
-Phone: 소개 홈 ─┬→ 카메라로 바로 하기 → 테마 선택 → 로컬 플레이 ──┐
-                ├→ TV 연결 → 테마 선택 → 캘리브레이션 → 플레이  │
-                └→ 터치로 해보기 → 테마/작품 → 로컬 플레이      │
-                                                                  │
-TV: home 렌더링 ← load-scene: home ← Phone ----------------------┘
-TV: calib 렌더링 ← load-scene: calib ← Phone
-TV: play 렌더링  ← load-scene: play  ← Phone
-```
-
-- TV 홈은 렌더링·연결 안내만 담당하며 테마나 게임 상태를 결정하지 않는다.
-- 카메라 로컬 모드에서는 폰이 Controller와 Display를 동시에 담당한다.
-- TV 연결 모드에서는 Phone/Controller가 `시작하기`, 테마 선택, `이 테마로 시작`을 소유한다.
-- 테마 카드 선택과 게임 시작은 분리한다. 카드 선택만으로 카메라 권한이나 플레이를
-  시작하지 않는다.
-- QR/방 코드가 없는 경우에도 TV 홈은 독립적으로 표시되어야 하며, 사용자는 홈에서
-  연결 상태와 다음 행동을 이해할 수 있어야 한다.
-
-### 3.2 카메라 로컬 플레이 흐름
-
-카메라 로컬 모드는 외부 Display가 없어도 손 추적과 게임 루프를 검증할 수 있는 기본
-경로다. 카메라 영상은 같은 브라우저의 MediaPipe 처리에만 사용하고, 추적된 좌표는
-로컬 아트워크 보드에 직접 적용한다. TV 캘리브레이션과 WebSocket 릴레이는 필요 없다.
-
-```text
-Phone: 소개 홈 → 카메라로 바로 하기
-      → 카메라 권한/손 추적 준비 → 테마/작품 선택
-      → 핀치로 칸 채우기 또는 자유 그리기
-      → 폰 화면에 진행도와 완성 연출 표시
-```
-
-- 카메라 장치의 정규화 좌표는 로컬 보드 좌표로 바로 사용한다.
-- 외부 Display로 전환할 때만 호모그래피 캘리브레이션을 추가한다.
-- 브라우저가 카메라를 지원하지 않거나 권한이 거부되면 터치 경로를 안내한다.
-
-### 3.3 웹 터치 색칠 및 3대 생태 월드 흐름
-
-웹 터치 모드는 카메라나 외부 TV 없이도 단일 브라우저에서 모든 재미를 온전히 경험할 수 있는 완성형 웹 플레이 경로다.
-
-```text
-Phone/Web: 소개 홈 → 카메라 없이 터치로 해보기
-      → 테마 선택(공룡/정글/바다) → 작품 선택(티라노, 브라키오, 스테고 등 9종)
-      → 듀얼 채색 도구: 물방울 '칸 채우기(Fill)' 또는 자유 '브러시(Brush)'
-      → 고화질 일러스트 + SVG 채색 레이어 실시간 multiply 합성
-      → '친구 깨우기! (월드로 보내기)'
-      → 원래 살던 친구(NPC)가 제각각 움직이는 테마 월드에, 내가 칠한 친구가 알/덤불/물방울에서 나타남
-      → 화면/캐릭터 터치 시 먹이·하트·별 파티클 & 통통 튀는 점프 반응 & 사운드
-      → 같은 룸의 이전 작품 누적 관리 및 초기화 지원
-```
-
-- **듀얼 채색 엔진:**
-  - **칸 채우기(Fill) 모드:** 터치한 구역의 SVG `path`를 감지하여 물방울처럼 깔끔하게 전체 색상을 채색.
-  - **자유 브러시(Brush) 모드:** 도안 구역 내부에 클리핑된 상태로 실제 브러시가 문지른 궤적만 채색되며, 획 되돌리기(Undo)와 채색 진행도 집계를 지원.
-  - **레이어 블렌딩:** 도안의 고화질 디즈니 스타일 투명 PNG 일러스트와 사용자가 칠한 색상 레이어를 `mix-blend-mode: multiply`로 결합하여 프로페셔널한 명암과 디테일을 보존.
-- **3대 테마 입체 생태 월드 (v0.6):**
-  - **배경:** 테마별 SVG 배경(160×128). 공룡 월드는 햇살·구름·익룡 떼·화산(용암/연기/불씨)·호수·야자와 고사리 전경을 CSS transform으로 살아 움직이게 한다(filter·blend 애니메이션 없음).
-  - **원래 살던 친구(NPC):** 테마의 도안마다 한 마리씩(공룡은 컬러 스프라이트 `spriteUrl`, 스프라이트가 없는 정글/바다는 영역 색으로 합성)과 하늘의 익룡이 상주한다.
-  - **내 친구:** 내가 칠한 **영역별 색**(`WorldCreation.regionColors`)과 붓 자국을 그대로 구워 월드에 넣는다. 처음 들어올 때 공룡은 알이 깨지며, 정글은 덤불이 흔들리며, 바다는 물방울이 터지며 나타난다.
-  - **종마다 다른 행동:** 티라노는 걷다가 포효(화면 흔들림), 브라키오는 느리게 걷다 풀을 뜯고, 스테고는 꼬리를 휘두르며 뒤뚱, 트리케라는 돌진, 프테라는 날갯짓·활공·급강하, 사자는 덮치기, 코끼리는 나팔, 고래는 점프.
-  - **렌더 구조:** `creatureSprite`가 캐릭터를 부위(머리·꼬리·다리·날개·몸통) 투명 PNG 레이어로 구워 내고, `worldEngine`이 레이어의 transform만 매 프레임 바꾼다. 부위가 겹치지 않아 원본이 제자리에 남는 잔상이 없다.
-- **데이터 보존:** 완성 작품은 `room` 쿼리(기본 로컬 룸)를 키로 브라우저 스토리지에 누적되며, 새로고침 시에도 유지됨.
-- 터치 모드는 릴레이나 TV 없이 완결 동작하지만, TV가 연결된 경우 `load-scene: world`를 통해 TV 대화면으로도 월드 진입 커맨드를 전송할 수 있다.
+2. **TV 탐색**: 폰이 LAN 브로드캐스트/mDNS로 TV 자동 발견 → 사용자가 TV 선택
+3. **연결**: 선택된 TV의 WS URL로 접속 → 서버 릴레이로 폰↔TV 세션 성립
+4. **로비**: 폰이 `load-scene: home` 전송 → TV 홈 화면 표시 (방 코드 QR 표시)
+5. **게임 시작**: **테마/작품 선택은 폰에서 진행** → 폰이 `load-scene: calib` + 페이로드 전송
+6. **캘리브레이션**: TV 화면의 4코너 마커를 폰 카메라로 측정 → 호모그래피 H 계산 → 저장
+7. **플레이**: 폰이 `load-scene: play` + 아트워크 데이터 전송 → TV 렌더링 시작
+8. **추적**: 폰 카메라 30fps → MediaPipe 손 랜드마크 → 검지 끝 → 정규화 → H 적용 → One-Euro 필터
+9. **커맨드 전송**: 폰이 매 프레임 `set-cursor`, 스트로크 시 `draw-stroke`, 탭 시 `fill-region` 전송
+10. **릴레이**: 서버는 방(room)에 접속한 TV로 메시지를 그대로 전달
+11. **렌더**: TV는 커서 표시 + `draw-stroke`로 경로 연결, `fill-region`으로 영역 채움
+12. **판정**: TV가 진행도 집계 → 85% 도달 시 `play-effect: burst` → `load-scene: gallery`
+13. **연출**: 완성 그림이 파티클 버스트와 함께 해당 테마 월드(갤러리 씬)에 배치됨
 
 ## 4. 좌표계 및 캘리브레이션
 
@@ -161,20 +77,14 @@ TV 화면에 4개 코너 마커를 순차 표시하고, 폰 카메라로 각 마
 ## 5. 네트워크 토폴로지
 
 ```
-[Phone] ──ws://server:8180/ws?role=phone&room=ABC123──┐
+[Phone] ──ws://server:7180/ws?role=phone&room=ABC123──┐
                                                        │  Rust Relay
-[TV]    ──ws://server:8180/ws?role=tv&room=ABC123─────┘
+[TV]    ──ws://server:7180/ws?role=tv&room=ABC123─────┘
 ```
 
-HTTPS 공개 배포에서는 위 로컬 주소 대신 same-origin `wss://<host>/ws`를 사용한다.
-
 - 서버는 상태를 거의 갖지 않는 stateless 릴레이(방 코드 → 소켓 맵)이다.
-- 로컬 연결 게임은 같은 LAN에서 동작하며, 공개 배포는 Nginx가 TLS와 same-origin 중계를 담당한다.
+- 같은 LAN에서만 동작하며 외부 인터넷 노출 없음(제로 트러스트: 폐쇄망 가정).
 - 좌표/커맨드 메시지 크기 ≈ 100~300 bytes, 30Hz 기준 ≈ 3~9 KB/s per client — 영상 스트리밍 대비 4자리수 낮은 트래픽.
-- 공개 HTTPS 배포에서는 Nginx가 `/ws`, `/announce`, `/manifest.json`, `/artworks/`를 같은
-  출처로 중계한다. 브라우저는 `https://kids.aircanvas.kr`에서 `wss://kids.aircanvas.kr/ws`로 연결한다.
-- HTTPS 페이지의 `server=http://사설IP:8180` 파라미터는 Mixed Content를 만들 수 있으므로
-  앱이 무시하고 같은 출처로 폴백한다. 로컬 HTTP 개발에서만 사설 IP 오버라이드를 사용한다.
 
 ### 폰 온보딩 (QR + 자동 탐색)
 
@@ -184,31 +94,10 @@ TV 홈 화면이 폰 앱 URL에 `?server=<릴레이 주소>&room=<방코드>`를
 
 ## 6. 콘텐츠 파이프라인
 
-콘텐츠(테마·작품·월드·행동)는 코드가 아니라 **`content-src/`의 YAML이 원본**이다. 새 테마를 추가해도 앱 코드를 고치지 않는다.
-
-```mermaid
-flowchart LR
-  subgraph SRC["content-src (원본, 사람/로컬 도구가 편집)"]
-    B[behaviors.yml<br/>행동 프리셋]
-    T[themes/&lt;id&gt;/theme.yml<br/>라벨·색·월드 장면·등장 연출]
-    A[themes/&lt;id&gt;/&lt;작품&gt;.yml + .png<br/>이름·행동·출처·부위 시드]
-  end
-  I[tools/art/ingest.py<br/>그림 후보 → draft] --> A
-  SRC --> V{build_content.py<br/>검증 --check}
-  V -->|통과| G[매니페스트 + 선화·썸네일·스프라이트<br/>+ themes.generated.ts]
-  G --> CS[content-server]
-  CS -->|manifest.json| P[폰 앱: 테마 칩·월드를 데이터로 구성]
-  G --> TV[tv-art THEME_META]
-```
-
-- 콘텐츠 서버(Nginx)가 `manifest.json` + 에셋을 정적 파일로 서빙한다(`manifest.json`은 **생성물**이므로 직접 고치지 않는다).
-- 폰이 시작 시 매니페스트 버전을 확인하고 달라졌을 때만 다시 받아 캐시한다 → 콘텐츠를 바꾸면 **버전을 올려야** 반영된다.
-- 테마 추가에 필요한 것: 테마 폴더(`theme.yml`)와 작품(`<id>.yml` + `<id>.png`). `world.scene: generic`이면 `palette`/`ambient`/`spawn`만으로
-  월드 장면이 그려지고, 작품의 `behavior`(행동 프리셋 또는 값)가 월드에서의 움직임을 정한다.
-- 코드가 필요한 경우는 "새로운 종류"를 만들 때뿐이다: 새 장면 그래픽(전용 SVG 장면), 새 등장 소품, 새 행동 모드(예: 점프 후 구르기).
-  이때도 이름을 `content-src`에서 고르게 하고 코드는 목록에 한 줄만 추가한다(`docs/content-pipeline.md` §9.5).
-- 그림 후보는 `tools/art/ingest.py`로 초안(draft)을 만들고, 출처·이용 허락(`provenance`)을 반드시 남긴다. draft는 매니페스트에 들어가지 않는다.
-- TV는 콘텐츠 서버가 아니라 폰이 보낸 아트워크만 그리며, 배경색만 `THEME_META`(자동 생성)를 쓴다.
+- 콘텐츠 서버(Nginx)가 `manifest.json` + 썸네일/데이터 에셋을 정적 파일로 서빙
+- 폰이 시작 시 매니페스트 버전 체크 → 변경 시 증분 다운로드 → IndexedDB 캐시
+- 신규 게임/테마 추가는 콘텐츠 서버에 파일 올리기만 하면 폰이 자동 수신, **TV 코드 수정 불필요**
+- 버전별 롤아웃, A/B 테스트, 강제 업데이트 가능
 
 ## 7. 보안·프라이버시
 
@@ -222,34 +111,35 @@ flowchart LR
 MVP(그리기+색칠+월드 투입) 이후 계획은 `docs/roadmap.md` 참조:
 모양 인식, 펜 물체 추적, 다인 동시 입장, 사운드, PWA 오프라인 등.
 
-> **사이트 구성(v0.8):** 이 문서의 §1~§7은 게임(`/play/`) 기준이다. 포털·엄빠를 포함한 전체 구성은 아래 §9와 [`platform-plan.md`](platform-plan.md).
+## 9. M1 Max OrbStack 베타 실행 경로
 
----
-
-## 9. 사이트 구성 (v0.8)
-
-`kids.aircanvas.kr` 하나의 출처 아래 경로로 서비스를 나눈다. 엣지 nginx(`edge-nginx`, 저장소 밖)가 경로를 각 산출물·컨테이너로 보낸다.
+M1 Max에서는 AirCanvas Phone/TV 정적 앱과 Rust 릴레이를 OrbStack Compose 프로젝트
+`aircanvas-kids-beta`로 격리한다. GoVail과 다른 레포가 같은 M1을 사용하더라도 Compose
+프로젝트 이름과 호스트 포트를 공유하지 않는다.
 
 ```mermaid
 flowchart LR
-    B[브라우저] --> E[edge-nginx<br/>kids.aircanvas.kr]
-    E -->|/| P[포털 정적 파일<br/>apps/portal]
-    E -->|/play/| G[게임 폰 앱 정적 파일<br/>apps/phone]
-    E -->|/tv/| T[TV 앱 정적 파일<br/>apps/tv]
-    E -->|/manifest.json /artworks/| C[콘텐츠 서버 정적 파일<br/>content-server]
-    E -->|/ws /announce| R[Rust 릴레이 :8180<br/>server/]
-    E -->|/cafe/ 접두 제거| K[엄빠 Node 컨테이너 :8124<br/>apps/cafe]
-    P -. 카드 링크 .-> G
-    P -. 카드 링크 .-> K
+    Internet[외부 HTTPS/WSS] --> Edge[cy-server platform-edge :443]
+    Edge --> Phone[M1 :7101\nbeta.aircanvas.kr]
+    Edge --> TV[M1 :7100\nbeta-tv.aircanvas.kr]
+    Edge --> Relay[M1 :7180\nbeta-play.aircanvas.kr]
+    Phone --> Content[Phone 이미지 내 /content\nmanifest + artwork]
+    Phone -->|HTTPS/WSS 설정값| Relay
+    TV -->|WSS 설정값| Relay
+    Relay --> Session[방 코드 인메모리 세션]
 ```
 
-- **정적 사이트 루트**: 포털과 게임은 `tools/build-site.sh`(= `make site`)가 `site/`(포털 `/`, 게임 `/play/`)로 조립하고, 이 `site/`를 nginx가 이미 마운트한
-  디렉터리로 동기화한다(배포: `agents/rules.md` §7-8). TV·콘텐츠 마운트는 그대로다.
-- **게임 호환**: 폰 앱 `base`는 `/play/`다. TV QR은 `…/play/?server=…&room=…`를 담는다. 예전 링크(`/?room=…`)는 포털 `index.html`의 인라인 스크립트가 `/play/`로 쿼리 보존 이동시킨다.
-- **엄빠**: 의존성 없는 Node 서버(+정적 UI)다. nginx가 `/cafe/`를 떼고 전달하므로 서버는 `/api/…`를 그대로 받고, UI는 문서 위치에서 `BASE`(`''` 또는 `/cafe`)를 구해 API를 호출한다.
-  예약 현황은 **시뮬레이션 데이터**이며 UI에 데모 안내를 노출한다.
-- **공용 디자인**: `packages/ui/tokens.css`가 색·글꼴·모서리 토큰의 원본이다. 정적 앱(엄빠)은 `npm run sync-ui -w @ht/cafe`로 복사해 쓰고, 복사본이 낡으면 빌드(`--check`)가 실패한다.
-- **서비스 추가**: `apps/portal/services.json`에 항목을 추가하면 포털 카드가 생긴다(필드는 `platform-plan.md` §8).
+- `beta.aircanvas.kr`, `beta-tv.aircanvas.kr`, `beta-play.aircanvas.kr`는 운영
+  `play.aircanvas.kr`와 별도 경로다.
+- Phone/TV 이미지는 `version.json`을, Relay는 `/health`를 통해 `version`과 `git_sha`를
+  노출한다. Git 태그나 컨테이너 `healthy`만으로 배포 완료를 판단하지 않는다.
+- Edge가 TLS를 종료하므로 Relay `/announce`는 `X-Forwarded-Proto: https`를 기준으로
+  `wss://` URL을 만든다. 로컬 LAN 직접 실행에서는 기존처럼 `ws://`를 사용한다.
+- 콘텐츠 매니페스트는 Phone 이미지 안 `/content`로 포함하여 베타 Phone 도메인에서
+  직접 제공한다. 운영 콘텐츠 서버와 캐시는 공유하지 않는다.
+- 카메라 프레임은 계속 Phone 밖으로 전송하지 않으며, Relay는 좌표/커맨드만 중계한다.
+
+---
 
 ## Mermaid 시스템 다이어그램
 
@@ -260,7 +150,6 @@ flowchart TB
     end
 
     subgraph Phone["스마트폰 (브레인)"]
-        TOUCH["Touch Coloring\n(SVG fill/free)"]
         CAM["Camera (getUserMedia)"]
         MP["MediaPipe HandLandmarker (WASM)"]
         CAL["호모그래피 변환\n(카메라 → TV 좌표계)"]
@@ -283,7 +172,6 @@ flowchart TB
     end
 
     ContentServer -. "HTTPS: manifest/에셋" .-> PKG
-    PKG --> TOUCH
     CAM --> MP --> CAL --> SMOOTH
     DISCOVERY --> MATCH
     PKG --> STATE
@@ -301,59 +189,50 @@ flowchart TB
 ```mermaid
 sequenceDiagram
     participant Phone
-    participant User
     participant Server
     participant TV
     participant ContentServer
 
-    alt 카메라 없는 터치 경로
-        User->>Phone: 소개 홈 → 터치 모드
-        Phone->>ContentServer: GET manifest.json (버전 체크)
-        ContentServer-->>Phone: 매니페스트 + 에셋 URL
-        Phone->>Phone: IndexedDB 캐시 및 SVG region 렌더링
-        User->>Phone: 칸 채우기 또는 자유 그리기
-    else 연결 게임 경로
-        Phone->>ContentServer: GET manifest.json (버전 체크)
-        ContentServer-->>Phone: 매니페스트 + 에셋 URL
-        Phone->>Phone: IndexedDB 캐시 저장/갱신
+    Phone->>ContentServer: GET manifest.json (버전 체크)
+    ContentServer-->>Phone: 매니페스트 + 에셋 URL
+    Phone->>Phone: IndexedDB 캐시 저장/갱신
 
-        Phone->>Phone: TV 탐색 (mDNS/HTTP 브로드캐스트)
-        Phone->>User: 발견된 TV 목록 표시
-        User->>Phone: TV 선택
-        Phone->>Server: WS 연결 (role=phone, room=ABC123)
-        TV->>Server: WS 연결 (role=tv, room=ABC123)
-        Server->>Phone: welcome + peer-joined
-        Server->>TV: welcome + peer-joined
+    Phone->>Phone: TV 탐색 (mDNS/HTTP 브로드캐스트)
+    Phone->>User: 발견된 TV 목록 표시
+    User->>Phone: TV 선택
+    Phone->>Server: WS 연결 (role=phone, room=ABC123)
+    TV->>Server: WS 연결 (role=tv, room=ABC123)
+    Server->>Phone: welcome + peer-joined
+    Server->>TV: welcome + peer-joined
 
-        Phone->>Server: load-scene: home
-        Server->>TV: load-scene: home
-        TV->>TV: showBackdrop(theme)
+    Phone->>Server: load-scene: home
+    Server->>TV: load-scene: home
+    TV->>TV: showBackdrop(theme)
 
-        Phone->>Server: load-scene: calib (theme, artworkName, corners)
-        Server->>TV: load-scene: calib
-        TV->>TV: showBackdrop + 코너 마커 표시
+    Phone->>Server: load-scene: calib (theme, artworkName, corners)
+    Server->>TV: load-scene: calib
+    TV->>TV: showBackdrop + 코너 마커 표시
 
-        loop 캘리브레이션 4점
-            Phone->>Phone: 카메라로 마커 촬영 → H 계산
-            Phone->>Server: load-scene: calib (업데이트)
-            Server->>TV: load-scene: calib (마커 이동)
-        end
-
-        Phone->>Server: load-scene: play (artworkRuntime, theme)
-        Server->>TV: load-scene: play
-        TV->>TV: loadArtwork + 렌더 시작
-
-        loop 플레이 매 프레임 (~30Hz)
-            Phone->>Phone: 손 추적 → 호모그래피 → 필터
-            Phone->>Server: set-cursor / draw-stroke / fill-region
-            Server->>TV: 커맨드 릴레이
-            TV->>TV: GameEngine 실행
-        end
-
-        TV->>TV: 진행도 85% 도달 감지
-        TV->>Server: play-effect: burst (via phone relay)
-        Server->>Phone: play-effect: burst
-        Phone->>Server: load-scene: gallery
-        Server->>TV: load-scene: gallery
+    loop 캘리브레이션 4점
+        Phone->>Phone: 카메라로 마커 촬영 → H 계산
+        Phone->>Server: load-scene: calib (업데이트)
+        Server->>TV: load-scene: calib (마커 이동)
     end
+
+    Phone->>Server: load-scene: play (artworkRuntime, theme)
+    Server->>TV: load-scene: play
+    TV->>TV: loadArtwork + 렌더 시작
+
+    loop 플레이 매 프레임 (~30Hz)
+        Phone->>Phone: 손 추적 → 호모그래피 → 필터
+        Phone->>Server: set-cursor / draw-stroke / fill-region
+        Server->>TV: 커맨드 릴레이
+        TV->>TV: GameEngine 실행
+    end
+
+    TV->>TV: 진행도 85% 도달 감지
+    TV->>Server: play-effect: burst (via phone relay)
+    Server->>Phone: play-effect: burst
+    Phone->>Server: load-scene: gallery
+    Server->>TV: load-scene: gallery
 ```

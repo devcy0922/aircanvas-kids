@@ -20,22 +20,13 @@ export function loadHandLandmarker(): Promise<HandLandmarker> {
   if (!landmarkerPromise) {
     landmarkerPromise = (async () => {
       const fileset = await FilesetResolver.forVisionTasks(WASM_BASE);
-      const commonOptions = {
+      return HandLandmarker.createFromOptions(fileset, {
         baseOptions: { modelAssetPath: MODEL_URL, delegate: 'GPU' },
         runningMode: 'VIDEO',
         numHands: 1,
         minHandDetectionConfidence: 0.5,
         minTrackingConfidence: 0.5,
-      } as const;
-      try {
-        return await HandLandmarker.createFromOptions(fileset, commonOptions);
-      } catch {
-        // GPU delegate를 지원하지 않는 노트북/모바일 브라우저는 CPU로 폴백한다.
-        return HandLandmarker.createFromOptions(fileset, {
-          ...commonOptions,
-          baseOptions: { modelAssetPath: MODEL_URL, delegate: 'CPU' },
-        });
-      }
+      });
     })();
   }
   return landmarkerPromise;

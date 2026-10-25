@@ -1,7 +1,3 @@
-/** 제품 릴리스 버전 — Phone/TV UI와 워크스페이스 버전을 함께 관리한다. */
-export const APP_VERSION = '0.8.0';
-export const APP_VERSION_LABEL = `v${APP_VERSION}`;
-
 /**
  * AirCanvas Kids 통신 프로토콜 v0.2 — 단일 진실원
  *
@@ -67,11 +63,10 @@ export interface ErrorMessage {
   message?: string;
 }
 
-/** 테마 id. content-src/themes/<id>/ 폴더 이름이며 새 테마를 만들어도 코드 수정이 필요 없도록 문자열로 둔다 */
-export type ThemeId = string;
+export type ThemeId = 'dino' | 'jungle' | 'ocean';
 
 /** 게임 페이즈 */
-export type GamePhase = 'lobby' | 'connecting' | 'calibrating' | 'playing' | 'gallery' | 'world' | 'error';
+export type GamePhase = 'lobby' | 'connecting' | 'calibrating' | 'playing' | 'gallery' | 'error';
 
 /** 폰 → TV: 테마 선택 (게임 시작 트리거) — 레거시 호환 */
 export interface SelectThemeMessage {
@@ -110,10 +105,10 @@ export type ClientEvent =
 
 /** TV가 실행하는 렌더 커맨드 (폰 → TV 단방향) */
 export type TVCommand =
-  /** 씬 로드: 홈/캘리브/플레이/갤러리/정글 월드 */
-  | { type: 'load-scene'; scene: 'home' | 'calib' | 'play' | 'gallery' | 'world'; payload: LoadScenePayload }
+  /** 씬 로드: 홈/캘리브/플레이/갤러리 */
+  | { type: 'load-scene'; scene: 'home' | 'calib' | 'play' | 'gallery'; payload: LoadScenePayload }
   /** 커서 위치/가시성 업데이트 (매 프레임) */
-  | { type: 'set-cursor'; x: number; y: number; visible: boolean; color?: string; painting?: boolean }
+  | { type: 'set-cursor'; x: number; y: number; visible: boolean; color?: string }
   /** 자유선 그리기: 점 배열로 경로 전송 */
   | { type: 'draw-stroke'; points: { x: number; y: number }[]; color: string }
   /** 영역 채우기: regionId로 식별 */
@@ -135,8 +130,7 @@ export type LoadScenePayload =
   | { scene: 'home'; roomCode: string; tvName?: string }
   | { scene: 'calib'; theme: ThemeId; artworkName: string; corners: { x: number; y: number }[] }
   | { scene: 'play'; artwork: ArtworkRuntime; theme: ThemeId }
-  | { scene: 'gallery'; theme: ThemeId; completed: CompletedArtwork[] }
-  | { scene: 'world'; world: 'jungle'; theme: ThemeId; character: ArtworkRuntime; progress: number };
+  | { scene: 'gallery'; theme: ThemeId; completed: CompletedArtwork[] };
 
 /** 런타임용 아트워크 데이터 (TV로 전송되는 최소 세트) */
 export interface ArtworkRuntime {
@@ -144,7 +138,6 @@ export interface ArtworkRuntime {
   name: string;
   viewBox: string;
   regions: RegionRuntime[];
-  imageUrl?: string;
 }
 
 /** 런타임용 리전 (히트테스트/클립용 path만) */
@@ -226,51 +219,7 @@ export interface ThemePack {
   label: string;
   bgColor: string;
   accentColor: string;
-  /** 테마 칩/버튼에 쓰는 이모지 (없으면 🎨) */
-  emoji?: string;
-  /** 테마 부제 */
-  tagline?: string;
-  /** 월드 장면·등장 연출 설정 (없으면 기본 장면) */
-  world?: WorldPack;
   artworks: ArtworkPack[];
-}
-
-/** 월드 장면 설정 — content-src/themes/<id>/theme.yml의 world */
-export interface WorldPack {
-  title: string;
-  lead: string;
-  /** 내장 장면(dino/jungle/ocean) 또는 palette로 그리는 generic */
-  scene: 'dino' | 'jungle' | 'ocean' | 'generic';
-  /** generic 장면 전용 색 */
-  palette?: { skyTop: string; skyBottom: string; groundTop: string; groundBottom: string; hill: string; sun?: string };
-  /** generic 장면 전용: 배경에 떠다니는 것 */
-  ambient?: 'none' | 'clouds' | 'stars' | 'bubbles' | 'petals';
-  /** 내 친구가 나타나는 연출 */
-  spawn: { prop: 'egg' | 'bush' | 'bubble' | 'cloud' | 'star'; colors: string[]; shell?: boolean };
-  /** 화면을 눌렀을 때 떠오르는 이모지 */
-  tapEmojis: string[];
-}
-
-/** 월드 캐릭터 행동 값 (프리셋이 빌드 때 펼쳐져 작품마다 들어 있다) — content-src/behaviors.yml */
-export interface BehaviorPack {
-  habitat: 'ground' | 'sky' | 'water';
-  size: number;
-  speed: [number, number];
-  stepHz: number;
-  bob: number;
-  lean: number;
-  roll: number;
-  leg: number;
-  tail: number;
-  tailHz: number;
-  head: number;
-  wing: number;
-  neck?: number;
-  /** 나는 높이 범위 [위, 아래] (장면 y, 0~128). 하늘 월드처럼 넓게 날 때 지정 */
-  altitude?: [number, number];
-  dust?: boolean;
-  shout?: string;
-  moves: Array<[string, number]>;
 }
 
 /** 아트워크 패키지 (폰이 다운로드하여 캐시) */
@@ -280,9 +229,6 @@ export interface ArtworkPack {
   viewBox: string;
   regions: RegionPack[];
   thumbnailUrl: string; // 썸네일 이미지 URL
-  imageUrl?: string; // 고품질 공룡/캐릭터 일러스트 도안 URL
-  spriteUrl?: string; // 월드 NPC로 쓰는 컬러 스프라이트 URL (없으면 영역 색으로 합성)
-  behavior?: BehaviorPack; // 월드에서의 움직임 (없으면 기본 걷기)
 }
 
 /** 패키지용 리전 (메타데이터 포함) */
@@ -358,7 +304,6 @@ export function toArtworkRuntime(art: ArtworkPack): ArtworkRuntime {
       label: r.label,
       path: r.path,
     })),
-    imageUrl: art.imageUrl,
   };
 }
 

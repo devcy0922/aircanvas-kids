@@ -1,7 +1,7 @@
 {
   "project": "aircanvas-kids",
   "codeName": "hand-tracking",
-  "updatedAt": "2026-10-21",
+  "updatedAt": "2026-08-24",
   "tasks": [
     {
       "id": "TASK-001",
@@ -13,14 +13,7 @@
       "id": "TASK-002",
       "name": "아키텍처/프로토콜/캘리브레이션/콘텐츠/로드맵 문서 작성",
       "status": "done",
-      "outputs": [
-        "README.md",
-        "docs/architecture.md",
-        "docs/protocol.md",
-        "docs/calibration.md",
-        "docs/content-pipeline.md",
-        "docs/roadmap.md"
-      ]
+      "outputs": ["README.md", "docs/architecture.md", "docs/protocol.md", "docs/calibration.md", "docs/content-pipeline.md", "docs/roadmap.md"]
     },
     {
       "id": "TASK-003",
@@ -57,26 +50,33 @@
       "outputs": ["tools/fake-phone-sim.mjs", "tools/smoke-relay.mjs"]
     },
     {
+      "id": "TASK-008",
+      "name": "실기기 E2E 플레이 테스트 및 추적 안정성 튜닝",
+      "status": "pending",
+      "note": "M2 첫 항목. 조명/거리별 캘리브레이션 재투영 오차 <1.5% 목표"
+    },
+    {
+      "id": "TASK-009",
+      "name": "폰 카메라 HTTPS 접근 구성(basic-ssl 또는 Caddy)",
+      "status": "pending"
+    },
+    {
+      "id": "TASK-010",
+      "name": "pinch 제스처 → TV 브러시 on/off 연결",
+      "status": "pending"
+    },
+    {
       "id": "TASK-011",
       "name": "QR 스캔 폰 연결(TV→폰 서버주소·방코드 자동 전달)",
       "status": "done",
-      "outputs": [
-        "apps/tv/src/scenes/HomeScene.tsx",
-        "packages/protocol/src/index.ts",
-        "apps/phone/src/App.tsx"
-      ],
+      "outputs": ["apps/tv/src/scenes/HomeScene.tsx", "packages/protocol/src/index.ts", "apps/phone/src/App.tsx"],
       "verification": "tv/phone vite build 통과"
     },
     {
       "id": "TASK-012",
       "name": "테마/작품 선택을 폰에서 수행 (select-theme / select-artwork)",
       "status": "done",
-      "outputs": [
-        "packages/protocol/src/index.ts",
-        "apps/tv/src/App.tsx",
-        "apps/tv/src/scenes/HomeScene.tsx",
-        "apps/phone/src/components/PhoneControls.tsx"
-      ],
+      "outputs": ["packages/protocol/src/index.ts", "apps/tv/src/App.tsx", "apps/tv/src/scenes/HomeScene.tsx", "apps/phone/src/components/PhoneControls.tsx"],
       "verification": "전체 빌드 통과"
     },
     {
@@ -122,170 +122,16 @@
     },
     {
       "id": "TASK-015",
-      "name": "fill-region 프로토콜 보완: 좌표 기반 region 판정(fill-at) 지원",
-      "status": "done",
-      "outputs": ["apps/tv/src/engine/TVCommandHandler.ts", "packages/protocol/src/index.ts"],
-      "verification": "TVCommandHandler.handleFillAt 구현 및 protocol TS 컴파일 통과"
+      "name": "fill-region 프로토콜 보완: 좌표 기반 region 판정 지원",
+      "status": "pending",
+      "note": "현재 TVCommandHandler.handleFillRegion은 regionId 필수 → 폰 좌표(x,y) 기반 히트테스트 커맨드(fill-at) 추가 필요"
     },
     {
       "id": "TASK-016",
       "name": "TV /announce 디스커버리 엔드포인트 구현(Rust 서버) 및 폰 자동 연결",
       "status": "done",
-      "outputs": [
-        "server/src/main.rs",
-        "apps/phone/src/lib/tvDiscovery.ts",
-        "apps/phone/src/App.tsx",
-        "docs/tv-kiosk-setup.md"
-      ],
+      "outputs": ["server/src/main.rs", "apps/phone/src/lib/tvDiscovery.ts", "apps/phone/src/App.tsx", "docs/tv-kiosk-setup.md"],
       "verification": "cargo check 및 npm run build 통과"
-    },
-    {
-      "id": "TASK-017",
-      "name": "소개 홈 → 테마 선택 → 명시적 시작 흐름 구현",
-      "status": "done",
-      "outputs": [
-        "apps/tv/src/components/TVHomeScreen.tsx",
-        "apps/tv/src/App.tsx",
-        "apps/phone/src/components/PhoneWelcome.tsx",
-        "apps/phone/src/components/PhoneControls.tsx",
-        "apps/phone/src/lib/gameStateMachine.ts",
-        "docs/architecture.md"
-      ],
-      "verification": "npm run build, cargo check, relay home 커맨드 전달 테스트 통과"
-    },
-    {
-      "id": "TASK-018",
-      "name": "단일 기기 브러시 색칠과 테마별 생태 월드",
-      "status": "done",
-      "outputs": [
-        "apps/phone/src/components/TouchColoringBoard.tsx",
-        "apps/phone/src/components/TouchColoringGame.tsx",
-        "apps/phone/src/components/TouchJungleWorld.tsx",
-        "content-server/manifest.json",
-        "tools/web-debug.py"
-      ],
-      "verification": "make build, npm audit(0건), 390px 실제 브라우저 원형 붓 궤적, 정글/바다 내보내기, 주인공 6회 횡단 통과 (aircanvas-web-1792368274)"
-    },
-    {
-      "id": "TASK-019",
-      "name": "룸 누적형 입체 생태 월드와 정밀 터치 도구",
-      "status": "done",
-      "outputs": [
-        "apps/phone/src/components/TouchColoringBoard.tsx",
-        "apps/phone/src/components/TouchColoringGame.tsx",
-        "apps/phone/src/components/TouchJungleWorld.tsx",
-        "apps/phone/src/styles.css",
-        "tools/web-debug.py"
-      ],
-      "verification": "make check, npm audit(0건), 390px 격리 브라우저 및 공개 URL 세부 확대·5개 경로·종별 동작·룸 누적·전체 초기화 통과 (aircanvas-web-1792379580, aircanvas-web-1792379659)"
-    },
-    {
-      "id": "TASK-020",
-      "name": "공룡/테마 아트워크 고도화 및 살아있는 생태 월드 인터랙션 완성 (v0.4.0)",
-      "status": "done",
-      "outputs": [
-        "packages/tv-art/src/artworks/dino.ts",
-        "packages/tv-art/src/artworks/jungle.ts",
-        "packages/tv-art/src/artworks/ocean.ts",
-        "content-server/manifest.json",
-        "content-server/artworks/thumbnails/*.svg",
-        "apps/phone/src/lib/sound.ts",
-        "apps/phone/src/components/TouchColoringGame.tsx",
-        "apps/phone/src/components/TouchColoringBoard.tsx",
-        "apps/phone/src/components/TouchJungleWorld.tsx",
-        "apps/phone/src/styles.css",
-        "tools/web-debug.py"
-      ],
-      "verification": "make check 통과, Playwright E2E(공개 웹 PRODDBG 룸) 통과 (aircanvas-web-1792452997), /var/www/aircanvas 정적 동기화 배포, 릴레이 서비스 정상 가동"
-    },
-    {
-      "id": "TASK-021",
-      "name": "고품질 디즈니 스타일 공룡 5종 일러스트 에셋 탑재 및 모바일 UI/UX 복원, 생태 월드 상호작용 강화",
-      "status": "done",
-      "outputs": [
-        "content-server/artworks/images/*.png",
-        "content-server/manifest.json",
-        "packages/protocol/src/index.ts",
-        "packages/tv-art/src/artworks/dino.ts",
-        "apps/phone/src/components/TouchColoringBoard.tsx",
-        "apps/phone/src/components/TouchColoringGame.tsx",
-        "apps/phone/src/components/TouchJungleWorld.tsx",
-        "apps/tv/src/engine/GameEngine.ts"
-      ],
-      "verification": "make check 통과, 투명 PNG 에셋 및 multiply 레이어 합성 검증, 공개 배포 완료"
-    },
-    {
-      "id": "TASK-022",
-      "name": "웹 터치 플레이 안정성 및 완성도 정밀 점검 (코드 흔들림 방지, 브라우저 렌더링/이벤트 안정화, 검증)",
-      "status": "done",
-      "outputs": [
-        "apps/phone/src/components/TouchColoringBoard.tsx",
-        "apps/phone/src/components/TouchColoringGame.tsx",
-        "apps/phone/src/components/TouchJungleWorld.tsx",
-        "apps/phone/src/styles.css"
-      ],
-      "verification": "make check 통과 (Phone/TV vite build 및 Cargo check 성공), 모바일 터치 이벤트 클릭 지연 및 씹힘 방지, 동물 펫 파티클 상대 좌표 보정, 한 단계 되돌리기(Undo) 히스토리 탑재"
-    },
-    {
-      "id": "TASK-023",
-      "name": "공룡 색칠 도안 파이프라인 교체(일러스트→영역/선화/썸네일 자동 생성)와 색칠 화면 UI 복구, 완료 체크리스트 도입 (v0.5.0)",
-      "status": "done",
-      "outputs": [
-        "tools/art/build_art.py",
-        "tools/art/seeds.json",
-        "tools/art/source/*.png",
-        "tools/ui-smoke.py",
-        "content-server/manifest.json",
-        "content-server/artworks/images/*-line.png",
-        "content-server/artworks/thumbnails/dino-*.png",
-        "packages/tv-art/src/artworks/dino.ts",
-        "apps/phone/src/styles.css",
-        "apps/phone/src/components/TouchColoringBoard.tsx",
-        "apps/phone/src/components/TouchColoringGame.tsx",
-        "agents/rules.md",
-        "docs/content-pipeline.md",
-        "CHANGELOG.md"
-      ],
-      "verification": "make check 통과, 공개 URL에서 make ui-smoke 통과(390x844·360x740, 도안 5종 17~25칸, 탭1회=1칸=되돌리기1회, 콘솔 오류 없음), 스크린샷 육안 확인"
-    },
-    {
-      "id": "TASK-024",
-      "name": "월드 화면 개편: 부위 레이어 캐릭터·행동 엔진·풍성한 배경·NPC·부화 등장 연출, 영역별 색 보존 (v0.6.0)",
-      "status": "done",
-      "outputs": [
-        "apps/phone/src/lib/creatureSprite.ts",
-        "apps/phone/src/lib/worldEngine.ts",
-        "apps/phone/src/components/WorldScenes.tsx",
-        "apps/phone/src/components/TouchJungleWorld.tsx",
-        "apps/phone/src/components/TouchColoringGame.tsx",
-        "apps/phone/src/components/CameraColoringGame.tsx",
-        "apps/phone/src/components/TouchColoringBoard.tsx",
-        "apps/phone/src/styles.css",
-        "packages/protocol/src/index.ts",
-        "tools/art/build_art.py",
-        "tools/ui-smoke.py",
-        "content-server/artworks/sprites/*.png",
-        "content-server/manifest.json",
-        "docs/architecture.md",
-        "docs/content-pipeline.md",
-        "agents/rules.md",
-        "CHANGELOG.md"
-      ],
-      "verification": "make check 통과, make ui-smoke(월드: 부화·NPC 7마리·5종·색 3가지 보존·6마리 이동·터치 반응·가로 넘침 없음)와 3개 월드 연속 프레임 육안 확인"
-    },
-    {
-      "id": "TASK-025",
-      "name": "콘텐츠 주도 구조: content-src YAML 원본·build_content·ingest·generic 월드 장면·행동 프리셋, 클라우드 LLM 없이 새 테마·작품 추가 런북 (v0.7.0)",
-      "status": "done",
-      "outputs": ["content-src/", "tools/art/build_content.py", "tools/art/ingest.py", "apps/phone/src/lib/worldEngine.ts", "apps/phone/src/components/WorldScenes.tsx", "apps/phone/src/components/TouchJungleWorld.tsx", "apps/phone/src/components/PhoneControls.tsx", "apps/phone/src/components/CameraColoringGame.tsx", "apps/phone/src/styles.css", "apps/tv/src/engine/GameEngine.ts", "packages/protocol/src/index.ts", "packages/tv-art/src/", "content-server/manifest.json", "docs/architecture.md", "docs/content-pipeline.md", "agents/rules.md", "agents/skills/aircanvas-content/SKILL.md", "Makefile", "CHANGELOG.md"],
-      "verification": "build_content.py 재생성 결과가 이전 매니페스트와 영역·URL 동일(behavior만 추가), make check 통과, make ui-smoke 통과, 임시 skytest 테마를 YAML만으로 추가해 폰 크기 스크린샷 확인 후 제거, ingest.py를 배경 합성 JPEG로 시험(24부위 제안·빌드 성공)"
-    },
-    {
-      "id": "TASK-026",
-      "name": "kids 플랫폼화: 포털(/) + 게임(/play/) + 엄빠(/cafe/) 모노레포, 공용 디자인 토큰, 로컬 스킬 3종 (v0.8.0)",
-      "status": "done",
-      "outputs": ["apps/portal/", "apps/cafe/", "packages/ui/", "apps/phone/vite.config.ts", "apps/phone/src/components/PhoneWelcome.tsx", "apps/tv/src/App.tsx", "tools/build-site.sh", "tools/site-smoke.py", "tools/sync-ui.mjs", "tools/ui-smoke.py", "tools/web-debug.py", "Makefile", "docs/platform-plan.md", "docs/architecture.md", "agents/rules.md", "agents/skills/kids-platform/SKILL.md", "agents/skills/kids-cafe/SKILL.md", "agents/skills/kids-design/SKILL.md", "README.md", "CHANGELOG.md"],
-      "verification": "make check 통과, 로컬 nginx 모사 미리보기에서 make site-smoke 전 항목 통과, /play/ 에서 make ui-smoke 통과, TV QR 해독으로 /play/ 주소 확인. 공개 배포·readback 결과는 CHANGELOG v0.8.0 배포 기록 참고"
     }
   ]
 }

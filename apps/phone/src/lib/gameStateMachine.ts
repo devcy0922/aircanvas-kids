@@ -1,6 +1,6 @@
-import { toArtworkRuntime, type TVCommand, type ArtworkPack, type CachedGamePackage } from '@ht/protocol';
+import type { TVCommand, ArtworkPack, CachedGamePackage } from '@ht/protocol';
 
-export type GamePhase = 'lobby' | 'connecting' | 'calibrating' | 'playing' | 'gallery' | 'world' | 'error';
+export type GamePhase = 'lobby' | 'connecting' | 'calibrating' | 'playing' | 'gallery' | 'error';
 
 export interface GameState {
   phase: GamePhase;
@@ -70,15 +70,6 @@ export class GameStateMachine {
     return true;
   }
 
-  /** 선택한 테마의 첫 작품으로 넘어가며 캘리브레이션을 시작한다. */
-  startTheme() {
-    if (!this.package || !this.state.selectedTheme) return false;
-    const theme = this.package.themes.find((t) => t.id === this.state.selectedTheme);
-    const firstArtwork = theme?.artworks[0];
-    if (!firstArtwork) return false;
-    return this.selectArtwork(firstArtwork.id);
-  }
-
   /** 작품 선택 → 캘리브레이션 단계로 */
   selectArtwork(artworkId: string) {
     const artwork = this.package?.artworksCache.get(artworkId);
@@ -118,11 +109,6 @@ export class GameStateMachine {
   onTVConnected(roomCode: string) {
     this.state = { ...this.state, roomCode, tvConnected: true, phase: 'lobby' };
     this.emit();
-    this.sendTVCommand({
-      type: 'load-scene',
-      scene: 'home',
-      payload: { scene: 'home', roomCode, tvName: 'AirCanvas TV' },
-    });
   }
 
   /** TV 연결 끊김 */
@@ -224,14 +210,13 @@ export class GameStateMachine {
 
   /** 홈으로 돌아가기 */
   goHome() {
-    const { roomCode, tvConnected } = this.state;
-    this.state = { ...this.initialState(), roomCode, tvConnected };
+    this.state = this.initialState();
     this.emit();
-    if (roomCode && tvConnected) {
+    if (this.state.roomCode) {
       this.sendTVCommand({
         type: 'load-scene',
         scene: 'home',
-        payload: { scene: 'home', roomCode },
+        payload: { scene: 'home', roomCode: this.state.roomCode },
       });
     }
   }
@@ -249,34 +234,8 @@ export class GameStateMachine {
     }
   }
 
-  /** 채색을 끝내지 않아도 현재 작품을 갤러리 단계로 넘긴다. */
-  skipArtwork() {
-    if (this.state.phase !== 'playing') return;
-    this.transitionToGallery();
-  }
-
-  /** 현재 채색 결과를 정글 월드의 캐릭터로 내보낸다. */
-  exportToWorld() {
-    const { selectedArtwork, selectedTheme } = this.state;
-    if (this.state.phase !== 'gallery' || !selectedArtwork || !selectedTheme) return;
-
-    this.state = { ...this.state, phase: 'world' };
-    this.emit();
-    this.sendTVCommand({
-      type: 'load-scene',
-      scene: 'world',
-      payload: {
-        scene: 'world',
-        world: 'jungle',
-        theme: selectedTheme as any,
-        character: toArtworkRuntime(selectedArtwork),
-        progress: this.state.progress,
-      },
-    });
-  }
-
   /** 핸드 트래킹 포인트 수신 → TV로 커서 커맨드 전송 */
-  onTrackedPoint(x: number, y: number, pinch: boolean, color: string, mode: 'fill' | 'free' = 'fill') {
+  onTrackedPoint(x: number, y: number, _pinch: boolean, color: string) {
     if (this.state.phase !== 'playing') return;
     this.sendTVCommand({
       type: 'set-cursor',
@@ -284,15 +243,7 @@ export class GameStateMachine {
       y,
       visible: true,
       color,
-      // 카메라 핀치를 누르고 있는 동안은 TV가 같은 경로를 연속 채색한다.
-      painting: mode === 'fill' && pinch,
     });
-  }
-
-  /** 손이 프레임에서 사라질 때 커서와 연속 채색을 함께 종료한다. */
-  onTrackingLost() {
-    if (this.state.phase !== 'playing') return;
-    this.sendTVCommand({ type: 'set-cursor', x: 0, y: 0, visible: false });
   }
 
   /** 화면 정규화 좌표(x, y) 기반 영역 채우기 요청 */

@@ -16,8 +16,7 @@ const rateOpt = args.indexOf('--rate');
 const rate = rateOpt > -1 ? Number(args[rateOpt + 1]) : 30;
 const lissajous = args.includes('--lissajous');
 
-const base = process.env.HT_SERVER ?? 'ws://localhost:8180';
-const url = `${base}/ws?role=phone&room=${room}&name=simulator`;
+const url = `ws://localhost:7180/ws?role=phone&room=${room}&name=simulator`;
 console.log(`[sim] ${url} 접속 시도…`);
 
 const ws = new WebSocket(url);

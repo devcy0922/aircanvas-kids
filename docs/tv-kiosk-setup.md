@@ -1,11 +1,11 @@
 # TV Kiosk 모드 설정 가이드
 
 > **목표:** TV 전원을 켜면 자동으로 AirCanvas TV 앱(웹페이지)이 실행되어,
-> 사용자는 방 코드/QR이 표시된 대기 화면에서 폰으로 게임을 시작한다.
+> 사용자가 TV를 별도로 조작할 필요 없이 즉시 게임 대기 상태에 들어간다.
 
 ## 사전 조건
 
-- AirCanvas 릴레이 서버가 LAN 내 PC에서 실행 중 (`http://<서버IP>:8180`)
+- AirCanvas 릴레이 서버가 LAN 내 PC에서 실행 중 (`http://<서버IP>:7180`)
 - TV 앱이 빌드되어 서빙 중 (`http://<서버IP>:7100` 또는 별도 호스트)
 - TV와 서버가 **같은 Wi-Fi/LAN**에 연결
 
@@ -19,7 +19,7 @@ Chrome/Chromium을 Kiosk 모드로 실행하여 전체 화면으로 TV 앱을 �
 # Chromium Kiosk 모드 실행
 chromium-browser --kiosk --noerrdialogs --disable-infobars \
   --disable-session-crashed-bubble --disable-translate \
-  "http://192.0.2.1:7100?room=DEMO01"
+  "http://192.168.0.10:7100?room=DEMO01"
 ```
 
 ### macOS
@@ -28,14 +28,14 @@ chromium-browser --kiosk --noerrdialogs --disable-infobars \
 # Chrome Kiosk 모드
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
   --kiosk --noerrdialogs --disable-infobars \
-  "http://192.0.2.1:7100?room=DEMO01"
+  "http://192.168.0.10:7100?room=DEMO01"
 ```
 
 ### Windows
 
 ```powershell
 # Chrome Kiosk 모드
-Start-Process "chrome.exe" -ArgumentList "--kiosk", "--noerrdialogs", "--disable-infobars", "http://192.0.2.1:7100?room=DEMO01"
+Start-Process "chrome.exe" -ArgumentList "--kiosk", "--noerrdialogs", "--disable-infobars", "http://192.168.0.10:7100?room=DEMO01"
 ```
 
 ### 부팅 시 자동 실행 (Linux systemd)
@@ -51,7 +51,7 @@ Wants=network-online.target
 Type=simple
 User=pi
 Environment=DISPLAY=:0
-ExecStart=/usr/bin/chromium-browser --kiosk --noerrdialogs --disable-infobars --disable-session-crashed-bubble "http://192.0.2.1:7100?room=DEMO01"
+ExecStart=/usr/bin/chromium-browser --kiosk --noerrdialogs --disable-infobars --disable-session-crashed-bubble "http://192.168.0.10:7100?room=DEMO01"
 Restart=on-failure
 RestartSec=5
 
@@ -88,7 +88,7 @@ Raspberry Pi를 TV에 HDMI로 연결하여 전용 Kiosk 장치로 사용한다.
    xset s noblank
 
    # TV 앱 URL (서버 IP와 방 코드 설정)
-   TV_URL="http://192.0.2.1:7100?room=DEMO01"
+   TV_URL="http://192.168.0.10:7100?room=DEMO01"
 
    chromium-browser --kiosk --noerrdialogs --disable-infobars \
      --disable-session-crashed-bubble --disable-translate \
@@ -133,7 +133,7 @@ Raspberry Pi를 TV에 HDMI로 연결하여 전용 Kiosk 장치로 사용한다.
    ```html
    <!DOCTYPE html>
    <html>
-   <head><meta http-equiv="refresh" content="0;url=http://192.0.2.1:7100?room=DEMO01"></head>
+   <head><meta http-equiv="refresh" content="0;url=http://192.168.0.10:7100?room=DEMO01"></head>
    <body></body>
    </html>
    ```
@@ -173,11 +173,5 @@ Raspberry Pi를 TV에 HDMI로 연결하여 전용 Kiosk 장치로 사용한다.
    3. TV 앱이 릴레이 서버에 WS 연결 → 대기 화면 표시
    4. 사용자가 폰 웹 브라우저에서 AirCanvas 폰 앱 접속
    5. 폰이 서버의 /announce API로 TV 자동 발견
-   6. TV가 1대면 3초 후 폰에 자동 선택 후보로 표시된다.
-   7. 사용자가 폰 소개 홈에서 `시작하기`를 눌러야 테마 선택·캘리브레이션·플레이로 진행한다.
+   6. TV가 1대면 3초 후 자동 연결 → 게임 시작!
 ```
-
-카메라 없이 웹 기능만 확인할 때는 TV를 켜지 않고 폰에서
-`카메라 없이 터치로 해보기`를 선택한다. 공개 배포에서는 TV 주소를
-`https://kids.aircanvas.kr/tv/?room=WEB001`로 열고 `server=http://192.168.x.x:8180` 같은
-사설 HTTP 파라미터를 붙이지 않는다.

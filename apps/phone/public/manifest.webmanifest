@@ -2,15 +2,14 @@
   "name": "AirCanvas Kids",
   "short_name": "AirCanvas",
   "description": "에어캔버스 키즈 모바일 컨트롤러",
-  "start_url": "/play/",
-  "scope": "/play/",
+  "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#e63946",
   "icons": [
     {
-      "src": "/play/icon-192.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     }
